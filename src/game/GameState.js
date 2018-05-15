@@ -32,32 +32,6 @@ var game_state = {
           lineCircleCollision( path.body.vertices[1], path.body.vertices[2], [cursor.x, cursor.y], cursor.r )
         );
 
-        ctx.save();
-
-        ctx.fillStyle = "blue";
-        ctx.beginPath();
-        ctx.arc(path.body.vertices[0][0], path.body.vertices[0][1], 4, 0, 2*Math.PI);
-        ctx.fill();
-
-        ctx.fillStyle = "pink";
-        ctx.beginPath();
-        ctx.arc(path.body.vertices[1][0], path.body.vertices[1][1], 4, 0, 2*Math.PI);
-        ctx.fill();
-
-        ctx.fillStyle = "cyan";
-        ctx.beginPath();
-        ctx.arc(path.body.vertices[2][0], path.body.vertices[2][1], 4, 0, 2*Math.PI);
-        ctx.fill();
-
-        ctx.fillStyle = "orange";
-        ctx.beginPath();
-        ctx.arc(path.body.vertices[3][0], path.body.vertices[3][1], 4, 0, 2*Math.PI);
-        ctx.fill();
-
-
-
-        ctx.restore();
-
         if(c){
           path.body.color = "red";
         }
