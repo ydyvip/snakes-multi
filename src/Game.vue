@@ -39,15 +39,6 @@
 
   }
 
-
-
-  var arc1 = new arc(80, 50, 200, Math.PI/2, 0, 10, true);
-  var arc2 = new arc(600, 50, 200, Math.PI, Math.PI/2 , 10, true);
-  var arc3 = new arc(300, 600, 200, Math.PI*1.5, Math.PI, 10, true);
-  var arc4 = new arc(350, 600, 200, Math.PI*2, Math.PI*1.5 , 10, true);
-
-
-
   function draw(){
 
     ctx.fillStyle = 'white';
@@ -57,45 +48,8 @@
 
     player.draw();
     cursor_circle.draw();
-    arc1.draw();
-    arc2.draw();
-    arc3.draw();
-    arc4.draw();
 
 
-/*
-
-    var c1 = circleArcCollision(cursor_circle, arc1);
-    if(c1){
-      arc1.color = "pink";
-    }
-    else {
-      arc1.color = "blue";
-    }
-
-    var c = circleArcCollision(cursor_circle, arc2);
-    if(c){
-      arc2.color = "pink";
-    }
-    else {
-      arc2.color = "blue";
-    }
-
-    var c = circleArcCollision(cursor_circle, arc3);
-    if(c){
-      arc3.color = "pink";
-    }
-    else {
-      arc3.color = "blue";
-    }
-    var c = circleArcCollision(cursor_circle, arc4);
-    if(c){
-      arc4.color = "pink";
-    }
-    else {
-      arc4.color = "blue";
-    }
-*/
   //  GameState.detectCollision([player]);
     GameState.curosorPlayerCollision(cursor_circle, player);
 
