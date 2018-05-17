@@ -4,8 +4,10 @@
 
     <form-switcher  v-if="!loggedAs" v-on:successfull-login="loggedAs=$event"/>
 
-    <user-panel  v-if="loggedAs" v-bind:username="loggedAs" />
-    <game v-if="loggedAs"/>
+    <template v-if="loggedAs">
+      <user-panel v-bind:username="loggedAs" />
+      <component v-bind:is="GameList_Game"></component>
+    </template>
 
   </div>
 
@@ -16,14 +18,16 @@
   var FormSwitcher = require("./FormSwitcher.vue");
   var UserPanel = require("./UserPanel.vue");
   var Game = require("./Game.vue");
+  var GameList = require("./GameList.vue");
 
   module.exports = {
     name: 'app',
     data: () => ({
-      loggedAs: "kubus" // TODO: debug
+      loggedAs: "kubus", // TODO: debug, default to null,
+      GameList_Game: GameList
     }),
     components: {
-      FormSwitcher, UserPanel, Game
+      FormSwitcher, UserPanel, Game, GameList
     }
   }
 </script>
