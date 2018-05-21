@@ -2,12 +2,13 @@
 
   <div class="game-box">
 
-    <div v-for="game in games" style="height: 45px;">
-      <img v-for="n in game.cnt_players" src="img/circle-24-on.png" />
+    <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
+
+      <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.png" />
       <img v-for="n in 6-game.cnt_players" src="img/circle-24-off.png" />
       <span class="game-name">{{game.name}}</span>
       <span class="bet">{{game.bet}} Satoshi</span>
-      <button><b>JOIN</b></button>
+      <button v-on:click="joinToGame( game.name )"><b>JOIN</b></button>
     </div>
 
   </div>
@@ -16,29 +17,111 @@
 
 <script>
 
+  var io = require("socket.io-client")();
+
   module.exports = {
-
-
 
     data: ()=>({
 
-      games: [
-        {
-          cnt_players: 4,
-          players: ["john", "paul", "sandre", "kuba"],
-          name: "Fast !",
-          bet: 250 // satoshi amount
-        },
-        {
-          cnt_players: 3,
-          players: ["piotr", "sam", "jacob"],
-          name: "Faster !",
-          bet: 500 // satoshi amount
-        }
-
-      ]
+      games: [],
+      currentRoom: null
 
     }),
+
+    created: function(){
+
+      this.refreshGameList();
+
+      io.on("updategamelist", (games)=>{
+
+        this.games = games;
+
+      })
+
+      io.on("roomchanged", this.updateGamelist );
+
+
+    },
+
+    props: ["loggedAs"],
+
+    methods: {
+
+      refreshGameList: function(){
+
+        io.emit("getgamelist");
+
+      },
+
+      updateGamelist: function(player, previousroom, nextroom){
+
+        // update previous game
+        this.games.findIndex( (game)=>{
+
+          if(game.name == previousroom){
+
+            // remove player from list
+            var index = game.players.findIndex((player_item)=>{
+
+              if(player_item == player){
+                game.cnt_players--;
+                return true;
+              }
+
+            });
+            game.players.splice(index, 1);
+            return true;
+          }
+
+        })
+
+        // update new game
+        this.games.findIndex( (game)=>{
+
+          if(game.name == nextroom){
+            game.cnt_players++;
+            game.players.push(player);
+            return true;
+          }
+
+        })
+
+        return false;
+
+      },
+
+      getRoomWithName: function(gamename){
+
+        var room = this.games.find( function(game){
+
+          if(game.name == gamename)
+            return true;
+
+        });
+
+        return room;
+
+      },
+
+      joinToGame: function( gamename ) {
+
+        var room = this.getRoomWithName(gamename);
+        if(!room || room.cnt_players>=6){
+          return; // TODO: room is full
+        }
+
+        this.updateGamelist(this.loggedAs, this.currentRoom, gamename);
+        this.currentRoom = gamename;
+
+        io.emit("join", {
+          player: this.loggedAs,
+          roomname: gamename
+        } );
+
+      }
+
+    }
+
 
 
 
@@ -47,6 +130,14 @@
 </script>
 
 <style scoped>
+
+.room {
+  padding: 5px 0;
+}
+
+.current_room {
+  background-color: #abc;
+}
 
 button {
   color: black;

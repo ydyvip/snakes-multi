@@ -5,6 +5,13 @@ var session = require("express-session");
 var passport = require("passport");
 var JsonStrategy = require("passport-json").Strategy;
 
+var app = express();
+
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
+
+var socket = require("./socket.js")(io);
+
 var login = require("./API/login.api.js");
 var register = require("./API/register.api.js");
 
@@ -43,7 +50,7 @@ passport.use( new JsonStrategy(
 	}
 ))
 
-var app = express();
+
 
 app.use(express.static("dist"));
 app.use(session({ secret: "TeraXaxzz" }));
@@ -58,7 +65,7 @@ var db = require("./db.js");
 
 db.promise.then( function(){
 
-	app.listen(3004, function(){
+	http.listen(3004, function(){
 		console.log("App listen on 3004 port");
 	});
 

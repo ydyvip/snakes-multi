@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "watchify": "watchify -vd -p browserify-hmr -e src/main.js -o dist/build.js",
-    "serve": "nodemon --watch API --watch DB --watch index.js",
+    "serve": "nodemon --watch API --watch DB --watch index.js --watch socket.js",
     "db": "mongod --dbpath=data",
     "dev": "npm-run-all --parallel watchify db",
     "build": "cross-env NODE_ENV=production browserify -g envify src/main.js | uglifyjs -c warnings=false -m > dist/build.js"
@@ -20,6 +20,7 @@
     "mongodb": "^3.0.5",
     "passport": "^0.4.0",
     "passport-json": "^1.2.0",
+    "socket.io": "^2.1.0",
     "triangle-circle-collision": "^1.0.4",
     "vue": "^2.0.1",
     "vue-checkbox-radio": "^0.6.0"

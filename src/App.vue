@@ -6,7 +6,7 @@
 
     <template v-if="loggedAs">
       <user-panel v-bind:username="loggedAs" />
-      <component v-bind:is="GameList_Game"></component>
+      <component v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs"></component>
     </template>
 
   </div>
