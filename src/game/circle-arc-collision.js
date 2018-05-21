@@ -40,7 +40,7 @@ function circleArcCollision (circle, arc ){
 
     }
 
-    
+
     var aw = arc.width;
 
     var innerRadius = ar - aw/2;
@@ -60,7 +60,7 @@ function circleArcCollision (circle, arc ){
 
 
     var dist = Math.sqrt(dx * dx + dy * dy);
-    var dir = Math.atan2(dy, dx); // BUG: atan2 to jest kurwiszon maly
+    var dir = Math.atan2(dy, dx); 
 
     //  console.log(start + " : " + end);
 
