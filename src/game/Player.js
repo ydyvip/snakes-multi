@@ -20,13 +20,13 @@ function getRad2(degree){
 
 var player = {
   name: "kubus",
-  speed: 1,
+  speed: 3,
   angle: 45,
   dir: "straight",
   right_angle: 0,
   left_angle: 0,
   color: "black",
-  weight: 15,
+  weight: 10,
   r: 50,
   paths: [],
   curpath: {
@@ -49,9 +49,8 @@ var player = {
 
     var ctx = this.ctx;
 
-
+    // drawing done paths
   	for(var i = 0; i<this.paths.length; i++){
-
 
       ctx.strokeStyle = this.paths[i].body.color;
       ctx.lineCap="round";
@@ -62,13 +61,54 @@ var player = {
 
   	}
 
-  	this.go();
+    // drawing current path
+    this.ctx.lineWidth = this.weight;
+
+    if(this.dir == "straight"){
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.curpath.start.x, this.curpath.start.y);
+      this.ctx.lineTo(this.curpath.end.x, this.curpath.end.y);
+      this.ctx.stroke();
+  	}
+
+    if(this.dir == "left"){
+      this.ctx.beginPath();
+  	  this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad( this.angle + 90), true);
+  	  this.ctx.stroke();
+    }
+
+    if(this.dir == "right"){
+      this.ctx.beginPath();
+  	  this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad( this.angle - 90));
+  	  this.ctx.stroke();
+    }
+
+  },
+
+  savePath: function(path_state){
+
+    var path = new Path2D();
+
+    if(path_state.body.type == "line"){
+      path.moveTo(path_state.body.line[0][0], path_state.body.line[0][1]);
+  		path.lineTo(path_state.body.line[1][0], path_state.body.line[1][1]);
+    }
+
+    if( path_state.body.type == "arc" ){
+      path.arc( path_state.body.arc.x, path_state.body.arc.y, path_state.body.arc.r, path_state.body.arc.start, path_state.body.arc.end, path_state.body.arc.counterclockwise);
+    }
+
+    path.body = path_state.body;
+    this.paths.push(path);
 
   },
 
   changeDir: function(new_dir){
 
-  	var path = new Path2D();
+
+  	var path = {};
+
+    path.state = null;
     path.body = {};
     path.body.weight = this.weight;
     path.body.color = path.body.defaultColor = "black";
@@ -103,10 +143,7 @@ var player = {
         this.curpath.start.y + right_side_sin
       ]);
 
-
-
-  		path.moveTo(this.curpath.start.x, this.curpath.start.y);
-  		path.lineTo(this.curpath.end.x, this.curpath.end.y);
+      path.body.line = [ [this.curpath.start.x, this.curpath.start.y], [this.curpath.end.x, this.curpath.end.y] ];
 
   		this.curpath.start.x = this.curpath.end.x;
   		this.curpath.start.y = this.curpath.end.y;
@@ -130,14 +167,9 @@ var player = {
       }
 
       var arc = new Arc(this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad(this.angle + angle_90), this.weight, counterclockwise  );
-      path.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad( this.angle + angle_90), counterclockwise);
       path.body.arc = arc;
 
   	}
-
-
-  	this.paths.push(path);
-
 
   	if(new_dir == "straight"){
 
@@ -165,11 +197,12 @@ var player = {
   	}
 
   	this.dir = new_dir;
+
+    return path;
+
   },
 
   go: function(){
-
-    this.ctx.lineWidth = this.weight;
 
   	if(this.dir == "straight"){
   		this.goStraight();
@@ -181,24 +214,12 @@ var player = {
   		this.goLeft();
   	}
 
-  //  this.ctx.save();
-  //  this.ctx.fillStyle="red";
-  //  this.ctx.beginPath();
-  //  this.ctx.arc(this.curpath.end.x, this.curpath.end.y, 15/2, 0, 2*Math.PI);
-  //  this.ctx.fill();
-  //  this.ctx.restore();
-
   },
 
   goStraight: function(){
 
-	this.curpath.end.x += Math.cos(getRad(this.angle)) * this.speed;
-	this.curpath.end.y += Math.sin(getRad(this.angle)) * this.speed;
-
-	this.ctx.beginPath();
-	this.ctx.moveTo(this.curpath.start.x, this.curpath.start.y);
-	this.ctx.lineTo(this.curpath.end.x, this.curpath.end.y);
-	this.ctx.stroke();
+    this.curpath.end.x += Math.cos(getRad(this.angle)) * this.speed;
+    this.curpath.end.y += Math.sin(getRad(this.angle)) * this.speed;
 
   },
 
@@ -210,10 +231,6 @@ var player = {
 	  var degree_speed = 360 / (2*Math.PI*this.r) * this.speed;
 
 	  this.angle-=degree_speed;
-	  this.ctx.beginPath();
-	  this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad( this.angle + 90), true);
-	  this.ctx.stroke();
-
 
   },
 
@@ -225,11 +242,6 @@ var player = {
 	  var degree_speed = 360 / (2*Math.PI*this.r) * this.speed;
 
 	  this.angle+=degree_speed;
-
-	  this.ctx.beginPath();
-	  this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad( this.angle - 90));
-	  this.ctx.stroke();
-
 
   }
 

@@ -47,8 +47,9 @@
 
 
     player.draw();
-    cursor_circle.draw();
+    player.go();
 
+    cursor_circle.draw();
 
   //  GameState.detectCollision([player]);
     GameState.curosorPlayerCollision(cursor_circle, player);
@@ -69,19 +70,23 @@
     var right = new Keyboard("ArrowRight");
 
     left.press = function(){
-      player.changeDir("left");
+      var path = player.changeDir("left");
+      player.savePath(path);
     }
     left.release = function(){
       if(!right.isDown)
-        player.changeDir("straight");
+        var path = player.changeDir("straight");
+        player.savePath(path);
     }
 
     right.press = function(){
-        player.changeDir("right");
+        var path = player.changeDir("right");
+        player.savePath(path);
     }
     right.release = function(){
       if(!left.isDown)
-        player.changeDir("straight");
+        var path = player.changeDir("straight");
+        player.savePath(path);
     }
 
   }

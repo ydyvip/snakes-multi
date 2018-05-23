@@ -10,7 +10,7 @@ var app = express();
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
-var socket = require("./socket.js")(io);
+var lobby = require("./lobby.js")(io);
 
 var login = require("./API/login.api.js");
 var register = require("./API/register.api.js");

@@ -24,7 +24,7 @@
     name: 'app',
     data: () => ({
       loggedAs: "kubus", // TODO: debug, default to null,
-      GameList_Game: GameList
+      GameList_Game: Game
     }),
     components: {
       FormSwitcher, UserPanel, Game, GameList
