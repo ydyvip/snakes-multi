@@ -82,6 +82,10 @@
 
         for( let player_item of players){
 
+          if(player_state_item.name == player_me.name){
+            continue;
+          }
+
           if(player_state_item.name == player_item.name ){
 
             player_item.curpath.end = player_state_item.curpath_end;
