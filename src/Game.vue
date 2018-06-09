@@ -11,12 +11,19 @@
 
   var ctx = null;
   var canvas = null;
+  var players = [];
+  var player_me = null;
+
+  // required by gameloop to work on clientside
+  process.hrtime = require('browser-process-hrtime');
+  require("setimmediate");
+
+  const gameloop = require('node-gameloop');
 
   var Keyboard = require("./game/Keyboard.js");
-  var player = require("./game/Player.js");
+  var Player = require("./game/Player.js");
   var GameState = require("./game/GameState.js");
   var circleArcCollision = require("./game/circle-arc-collision.js");
-
 
   var arc = require("./game/arc.js");
   var circle = require("./game/circle.js");
@@ -42,68 +49,92 @@
   function draw(){
 
     ctx.fillStyle = 'white';
-    ctx.lineCap = "round";
+
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-
-    player.draw();
-    player.go();
+    players.forEach( (player_item)=>{
+      player_item.draw();
+    })
 
     cursor_circle.draw();
 
-  //  GameState.detectCollision([player]);
-    GameState.curosorPlayerCollision(cursor_circle, player);
-
     window.requestAnimationFrame(draw);
 
+  }
+
+  function setupAuthorativeServer(io){
+
+    io.on("dirchanged", (playername, newdir, done_path)=>{
+
+      for( let player_item of players){
+        if( player_item.name == playername){
+          player_item.savePath(done_path);
+          player_item.changeDir(newdir);
+          break;
+        }
+      }
+
+    })
+
+    io.on("stateupdate", (player_states)=>{
+
+      for( let player_state_item of player_states ){
+
+        for( let player_item of players){
+
+          if(player_state_item.name == player_item.name ){
+
+            player_item.curpath.end = player_state_item.curpath_end;
+            player_item.angle = player_state_item.angle;
+
+
+          }
+
+        }
+
+      }
+
+    })
+
 
   }
 
-  function getRad(degree){
-    var radians = degree * Math.PI/180;
-    return radians;
-  }
-
-  function setupKeyboard(){
+  function setupKeyboard(io){
 
     var left = new Keyboard("ArrowLeft");
     var right = new Keyboard("ArrowRight");
 
     left.press = function(){
-      var path = player.changeDir("left");
-      player.savePath(path);
+      io.emit("left");
+      var path = player_me.changeDir("left");
+      player_me.savePath(path);
     }
     left.release = function(){
       if(!right.isDown)
-        var path = player.changeDir("straight");
-        player.savePath(path);
+        io.emit("straight");
+        var path = player_me.changeDir("straight");
+        player_me.savePath(path);
     }
 
     right.press = function(){
-        var path = player.changeDir("right");
-        player.savePath(path);
+        io.emit("right");
+        var path = player_me.changeDir("right");
+        player_me.savePath(path);
     }
     right.release = function(){
       if(!left.isDown)
-        var path = player.changeDir("straight");
-        player.savePath(path);
+        io.emit("straight");
+        var path = player_me.changeDir("straight");
+        player_me.savePath(path);
     }
 
   }
 
   module.exports = {
 
+    props: ["initial-states", "loggedAs"],
+
     mounted: function(){
-
-      // Converts from degrees to radians.
-      Math.radians = function(degrees) {
-        return degrees * Math.PI / 180;
-      };
-
-      // Converts from radians to degrees.
-      Math.degrees = function(radians) {
-        return radians * 180 / Math.PI;
-      };
 
       canvas = document.getElementById("canvas");
 
@@ -122,11 +153,43 @@
       ctx = canvas.getContext("2d");
       GameState.ctx = ctx;
 
-      setupKeyboard();
+      setupKeyboard(this.$io);
+      setupAuthorativeServer(this.$io);
+
 
       window.ctx = ctx;
 
-      player.ctx = ctx;
+
+
+      this.initialStates.forEach( (initial_state_item)=> {
+
+        var player_item = new Player(initial_state_item);
+        player_item.ctx = ctx;
+
+        players.push(player_item);
+
+        if(initial_state_item.player_name == this.loggedAs ){
+          player_me = player_item;
+        }
+
+      })
+
+
+
+      // Mount gameloop
+
+      gameloop.setGameLoop( function(delta){
+
+        players.forEach( (player_item)=>{
+          player_item.go(delta);
+        })
+
+        GameState.detectCollision(players);
+        //GameState.curosorPlayerCollision(cursor_circle, player);
+
+      }, 1000/60); // Gamestate update every 30fps
+
+
 
       window.requestAnimationFrame(draw);
 

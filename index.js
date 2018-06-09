@@ -8,9 +8,12 @@ var JsonStrategy = require("passport-json").Strategy;
 var app = express();
 
 var http = require("http").Server(app);
-var io = require("socket.io")(http);
 
-var lobby = require("./lobby.js")(io);
+// Mount io server
+var io = require("socket.io")(http);
+io.on("connection", function(socket){
+    var lobby = require("./lobby.js")(io, socket);
+})
 
 var login = require("./API/login.api.js");
 var register = require("./API/register.api.js");

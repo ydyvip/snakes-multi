@@ -17,8 +17,6 @@
 
 <script>
 
-  var io = require("socket.io-client")();
-
   module.exports = {
 
     data: ()=>({
@@ -32,13 +30,15 @@
 
       this.refreshGameList();
 
-      io.on("updategamelist", (games)=>{
+      this.$io.on("updategamelist", (games)=>{
 
         this.games = games;
 
       })
 
-      io.on("roomchanged", this.updateGamelist );
+      this.$io.on("roomchanged", this.updateGamelist );
+
+      this.$io.on("gamestart", this.gameStart);
 
 
     },
@@ -47,9 +47,15 @@
 
     methods: {
 
+      gameStart: function(initial_states){
+
+        this.$emit("gamestart", initial_states);
+
+      },
+
       refreshGameList: function(){
 
-        io.emit("getgamelist");
+        this.$io.emit("getgamelist");
 
       },
 
@@ -113,10 +119,7 @@
         this.updateGamelist(this.loggedAs, this.currentRoom, gamename);
         this.currentRoom = gamename;
 
-        io.emit("join", {
-          player: this.loggedAs,
-          roomname: gamename
-        } );
+        this.$io.emit("join", this.loggedAs, gamename);
 
       }
 

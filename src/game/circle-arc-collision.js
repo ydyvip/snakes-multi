@@ -62,8 +62,6 @@ function circleArcCollision (circle, arc ){
     var dist = Math.sqrt(dx * dx + dy * dy);
     var dir = Math.atan2(dy, dx); 
 
-    //  console.log(start + " : " + end);
-
     if(dir<0){
       dir = 2*Math.PI + dir;
     }

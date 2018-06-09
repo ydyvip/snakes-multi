@@ -6,7 +6,7 @@
 
     <template v-if="loggedAs">
       <user-panel v-bind:username="loggedAs" />
-      <component v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs"></component>
+      <component v-bind:initial-states="initial_states" v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs" v-on:gamestart="gamestart"></component>
     </template>
 
   </div>
@@ -23,9 +23,16 @@
   module.exports = {
     name: 'app',
     data: () => ({
-      loggedAs: "kubus", // TODO: debug, default to null,
-      GameList_Game: Game
+      loggedAs: "a" + Math.random(), // TODO:  on debug loggedAs, default to null,
+      GameList_Game: GameList,
+      initial_states: null
     }),
+    methods: {
+      gamestart: function(initial_states){
+        this.GameList_Game = Game;
+        this.initial_states = initial_states;
+      }
+    },
     components: {
       FormSwitcher, UserPanel, Game, GameList
     }
