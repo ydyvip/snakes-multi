@@ -64,9 +64,11 @@
 
   function setupAuthorativeServer(io){
 
-    io.on("reapplycurpath", (curpath)=>{
+    io.on("reapplycurpath", (curpath, dir, angle)=>{
 
-      player_me.curpath= curpath;
+      player_me.curpath = curpath;
+      player_me.dir = dir;
+      player_me.angle = angle;
 
     })
 

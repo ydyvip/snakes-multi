@@ -140,7 +140,7 @@ module.exports = function( io_, socket ){
     var done_path = socket.player_state.changeDir("left"); // here is error
     socket.player_state.savePath(done_path, true);
 
-    socket.emit("reapplycurpath", socket.player_state.curpath);
+    socket.emit("reapplycurpath", socket.player_state.curpath, socket.player_state.dir, socket.player_state.angle);
     io.to(socket.currentRoom).emit("dirchanged", socket.playername, "left", done_path );
 
   })
@@ -150,7 +150,7 @@ module.exports = function( io_, socket ){
     var done_path = socket.player_state.changeDir("right");
     socket.player_state.savePath(done_path, true);
 
-    socket.emit("reapplycurpath", socket.player_state.curpath);
+    socket.emit("reapplycurpath", socket.player_state.curpath, socket.player_state.dir, socket.player_state.angle);
     io.to(socket.currentRoom).emit("dirchanged", socket.playername, "right", done_path );
 
   })
@@ -160,7 +160,7 @@ module.exports = function( io_, socket ){
     var done_path = socket.player_state.changeDir("straight");
     socket.player_state.savePath(done_path, true);
 
-    socket.emit("reapplycurpath", socket.player_state.curpath);
+    socket.emit("reapplycurpath", socket.player_state.curpath, socket.player_state.dir, socket.player_state.angle);
     io.to(socket.currentRoom).emit("dirchanged", socket.playername, "straight", done_path );
 
 
