@@ -56,7 +56,7 @@ var game_state = {
 
   detectCollision: function(players){
 
-    var timestamp = new Date().getTime();
+
 
     players.forEach( function(player){
 
@@ -71,7 +71,7 @@ var game_state = {
       if(c){
         player.speed = 0;
       }
-      
+
       players.forEach( function(player_against){
 
         // test for currently generated path
@@ -123,6 +123,7 @@ var game_state = {
 
         player_against.paths.forEach( function(path, index){
 
+          var timestamp = new Date().getTime();
           if(timestamp - path.body.timestamp < 1000){
             return;
           }

@@ -138,25 +138,31 @@ module.exports = function( io_, socket ){
   socket.on("left", function(){
 
     var done_path = socket.player_state.changeDir("left"); // here is error
+    socket.player_state.savePath(done_path, true);
 
-    socket.broadcast.to(socket.currentRoom).emit("dirchanged", socket.playername, "left", done_path );
-
+    socket.emit("reapplycurpath", socket.player_state.curpath);
+    io.to(socket.currentRoom).emit("dirchanged", socket.playername, "left", done_path );
 
   })
 
   socket.on("right", function(){
 
     var done_path = socket.player_state.changeDir("right");
+    socket.player_state.savePath(done_path, true);
 
-    socket.broadcast.to(socket.currentRoom).emit("dirchanged", socket.playername, "right", done_path );
+    socket.emit("reapplycurpath", socket.player_state.curpath);
+    io.to(socket.currentRoom).emit("dirchanged", socket.playername, "right", done_path );
 
   })
 
   socket.on("straight", function(){
 
     var done_path = socket.player_state.changeDir("straight");
+    socket.player_state.savePath(done_path, true);
 
-    socket.broadcast.to(socket.currentRoom).emit("dirchanged", socket.playername, "straight", done_path );
+    socket.emit("reapplycurpath", socket.player_state.curpath);
+    io.to(socket.currentRoom).emit("dirchanged", socket.playername, "straight", done_path );
+
 
   })
 

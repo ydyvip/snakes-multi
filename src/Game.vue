@@ -64,13 +64,21 @@
 
   function setupAuthorativeServer(io){
 
+    io.on("reapplycurpath", (curpath)=>{
+
+      player_me.curpath= curpath;
+
+    })
+
     io.on("dirchanged", (playername, newdir, done_path)=>{
+
 
       for( let player_item of players){
         if( player_item.name == playername){
-          player_item.savePath(done_path);
+
           player_item.changeDir(newdir);
-          break;
+          player_item.savePath(done_path);
+
         }
       }
 
@@ -82,9 +90,9 @@
 
         for( let player_item of players){
 
-          if(player_state_item.name == player_me.name){
-            continue;
-          }
+          // if(player_me.name == player_state_item.name){
+            // continue;
+          // }
 
           if(player_state_item.name == player_item.name ){
 
@@ -109,27 +117,29 @@
     var right = new Keyboard("ArrowRight");
 
     left.press = function(){
-      io.emit("left");
-      var path = player_me.changeDir("left");
-      player_me.savePath(path);
+     io.emit("left");
+     var path = player_me.changeDir("left");
+     // player_me.savePath(path);
     }
     left.release = function(){
-      if(!right.isDown)
+      if(!right.isDown){
         io.emit("straight");
-        var path = player_me.changeDir("straight");
-        player_me.savePath(path);
+       var path = player_me.changeDir("straight");
+       // player_me.savePath(path);
+      }
     }
 
     right.press = function(){
         io.emit("right");
-        var path = player_me.changeDir("right");
-        player_me.savePath(path);
+       var path = player_me.changeDir("right");
+       // player_me.savePath(path);
     }
     right.release = function(){
-      if(!left.isDown)
-        io.emit("straight");
-        var path = player_me.changeDir("straight");
-        player_me.savePath(path);
+      if(!left.isDown){
+       io.emit("straight");
+       var path = player_me.changeDir("straight");
+       // player_me.savePath(path);
+     }
     }
 
   }

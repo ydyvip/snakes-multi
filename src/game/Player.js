@@ -22,6 +22,8 @@ var Player = function(initial_state){
   this.r = 50;
   this.paths = [],
 
+  this.path_cnt = 0;
+
   this.curpath = {
     start: {
       x: initial_state.pos.x,
@@ -83,24 +85,38 @@ Player.prototype.draw = function(){
 
 }
 
-Player.prototype.savePath = function(path_state){
+Player.prototype.savePath = function(path_state, serv){
 
   if(!path_state)
     return;
 
-  var path = new Path2D();
+  var path = {};
 
-  if(path_state.body.type == "line"){
-    path.moveTo(path_state.body.line[0][0], path_state.body.line[0][1]);
-    path.lineTo(path_state.body.line[1][0], path_state.body.line[1][1]);
-  }
+  if(!serv){
 
-  if( path_state.body.type == "arc" ){
-    path.arc( path_state.body.arc.x, path_state.body.arc.y, path_state.body.arc.r, path_state.body.arc.start, path_state.body.arc.end, path_state.body.arc.counterclockwise);
+    path = new Path2D();
+
+    if(path_state.body.type == "line"){
+      path.moveTo(path_state.body.line[0][0], path_state.body.line[0][1]);
+      path.lineTo(path_state.body.line[1][0], path_state.body.line[1][1]);
+    }
+
+    if( path_state.body.type == "arc" ){
+      path.arc( path_state.body.arc.x, path_state.body.arc.y, path_state.body.arc.r, path_state.body.arc.start, path_state.body.arc.end, path_state.body.arc.counterclockwise);
+    }
+    
   }
 
   path.body = path_state.body;
-  this.paths.push(path);
+
+  if(path_state.body.id < this.path_cnt){
+
+    this.paths[path_state.body.id] = path;
+
+  }
+  else{
+    this.paths.push(path);
+  }
 
 }
 
@@ -207,6 +223,8 @@ Player.prototype.changeDir = function(new_dir){
   }
 
   this.dir = new_dir;
+
+  path.body.id = this.path_cnt++;
 
   return path;
 
