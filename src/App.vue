@@ -23,7 +23,7 @@
   module.exports = {
     name: 'app',
     data: () => ({
-      loggedAs: "a" + Math.random(), // TODO:  on debug loggedAs, default to null,
+      loggedAs: new String("a" + Math.random()*10).substr(0,6), // TODO:  on debug loggedAs, default to null,
       GameList_Game: GameList,
       initial_states: null
     }),
@@ -39,14 +39,17 @@
   }
 </script>
 
+<style scoped>
+
+  @import url('https://fonts.googleapis.com/css?family=Titillium+Web');
+
+  * {
+    font-family: 'Titillium Web', sans-serif;
+  }
+
+</style>
+
 <style>
-
-@import url('https://fonts.googleapis.com/css?family=Titillium+Web');
-
-* {
-  font-family: 'Titillium Web', sans-serif;
-}
-
  body {
    background:
    radial-gradient(black 15%, transparent 16%) 0 0,

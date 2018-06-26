@@ -1,8 +1,17 @@
 
 <template>
 
-  <canvas id="canvas"  style="margin: 0 auto;" width="800px" height="800px">
+  <div>
+
+  <transition v-on:enter="enter_countdown_active" v-on:leave="leave_countdown_active">
+    <div class="countdown" v-if="countdown_active">New round will start in {{countdown_counter}} seconds</div>
+  </transition>
+  <canvas id="canvas"  style="border: 1px solid red; margin: 10px 5px;" width="800px" height="800px">
   </canvas>
+
+  <player-table v-bind:player_table="player_table" ref="pt"/>
+
+  </div>
 
 </template>
 
@@ -13,6 +22,8 @@
   var canvas = null;
   var players = [];
   var player_me = null;
+
+  var PlayerTable = require("./PlayerTable.vue");
 
   // required by gameloop to work on clientside
   process.hrtime = require('browser-process-hrtime');
@@ -28,27 +39,9 @@
   var arc = require("./game/arc.js");
   var circle = require("./game/circle.js");
 
-  var cursor_circle = {
-    x: 0,
-    y: 0,
-    r: 10,
-
-    draw: function(){
-
-      ctx.save();
-      ctx.fillStyle = "red";
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
-      ctx.fill();
-      ctx.restore();
-    }
-
-  }
-
   function draw(){
 
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'black';
 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -56,7 +49,8 @@
       player_item.draw();
     })
 
-    cursor_circle.draw();
+
+
 
     window.requestAnimationFrame(draw);
 
@@ -119,12 +113,16 @@
     var right = new Keyboard("ArrowRight");
 
     left.press = function(){
-     io.emit("left");
-     var path = player_me.changeDir("left");
-     // player_me.savePath(path);
+      if(player_me.speed==0)
+        return;
+       io.emit("left");
+       var path = player_me.changeDir("left");
+       // player_me.savePath(path);
     }
     left.release = function(){
       if(!right.isDown){
+        if(player_me.speed==0)
+          return;
         io.emit("straight");
        var path = player_me.changeDir("straight");
        // player_me.savePath(path);
@@ -132,12 +130,16 @@
     }
 
     right.press = function(){
+      if(player_me.speed==0)
+        return;
         io.emit("right");
        var path = player_me.changeDir("right");
        // player_me.savePath(path);
     }
     right.release = function(){
       if(!left.isDown){
+        if(player_me.speed==0)
+          return;
        io.emit("straight");
        var path = player_me.changeDir("straight");
        // player_me.savePath(path);
@@ -148,17 +150,59 @@
 
   module.exports = {
 
-    props: ["initial-states", "loggedAs"],
+    methods: {
+
+      enter_countdown_active: function(el, done) {
+
+        this.$anime({
+          targets: el,
+          translateY: "350px",
+          opacity: [0,1],
+          complete: done
+        })
+        .finished.then(()=>{
+
+          return this.$anime({
+            targets: this,
+            duration: this.countdown_counter * 1000,
+            easing: "linear",
+            round: true,
+            countdown_counter: 0
+          }).finished;
+
+        })
+        .then( ()=>{
+
+          this.countdown_active = false;
+
+        })
+        .then( ()=> {
+
+          for( var player of players){
+            player.restart = true;
+          }
+
+        })
+
+      },
+
+      leave_countdown_active: function(el, done){
+        this.$anime({
+          targets: el,
+          opacity: [1,0],
+          complete: done,
+          easing: "linear",
+          duration: 1555
+        })
+      }
+
+    },
 
     mounted: function(){
 
       canvas = document.getElementById("canvas");
 
       canvas.addEventListener("mousemove", function(e){
-
-      var rect = canvas.getBoundingClientRect();
-      cursor_circle.x = e.clientX - rect.x;
-      cursor_circle.y = e.clientY - rect.y;
 
       })
 
@@ -176,6 +220,46 @@
       window.ctx = ctx;
 
 
+      this.$io.on("newround_countdown", (countdown_counter, initial_states)=>{
+
+        this.countdown_counter = countdown_counter;
+        this.countdown_active = true;
+
+      })
+
+      this.$io.on("new_positions_generated", (positions)=>{
+
+        for(var pos of positions){
+
+          for(var player of players){
+
+            if(player.name == pos.for){
+              player.setupPos(pos);
+            }
+
+          }
+
+        }
+
+      })
+
+      this.$io.on("round_start", ()=>{
+
+        for(var player of players){
+          player.speed = player.default_speed;
+        }
+
+      })
+
+      this.$io.on("killed", (playername)=>{
+
+        for(var player of players){
+          if(player.name ==  playername)
+            player.speed = 0;
+        }
+
+      })
+
 
       this.initialStates.forEach( (initial_state_item)=> {
 
@@ -184,9 +268,21 @@
 
         players.push(player_item);
 
+        //Setup player_table data
+        this.player_table.push({
+          playername: player_item.name,
+          points: 0,
+          color: player_item.color,
+          live: true,
+          round_points: 0,
+          winner: false
+        })
+
         if(initial_state_item.player_name == this.loggedAs ){
           player_me = player_item;
         }
+
+
 
       })
 
@@ -209,11 +305,39 @@
 
       window.requestAnimationFrame(draw);
 
+    },
+
+    props: ["initial-states", "loggedAs"],
+
+    components: {
+      PlayerTable
+    },
+
+    data: ()=>{
+      return {
+        player_table: [],
+        countdown_active: false,
+        countdown_counter: null
+      }
     }
+
 
   }
 </script>
 
 <style scoped>
+
+  .countdown {
+    width: 800px;
+    height: 50px;
+    background-color: white;
+    border: 1px solid white;
+    position: absolute;
+    left: 5px;
+    /* Center text inside */
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;
+  }
 
 </style>

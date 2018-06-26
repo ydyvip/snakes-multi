@@ -13,6 +13,7 @@
     "build": "cross-env NODE_ENV=production browserify -g envify src/main.js | uglifyjs -c warnings=false -m > dist/build.js"
   },
   "dependencies": {
+    "animejs": "^2.2.0",
     "body-parser": "^1.18.2",
     "browser-process-hrtime": "^0.1.2",
     "express": "^4.16.3",
@@ -26,6 +27,7 @@
     "setimmediate": "^1.0.5",
     "socket.io": "^2.1.0",
     "triangle-circle-collision": "^1.0.4",
+    "velocity-animate": "^2.0.5",
     "vue": "^2.0.1",
     "vue-checkbox-radio": "^0.6.0"
   },

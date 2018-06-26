@@ -9,31 +9,150 @@ var io = null;
 
 function Game(cnt_players, players, name, bet){
 
+  this.max_players = 6;
   this.cnt_players = cnt_players;
   this.players = players;
   this.name = name;
   this.bet = bet;
+  this.round_points = 0;
+
+  this.gameloop_id = null
+  this.serveloop_id = null;
+
+}
+
+Game.prototype.emitKilled = function(playername){
+
+  io.to(this.name).emit("killed", playername);
+
+  for( var player of this.players){
+
+    if(player.playername == playername && player.live){
+      player.points += this.round_points++;
+      player.live = false;
+    }
+
+  }
+
+  if(this.round_points == this.max_players-1){
+
+    // apply 5 points to winner
+
+    for( var player of this.players){
+
+      if(player.live == true){
+        player.points += this.round_points;
+        player.live = false;
+        this.round_points = 0;
+      }
+
+    }
+
+
+    this.startNewRound();
+  }
+
+}
+
+Game.prototype.startNewRound = function(){
+
+  var new_round_awaiting = 10;
+
+
+  io.to(this.name).emit("newround_countdown", new_round_awaiting);
+
+
+  setTimeout( ()=> {
+
+    var new_round_positions = [];
+
+    this.round_points = 0;
+
+    for( var player of this.players){
+
+      player.live = true;
+
+    }
+
+    for(var player of this.player_states){
+
+      player.speed = 0;
+      player.paths = [];
+      player.path_cnt = 0;
+      player.dir = "straight";
+
+      var new_pos =  this.makeInitPositions(player);
+      new_pos.for = player.name;
+
+      new_round_positions.push(new_pos);
+
+    }
+
+    io.to(this.name).emit("new_positions_generated", new_round_positions);
+
+    setTimeout(()=>{
+      io.to(this.name).emit("round_start");
+      for(var player of this.player_states){
+        player.speed = player.default_speed;
+      }
+    }, 3000);
+
+
+
+  }, (new_round_awaiting+2)*1000 );
+
+
+
+
+}
+
+var i = 1;
+
+Game.prototype.makeInitPositions = function(player){
+
+  var pos = {
+    x: random.integer(100,700),
+    y: random.integer(100,700)
+  }
+
+  pos.x = 50*i;
+  pos.y = 400;
+
+  if(i == 6){
+    pos.y = 300;
+  }
+
+  i++;
+  if(i>6)
+    i = 1;
+
+  var angle = random.integer(1,360);
+
+  angle = 270;
+
+  if(player){
+    player.curpath.start.x = pos.x;
+    player.curpath.start.y = pos.y;
+    player.curpath.end.x = pos.x;
+    player.curpath.end.y = pos.y;
+    player.angle = angle;
+    player.dir = "straight";
+  }
+
+  return {
+    pos: pos,
+    angle: angle
+  }
 
 }
 
 Game.prototype.start = function(){
 
-  var player_states = [];
+  this.player_states = [];
   var initial_states = [];
   var colors = ["orange", "cyan", "blue", "red", "pink", "yellow"];
 
-  console.log("start");
-
   this.players.forEach((player_item)=>{
-
-
-    // random initial position, dir and color
-    var pos = {
-      x: random.integer(100,700),
-      y: random.integer(100,700)
-    }
-
-    var angle = random.integer(1,360);
 
     var color = random.pick(colors);
     var index = colors.findIndex( function(color_item){
@@ -43,23 +162,25 @@ Game.prototype.start = function(){
     })
     colors.splice(index, 1);
 
+    var angle_pos = this.makeInitPositions(); // angle & pos: returned and setted
+
     var initial_state = {
       player_name: player_item.playername,
-      pos: pos,
-      angle: angle,
-      color: color
+      color: color,
+      angle: angle_pos.angle,
+      pos: angle_pos.pos
     };
 
     var p = new Player(initial_state);
 
-    p.curpath.start.x = pos.x;
-    p.curpath.start.y = pos.y;
-    p.curpath.end.x = pos.x;
-    p.curpath.end.y = pos.y;
+    p.curpath.start.x = angle_pos.pos.x;
+    p.curpath.start.y = angle_pos.pos.y;
+    p.curpath.end.x = angle_pos.pos.x;
+    p.curpath.end.y = angle_pos.pos.y;
     p.color = color;
-    p.angle = angle
+    p.angle = angle_pos.angle
 
-    player_states.push(p);
+    this.player_states.push(p);
 
     player_item.socket.player_state = p;
 
@@ -70,27 +191,28 @@ Game.prototype.start = function(){
   io.to(this.name).emit("gamestart", initial_states);
 
 
-  gameloop.setGameLoop( (delta)=>{
+  this.gameloop_id = gameloop.setGameLoop( (delta)=>{
 
-    player_states.forEach( (player_state_item)=>{
+    this.player_states.forEach( (player_state_item)=>{
       player_state_item.go(delta);
     })
-    GameState.detectCollision(player_states);
+    GameState.detectCollision(this.player_states, this);
 
   }, 1000/66); // update gamestate every 33ms
+
 
 
   var curpaths = [];
 
   // GameState broadcast
-  setInterval( ()=> {
+  this.serveloop_id = setInterval( ()=> {
 
     // constant broadcast of game GameState
       // - curpath
 
     var states_for_emit = [];
 
-     player_states.forEach( (player_state_item)=>{
+     this.player_states.forEach( (player_state_item)=>{
 
        states_for_emit.push({
          name: player_state_item.name,
@@ -137,6 +259,9 @@ module.exports = function( io_, socket ){
 
   socket.on("left", function(){
 
+    if(socket.player_state.speed==0)
+      return;
+
     var done_path = socket.player_state.changeDir("left"); // here is error
     socket.player_state.savePath(done_path, true);
 
@@ -147,6 +272,9 @@ module.exports = function( io_, socket ){
 
   socket.on("right", function(){
 
+    if(socket.player_state.speed==0)
+      return;
+
     var done_path = socket.player_state.changeDir("right");
     socket.player_state.savePath(done_path, true);
 
@@ -156,6 +284,9 @@ module.exports = function( io_, socket ){
   })
 
   socket.on("straight", function(){
+
+    if(socket.player_state.speed==0)
+      return;
 
     var done_path = socket.player_state.changeDir("straight");
     socket.player_state.savePath(done_path, true);
@@ -235,7 +366,9 @@ module.exports = function( io_, socket ){
         // edit
         game.players.push({
           playername: playername,
-          socket: socket
+          socket: socket,
+          points: 0,
+          live: true
         });
 
         socket.currentRoom = newroom;

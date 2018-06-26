@@ -16,7 +16,8 @@ function getRad(degree){
 var Player = function(initial_state){
 
   this.name = initial_state.player_name;
-  this.speed = 100;
+  this.speed = 90;
+  this.default_speed = 90;
   this.dir = "straight";
   this.weight = 10;
   this.r = 50;
@@ -45,7 +46,7 @@ var Player = function(initial_state){
 
 }
 
-Player.prototype.draw = function(){
+Player.prototype.draw = function(restart){
 
   this.ctx.strokeStyle = this.color;
   this.ctx.fillStyle = this.color;
@@ -53,6 +54,16 @@ Player.prototype.draw = function(){
   this.ctx.lineCap = "round";
 
   // drawing done paths
+
+  if(this.restart){
+    this.path_cnt = 0;
+    this.speed = 0;
+    this.paths = [];
+    this.dir = null;
+    this.restart = false;
+
+  }
+
   for(var i = 0; i<this.paths.length; i++){
 
     this.ctx.strokeStyle = this.paths[i].body.color;
@@ -104,7 +115,7 @@ Player.prototype.savePath = function(path_state, serv){
     if( path_state.body.type == "arc" ){
       path.arc( path_state.body.arc.x, path_state.body.arc.y, path_state.body.arc.r, path_state.body.arc.start, path_state.body.arc.end, path_state.body.arc.counterclockwise);
     }
-    
+
   }
 
   path.body = path_state.body;
@@ -272,6 +283,16 @@ Player.prototype.goRight = function(delta){
   this.curpath.end.x = this.curpath.arc_point.x + Math.cos( getRad(this.angle-90) ) * this.r;
   this.curpath.end.y = this.curpath.arc_point.y + Math.sin( getRad(this.angle-90) ) * this.r;
 
+}
+
+Player.prototype.setupPos = function(pos){
+
+  this.curpath.start.x = pos.pos.x;
+  this.curpath.start.y = pos.pos.y;
+  this.curpath.end.x = pos.pos.x;
+  this.curpath.end.y = pos.pos.y;
+  this.angle = pos.angle;
+  this.dir = "straight";
 }
 
 module.exports = Player;

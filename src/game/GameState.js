@@ -54,11 +54,15 @@ var game_state = {
   },
 
 
-  detectCollision: function(players){
+  detectCollision: function(players, game_serv){
 
 
 
-    players.forEach( function(player){
+    for( var player of players){
+
+      if(player.speed == 0){
+        continue;
+      }
 
       // test for boundaries
 
@@ -70,6 +74,8 @@ var game_state = {
       )
       if(c){
         player.speed = 0;
+        if(game_serv)
+          game_serv.emitKilled(player.name);
       }
 
       players.forEach( function(player_against){
@@ -96,6 +102,8 @@ var game_state = {
           );
           if(c){
             player.speed = 0;
+            if(game_serv)
+              game_serv.emitKilled(player.name);
           }
 
         }
@@ -112,6 +120,8 @@ var game_state = {
 
           if(c){
             player.speed = 0;
+            if(game_serv)
+              game_serv.emitKilled(player.name);
           }
 
         }
@@ -124,7 +134,7 @@ var game_state = {
         player_against.paths.forEach( function(path, index){
 
           var timestamp = new Date().getTime();
-          if(timestamp - path.body.timestamp < 1000){
+          if(timestamp - path.body.timestamp < 100){
             return;
           }
 
@@ -134,6 +144,8 @@ var game_state = {
             var c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2}, path.body.arc);
             if(c){
               player.speed = 0;
+              if(game_serv)
+                game_serv.emitKilled(player.name);
             }
           }
 
@@ -149,12 +161,14 @@ var game_state = {
 
             if(c){
               player.speed = 0;
+              if(game_serv)
+                game_serv.emitKilled(player.name);
             }
           }
 
         })
       })
-    })
+    }
 
 
   }
