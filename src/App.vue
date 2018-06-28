@@ -6,7 +6,9 @@
 
     <template v-if="loggedAs">
       <user-panel v-bind:username="loggedAs" />
-      <component v-bind:initial-states="initial_states" v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs" v-on:gamestart="gamestart"></component>
+      <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs"
+        v-on:gamestart="gamestart" v-on:eog="eog">
+      </component>
     </template>
 
   </div>
@@ -25,12 +27,18 @@
     data: () => ({
       loggedAs: new String("a" + Math.random()*10).substr(0,6), // TODO:  on debug loggedAs, default to null,
       GameList_Game: GameList,
-      initial_states: null
+      initial_states: null,
+      first_to_reach: null
     }),
     methods: {
-      gamestart: function(initial_states){
+      gamestart: function(initial_states, first_to_reach){
         this.GameList_Game = Game;
         this.initial_states = initial_states;
+        this.first_to_reach = first_to_reach;
+      },
+      eog: function(){
+        this.initial_states = null;
+        this.GameList_Game = GameList;
       }
     },
     components: {

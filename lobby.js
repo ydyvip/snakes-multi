@@ -7,6 +7,9 @@ var random = require("random-js")();
 
 var io = null;
 
+var games = [];
+var sample_game = null;
+
 function Game(cnt_players, players, name, bet){
 
   this.max_players = 6;
@@ -15,6 +18,8 @@ function Game(cnt_players, players, name, bet){
   this.name = name;
   this.bet = bet;
   this.round_points = 0;
+
+  this.first_to_reach = 5;
 
   this.gameloop_id = null
   this.serveloop_id = null;
@@ -34,7 +39,7 @@ Game.prototype.emitKilled = function(playername){
 
   }
 
-  if(this.round_points == this.max_players-1){
+  if(this.round_points == this.max_players-1){ // Only one keep alive
 
     // apply 5 points to winner
 
@@ -48,8 +53,55 @@ Game.prototype.emitKilled = function(playername){
 
     }
 
+    // sort players
 
-    this.startNewRound();
+    this.players.sort( (a,b)=>{
+      if(a.points>b.points)
+        return -1;
+      else if(a.points<b.points)
+        return 1
+      else {
+        return 1;
+      }
+    });
+
+    var max = 0;
+    var game_winner = null;
+
+    if(this.players[0].points>=this.first_to_reach){
+      max = this.players[0].points;
+    }
+
+    for(var i = 1; i<this.players.length; i++){
+      if(this.players[i].points+1 >= max){
+        this.players[i].tie_break = true;
+      }
+      else{
+        this.players[i].tie_break = false
+      }
+    }
+
+    if(this.players[1].tie_break == true){
+      this.players[0].tie_break = true;
+    }
+    else {
+      this.players[0].tie_break = false;
+      game_winner = this.players[0];
+    }
+
+    if(game_winner){
+      io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.85));
+      this.detachMyselfFromList();
+      clearTimeout(this.serveloop_id);
+      gameloop.clearGameLoop(this.gameloop_id);
+      for(var player of this.players){
+        player.socket.leave(this.name);
+      }
+
+    }
+    else{
+      this.startNewRound();
+    }
   }
 
 }
@@ -106,8 +158,6 @@ Game.prototype.startNewRound = function(){
 
 }
 
-var i = 1;
-
 Game.prototype.makeInitPositions = function(player){
 
   var pos = {
@@ -115,20 +165,7 @@ Game.prototype.makeInitPositions = function(player){
     y: random.integer(100,700)
   }
 
-  pos.x = 50*i;
-  pos.y = 400;
-
-  if(i == 6){
-    pos.y = 300;
-  }
-
-  i++;
-  if(i>6)
-    i = 1;
-
   var angle = random.integer(1,360);
-
-  angle = 270;
 
   if(player){
     player.curpath.start.x = pos.x;
@@ -188,7 +225,7 @@ Game.prototype.start = function(){
 
   })
 
-  io.to(this.name).emit("gamestart", initial_states);
+  io.to(this.name).emit("gamestart", initial_states, this.first_to_reach);
 
 
   this.gameloop_id = gameloop.setGameLoop( (delta)=>{
@@ -229,10 +266,26 @@ Game.prototype.start = function(){
 
 }
 
-var game2 = new Game(0,  [], "Empty !!!", 500 );
+Game.prototype.detachMyselfFromList = function(){
 
-var games = [];
-games.push(game2);
+  var idx = games.findIndex((game_item)=>{
+
+    if(game_item.name == this.name){
+      return true;
+    }
+
+  })
+
+  games.splice(idx,1);
+
+  sample_game = null;
+
+}
+
+sample_game = new Game(0,  [], "Empty !!!", 500 );
+
+
+games.push(sample_game);
 
 games.getRoomWithName = function(gamename){
 

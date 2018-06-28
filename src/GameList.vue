@@ -47,9 +47,9 @@
 
     methods: {
 
-      gameStart: function(initial_states){
+      gameStart: function(initial_states, first_to_reach){
 
-        this.$emit("gamestart", initial_states);
+        this.$emit("gamestart", initial_states, first_to_reach);
 
       },
 

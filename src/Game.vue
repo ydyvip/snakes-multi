@@ -6,10 +6,21 @@
   <transition v-on:enter="enter_countdown_active" v-on:leave="leave_countdown_active">
     <div class="countdown" v-if="countdown_active">New round will start in {{countdown_counter}} seconds</div>
   </transition>
+  <transition v-on:enter="eog_enter" v-on:leave="eog_leave">
+    <div class="eog_box" v-bind:style="{'border-color': winner_color, color: winner_color}" v-if="winner">
+      <span v-bind:style="{color: winner_color}">
+        {{winner}}
+      </span>
+      <span style="color: white;">
+        wins {{satoshi_reward}} satoshi
+      </span><br/>
+      <button v-on:click="eog" class="btn-back">Return to game list</button>
+    </div>
+  </transition>
   <canvas id="canvas"  style="border: 1px solid red; margin: 10px 5px;" width="800px" height="800px">
   </canvas>
 
-  <player-table v-bind:player_table="player_table" ref="pt"/>
+  <player-table v-bind:player_table="player_table" v-bind:first_to_reach="first_to_reach" ref="pt"/>
 
   </div>
 
@@ -39,22 +50,7 @@
   var arc = require("./game/arc.js");
   var circle = require("./game/circle.js");
 
-  function draw(){
 
-    ctx.fillStyle = 'black';
-
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    players.forEach( (player_item)=>{
-      player_item.draw();
-    })
-
-
-
-
-    window.requestAnimationFrame(draw);
-
-  }
 
   function setupAuthorativeServer(io){
 
@@ -150,7 +146,54 @@
 
   module.exports = {
 
+    computed: {
+      winner_color: function(){
+
+        if(this.winner){
+
+          var p = this.player_table.find((player)=>{
+
+            if(player.playername == this.winner){
+              return true;
+            }
+
+          })
+
+          if(p)
+            return p.color;
+          else {
+            return undefined;
+          }
+
+        }
+        else{
+          return undefined;
+        }
+      }
+    },
+
     methods: {
+
+      eog_enter: function(el, done){
+
+        this.$anime({
+          targets: el,
+          complete: done,
+          opacity: [0,1],
+          translateY: "350px"
+        });
+
+      },
+
+      eog_leave: function(el, done){
+
+        this.$anime({
+          targets: el,
+          complete: done,
+          opacity: [1,0]
+        });
+
+      },
 
       enter_countdown_active: function(el, done) {
 
@@ -194,6 +237,38 @@
           easing: "linear",
           duration: 1555
         })
+      },
+
+      draw: function(){
+
+        ctx.fillStyle = 'black';
+
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        players.forEach( (player_item)=>{
+          player_item.draw();
+        })
+
+        if(!this.da)
+          window.requestAnimationFrame(this.draw);
+
+      },
+
+      eog: function(){
+
+        gameloop.clearGameLoop(this.gameloop_id);
+
+        player_me = null;
+        this.da = true;
+
+        for(var p of players){
+          p = null;
+        }
+
+        players = null;
+
+        this.$emit('eog')
+
       }
 
     },
@@ -260,6 +335,15 @@
 
       })
 
+      this.$io.on("end_of_game", (winner, reward)=>{
+
+        this.winner = winner;
+        this.satoshi_reward = reward;
+
+        player_me.speed = 0;
+
+      })
+
 
       this.initialStates.forEach( (initial_state_item)=> {
 
@@ -275,7 +359,8 @@
           color: player_item.color,
           live: true,
           round_points: 0,
-          winner: false
+          winner: false,
+          tie_break: false
         })
 
         if(initial_state_item.player_name == this.loggedAs ){
@@ -290,7 +375,8 @@
 
       // Mount gameloop
 
-      gameloop.setGameLoop( function(delta){
+      this.gameloop_id = gameloop.setGameLoop( function(delta){
+
 
         players.forEach( (player_item)=>{
           player_item.go(delta);
@@ -302,12 +388,12 @@
       }, 1000/60); // Gamestate update every 30fps
 
 
-
-      window.requestAnimationFrame(draw);
+      if(!this.veog)
+        window.requestAnimationFrame(this.draw);
 
     },
 
-    props: ["initial-states", "loggedAs"],
+    props: ["initial-states", "loggedAs", "first_to_reach"],
 
     components: {
       PlayerTable
@@ -317,7 +403,12 @@
       return {
         player_table: [],
         countdown_active: false,
-        countdown_counter: null
+        countdown_counter: null,
+        winner: null,
+        satoshi_reward: 0,
+
+        gameloop_id: null,
+        veog: false
       }
     }
 
@@ -326,6 +417,36 @@
 </script>
 
 <style scoped>
+  @import url('https://fonts.googleapis.com/css?family=Jua');
+
+  .btn-back {
+    height: 35px;
+    padding: 5px 15px;
+    outline: none;
+    /* border: 3px solid pink; */
+    border-radius: 15px;
+    font-family: monospace;
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+
+  .eog_box {
+    font-family: 'Jua', sans-serif;
+    font-size: 22px;;
+    width: 500px;
+    position: absolute;
+    left: 150px; /* 800/2 - 500/2 */
+    background-color: black;
+    /* Center text inside */
+    text-align: center;
+    vertical-align: middle;
+    padding: 30px 0 10px;
+    box-sizing: border-box;
+    border-width: 4px;
+    border-style: solid;
+    border-radius: 25px;
+    box-shadow: 0px 0px 20px 5px;
+  }
 
   .countdown {
     width: 800px;
