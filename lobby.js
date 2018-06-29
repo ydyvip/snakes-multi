@@ -39,7 +39,7 @@ Game.prototype.emitKilled = function(playername){
 
   }
 
-  if(this.round_points == this.max_players-1){ // Only one keep alive
+  if(this.round_points == this.max_players-1){ // Only one stay alive
 
     // apply 5 points to winner
 
@@ -93,6 +93,7 @@ Game.prototype.emitKilled = function(playername){
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.85));
       this.detachMyselfFromList();
       clearTimeout(this.serveloop_id);
+      this.game_state = null;
       gameloop.clearGameLoop(this.gameloop_id);
       for(var player of this.players){
         player.socket.leave(this.name);
@@ -112,6 +113,8 @@ Game.prototype.startNewRound = function(){
 
 
   io.to(this.name).emit("newround_countdown", new_round_awaiting);
+
+
 
 
   setTimeout( ()=> {
@@ -145,9 +148,21 @@ Game.prototype.startNewRound = function(){
     setTimeout(()=>{
       io.to(this.name).emit("round_start");
       for(var player of this.player_states){
+        this.game_state.player_consideration = true;
         player.speed = player.default_speed;
+        player.breakout = true
       }
     }, 3000);
+
+    setTimeout(()=>{
+
+      io.to(this.name).emit("quit_consideration");
+      this.game_state.player_consideration = false;
+      for(var player of this.player_states){
+        player.breakout = false;
+      }
+
+    }, 7000);
 
 
 
@@ -191,6 +206,8 @@ Game.prototype.start = function(){
 
   this.players.forEach((player_item)=>{
 
+    this.game_state = new GameState();
+
     var color = random.pick(colors);
     var index = colors.findIndex( function(color_item){
       if(color_item == color){
@@ -233,11 +250,27 @@ Game.prototype.start = function(){
     this.player_states.forEach( (player_state_item)=>{
       player_state_item.go(delta);
     })
-    GameState.detectCollision(this.player_states, this);
+    this.game_state.detectCollision(this.player_states, this);
 
   }, 1000/66); // update gamestate every 33ms
 
+  setTimeout(()=>{
 
+    for(var player of this.player_states){
+      player.speed = player.default_speed;
+    }
+
+  }, 2000)
+
+  setTimeout(()=>{
+
+    io.to(this.name).emit("quit_consideration");
+    this.game_state.player_consideration = false;
+    for(var player of this.player_states){
+      player.breakout = false;
+    }
+
+  }, 5000);
 
   var curpaths = [];
 
@@ -315,7 +348,7 @@ module.exports = function( io_, socket ){
     if(socket.player_state.speed==0)
       return;
 
-    var done_path = socket.player_state.changeDir("left"); // here is error
+    var done_path = socket.player_state.changeDir("left");
     socket.player_state.savePath(done_path, true);
 
     socket.emit("reapplycurpath", socket.player_state.curpath, socket.player_state.dir, socket.player_state.angle);

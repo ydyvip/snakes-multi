@@ -275,6 +275,8 @@
 
     mounted: function(){
 
+      this.game_state = new GameState();
+
       canvas = document.getElementById("canvas");
 
       canvas.addEventListener("mousemove", function(e){
@@ -286,7 +288,6 @@
       }
 
       ctx = canvas.getContext("2d");
-      GameState.ctx = ctx;
 
       setupKeyboard(this.$io);
       setupAuthorativeServer(this.$io);
@@ -321,7 +322,18 @@
       this.$io.on("round_start", ()=>{
 
         for(var player of players){
+          this.game_state.player_consideration = true;
+          player.breakout = true;
           player.speed = player.default_speed;
+        }
+
+      })
+
+      this.$io.on("quit_consideration", ()=>{
+
+        this.game_state.player_consideration = false;
+        for(var player of players){
+          player.breakout = false;
         }
 
       })
@@ -371,18 +383,24 @@
 
       })
 
+      setTimeout(()=>{
 
+        for(var player of players){
+          player.speed = player.default_speed;
+        }
+
+      }, 2000)
 
       // Mount gameloop
 
-      this.gameloop_id = gameloop.setGameLoop( function(delta){
+      this.gameloop_id = gameloop.setGameLoop( (delta)=>{
 
 
         players.forEach( (player_item)=>{
           player_item.go(delta);
         })
 
-        GameState.detectCollision(players);
+        this.game_state.detectCollision(players);
         //GameState.curosorPlayerCollision(cursor_circle, player);
 
       }, 1000/60); // Gamestate update every 30fps
@@ -406,6 +424,8 @@
         countdown_counter: null,
         winner: null,
         satoshi_reward: 0,
+
+        game_state: null,
 
         gameloop_id: null,
         veog: false

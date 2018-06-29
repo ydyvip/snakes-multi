@@ -12,51 +12,13 @@ function getRad(degree){
   return radians;
 }
 
-var game_state = {
+function GameState() {
 
-  curosorPlayerCollision: function(cursor, player){
+  this.player_consideration = true
 
-    player.paths.forEach( function(path){
+}
 
-      if(path.body.type=="arc")
-      {
-
-        var c = circleArcCollision(cursor, path.body.arc);
-        if(c){
-          path.body.color = "red";
-        }
-        else{
-          path.body.color = path.body.defaultColor
-        }
-      }
-
-      if(path.body.type=="line")
-      {
-
-        var c = (
-          lineCircleCollision( path.body.vertices[0], path.body.vertices[1], [cursor.x, cursor.y], cursor.r ) ||
-          lineCircleCollision( path.body.vertices[2], path.body.vertices[3], [cursor.x, cursor.y], cursor.r ) ||
-          lineCircleCollision( path.body.vertices[3], path.body.vertices[0], [cursor.x, cursor.y], cursor.r ) ||
-          lineCircleCollision( path.body.vertices[1], path.body.vertices[2], [cursor.x, cursor.y], cursor.r )
-        );
-
-        if(c){
-          path.body.color = "red";
-        }
-        else{
-          path.body.color = path.body.defaultColor
-        }
-
-      }
-
-    });
-
-  },
-
-
-  detectCollision: function(players, game_serv){
-
-
+GameState.prototype.detectCollision = function(players, game_serv){
 
     for( var player of players){
 
@@ -77,6 +39,9 @@ var game_state = {
         if(game_serv)
           game_serv.emitKilled(player.name);
       }
+
+      if(this.player_consideration)
+        continue;
 
       players.forEach( function(player_against){
 
@@ -174,6 +139,4 @@ var game_state = {
   }
 
 
-}
-
-module.exports = game_state;
+module.exports = GameState;

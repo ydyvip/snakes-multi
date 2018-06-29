@@ -16,12 +16,13 @@ function getRad(degree){
 var Player = function(initial_state){
 
   this.name = initial_state.player_name;
-  this.speed = 90;
+  this.speed = 0;
   this.default_speed = 90;
   this.dir = "straight";
   this.weight = 10;
   this.r = 50;
   this.paths = [],
+  this.breakout = true;
 
   this.path_cnt = 0;
 
@@ -82,15 +83,29 @@ Player.prototype.draw = function(restart){
     this.ctx.stroke();
   }
 
+  var starting_angle;
+
   if(this.dir == "left"){
+
+    if(this.breakout)
+      starting_angle = this.angle + 90;
+    else
+      starting_angle = this.starting_angle
+
     this.ctx.beginPath();
-    this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad( this.angle + 90), true);
+    this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(starting_angle), getRad( this.angle + 90), true);
     this.ctx.stroke();
   }
 
   if(this.dir == "right"){
+
+    if(this.breakout)
+      starting_angle = this.angle - 90;
+    else
+      starting_angle = this.starting_angle
+
     this.ctx.beginPath();
-    this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad( this.angle - 90));
+    this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(starting_angle), getRad( this.angle - 90));
     this.ctx.stroke();
   }
 
@@ -98,7 +113,7 @@ Player.prototype.draw = function(restart){
 
 Player.prototype.savePath = function(path_state, serv){
 
-  if(!path_state)
+  if(!path_state || !path_state.body)
     return;
 
   var path = {};
@@ -120,7 +135,7 @@ Player.prototype.savePath = function(path_state, serv){
 
   path.body = path_state.body;
 
-  if(path_state.body.id < this.path_cnt){
+  if(path_state.body.id < this.paths.length){
 
     this.paths[path_state.body.id] = path;
 
@@ -175,7 +190,7 @@ Player.prototype.changeDir = function(new_dir){
   path.body.color = this.color;
 
 
-  if(this.dir == "straight"){
+  if(this.dir == "straight" && !this.breakout){
 
     path.body.type = "line";
     path.body.vertices = this.getVerticesFromLinePath();
@@ -188,7 +203,7 @@ Player.prototype.changeDir = function(new_dir){
   }
 
   // Path definition for collision detection
-  if(this.dir == "left" || this.dir == "right"){
+  if((this.dir == "left" || this.dir == "right") && !this.breakout){
 
     var angle_90 = 0;
     var counterclockwise = false;
@@ -237,7 +252,12 @@ Player.prototype.changeDir = function(new_dir){
 
   path.body.id = this.path_cnt++;
 
-  return path;
+  if(this.breakout){
+    return null
+  }
+  else{
+    return path;
+  }
 
 }
 
@@ -251,6 +271,11 @@ Player.prototype.go = function(delta) {
   }
   if(this.dir == "left"){
     this.goLeft(delta);
+  }
+
+  if(this.breakout){
+    this.curpath.start.x = this.curpath.end.x;
+    this.curpath.start.y = this.curpath.end.y;
   }
 
 }
@@ -268,6 +293,8 @@ Player.prototype.goLeft = function(delta){
   var degree_speed = 360 / (2*Math.PI*this.r) * this.speed * delta;
 
   this.angle-=degree_speed;
+  if(this.breakout)
+    this.starting_angle = this.angle + 90;
 
   this.curpath.end.x = this.curpath.arc_point.x + Math.cos( getRad(this.angle+90) ) * this.r;
   this.curpath.end.y = this.curpath.arc_point.y + Math.sin( getRad(this.angle+90) ) * this.r;
@@ -279,6 +306,8 @@ Player.prototype.goRight = function(delta){
   var degree_speed = 360 / (2*Math.PI*this.r) * this.speed * delta;
 
   this.angle+=degree_speed;
+  if(this.breakout)
+    this.starting_angle = this.angle - 90;
 
   this.curpath.end.x = this.curpath.arc_point.x + Math.cos( getRad(this.angle-90) ) * this.r;
   this.curpath.end.y = this.curpath.arc_point.y + Math.sin( getRad(this.angle-90) ) * this.r;
