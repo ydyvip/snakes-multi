@@ -54,6 +54,26 @@
 
   function setupAuthorativeServer(io){
 
+    io.on("breakdown", (playername, done_path, path_id)=>{
+
+      for( let player_item of players){
+        if( player_item.name == playername){
+
+          player_item.changeDir(player_item.dir);
+          player_item.savePath(done_path, path_id);
+
+          player_item.breakout = true;
+
+          setTimeout( ()=>{
+            player_item.breakout = false;
+
+          }, 250 );
+
+        }
+      }
+
+    })
+
     io.on("reapplycurpath", (curpath, dir, angle)=>{
 
       player_me.curpath = curpath;
@@ -62,14 +82,20 @@
 
     })
 
-    io.on("dirchanged", (playername, newdir, done_path)=>{
+    io.on("dirchanged", (playername, newdir, done_path, path_id)=>{
 
 
       for( let player_item of players){
         if( player_item.name == playername){
 
-          player_item.changeDir(newdir);
-          player_item.savePath(done_path);
+          if(player_item.name!=player_me.name){
+            player_item.changeDir(newdir);
+            player_item.savePath(done_path);
+          }
+          else{
+            player_item.savePath(done_path, path_id);
+          }
+
 
         }
       }
@@ -109,36 +135,58 @@
     var right = new Keyboard("ArrowRight");
 
     left.press = function(){
-      if(player_me.speed==0)
+      if(player_me.speed==0){
         return;
-       io.emit("left");
-       var path = player_me.changeDir("left");
-       // player_me.savePath(path);
+      }
+      var path = player_me.changeDir("left");
+      var path_id = null;
+      if(path){
+        path_id = path.body.id;
+        player_me.savePath(path);
+      }
+      io.emit("left", path_id);
     }
+
     left.release = function(){
       if(!right.isDown){
-        if(player_me.speed==0)
+        if(player_me.speed==0){
           return;
-        io.emit("straight");
+        }
        var path = player_me.changeDir("straight");
-       // player_me.savePath(path);
+       var path_id = null;
+       if(path){
+         path_id = path.body.id;
+         player_me.savePath(path);
+       }
+       io.emit("straight", path_id);
       }
     }
 
     right.press = function(){
-      if(player_me.speed==0)
+      if(player_me.speed==0){
         return;
-        io.emit("right");
-       var path = player_me.changeDir("right");
-       // player_me.savePath(path);
+      }
+      var path = player_me.changeDir("right");
+      var path_id = null;
+      if(path){
+        path_id = path.body.id;
+        player_me.savePath(path);
+      }
+      io.emit("right", path_id);
     }
+
     right.release = function(){
       if(!left.isDown){
-        if(player_me.speed==0)
+        if(player_me.speed==0){
           return;
-       io.emit("straight");
+        }
        var path = player_me.changeDir("straight");
-       // player_me.savePath(path);
+       var path_id = null;
+       if(path){
+         path_id = path.body.id;
+         player_me.savePath(path);
+       }
+       io.emit("straight", path_id);
      }
     }
 
@@ -241,6 +289,9 @@
 
       draw: function(){
 
+        if(this.veog)
+          return;
+
         ctx.fillStyle = 'black';
 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -249,7 +300,7 @@
           player_item.draw();
         })
 
-        if(!this.da)
+        if(!this.veog)
           window.requestAnimationFrame(this.draw);
 
       },
@@ -259,7 +310,7 @@
         gameloop.clearGameLoop(this.gameloop_id);
 
         player_me = null;
-        this.da = true;
+        this.veog = true;
 
         for(var p of players){
           p = null;
@@ -379,8 +430,6 @@
           player_me = player_item;
         }
 
-
-
       })
 
       setTimeout(()=>{
@@ -395,6 +444,9 @@
 
       this.gameloop_id = gameloop.setGameLoop( (delta)=>{
 
+        if(this.veog){
+          return;
+        }
 
         players.forEach( (player_item)=>{
           player_item.go(delta);
@@ -402,6 +454,7 @@
 
         this.game_state.detectCollision(players);
         //GameState.curosorPlayerCollision(cursor_circle, player);
+
 
       }, 1000/60); // Gamestate update every 30fps
 

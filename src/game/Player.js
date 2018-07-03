@@ -52,9 +52,6 @@ Player.prototype.draw = function(restart){
   this.ctx.strokeStyle = this.color;
   this.ctx.fillStyle = this.color;
 
-  this.ctx.lineCap = "round";
-
-  // drawing done paths
 
   if(this.restart){
     this.path_cnt = 0;
@@ -62,8 +59,11 @@ Player.prototype.draw = function(restart){
     this.paths = [];
     this.dir = null;
     this.restart = false;
-
   }
+
+
+  // drawing done paths
+  this.ctx.lineCap = "butt";
 
   for(var i = 0; i<this.paths.length; i++){
 
@@ -74,7 +74,13 @@ Player.prototype.draw = function(restart){
   }
 
   // drawing current path
+  this.ctx.lineCap = "butt";
+
   this.ctx.lineWidth = this.weight;
+
+  this.ctx.beginPath();
+  this.ctx.arc(this.curpath.end.x, this.curpath.end.y, this.weight/2, 0, 2*Math.PI);
+  this.ctx.fill();
 
   if(this.dir == "straight"){
     this.ctx.beginPath();
@@ -111,14 +117,14 @@ Player.prototype.draw = function(restart){
 
 }
 
-Player.prototype.savePath = function(path_state, serv){
+Player.prototype.savePath = function(path_state, serv_or_path_id) { //sorry
 
   if(!path_state || !path_state.body)
     return;
 
   var path = {};
 
-  if(!serv){
+  if(serv_or_path_id!="serv"){
 
     path = new Path2D();
 
@@ -135,10 +141,9 @@ Player.prototype.savePath = function(path_state, serv){
 
   path.body = path_state.body;
 
-  if(path_state.body.id < this.paths.length){
 
-    this.paths[path_state.body.id] = path;
-
+  if(Number.isInteger(serv_or_path_id) && serv_or_path_id<this.paths.length){
+    this.paths[serv_or_path_id] = path;
   }
   else{
     this.paths.push(path);
@@ -250,12 +255,11 @@ Player.prototype.changeDir = function(new_dir){
 
   this.dir = new_dir;
 
-  path.body.id = this.path_cnt++;
-
   if(this.breakout){
     return null
   }
   else{
+    path.body.id = this.path_cnt++;
     return path;
   }
 
@@ -323,5 +327,9 @@ Player.prototype.setupPos = function(pos){
   this.angle = pos.angle;
   this.dir = "straight";
 }
+
+var random = require("random-js")();
+
+
 
 module.exports = Player;

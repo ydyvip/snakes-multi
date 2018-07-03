@@ -1,7 +1,7 @@
 
 const gameloop = require('node-gameloop');
 
-var Player = require("./src/game/Player.js");
+var Player = require("./src/game/PlayerSrv.js");
 var GameState = require("./src/game/GameState.js");
 var random = require("random-js")();
 
@@ -35,6 +35,7 @@ Game.prototype.emitKilled = function(playername){
     if(player.playername == playername && player.live){
       player.points += this.round_points++;
       player.live = false;
+      player.socket.player_state.clearBreakout();
     }
 
   }
@@ -48,10 +49,12 @@ Game.prototype.emitKilled = function(playername){
       if(player.live == true){
         player.points += this.round_points;
         player.live = false;
+        player.socket.player_state.clearBreakout();
         this.round_points = 0;
       }
 
     }
+
 
     // sort players
 
@@ -160,6 +163,7 @@ Game.prototype.startNewRound = function(){
       this.game_state.player_consideration = false;
       for(var player of this.player_states){
         player.breakout = false;
+        player.setupBreakout();
       }
 
     }, 7000);
@@ -225,6 +229,8 @@ Game.prototype.start = function(){
       pos: angle_pos.pos
     };
 
+    Player.prototype.io = io;
+
     var p = new Player(initial_state);
 
     p.curpath.start.x = angle_pos.pos.x;
@@ -232,11 +238,14 @@ Game.prototype.start = function(){
     p.curpath.end.x = angle_pos.pos.x;
     p.curpath.end.y = angle_pos.pos.y;
     p.color = color;
-    p.angle = angle_pos.angle
+    p.angle = angle_pos.angle;
+    p.gamename = this.name;
+    p.socket = player_item.socket;
 
     this.player_states.push(p);
 
     player_item.socket.player_state = p;
+
 
     initial_states.push(initial_state);
 
@@ -268,6 +277,7 @@ Game.prototype.start = function(){
     this.game_state.player_consideration = false;
     for(var player of this.player_states){
       player.breakout = false;
+      player.setupBreakout();
     }
 
   }, 5000);
@@ -343,47 +353,23 @@ module.exports = function( io_, socket ){
   io = io_;
 
 
-  socket.on("left", function(){
+  socket.on("left", function(path_id){
 
-    if(socket.player_state.speed==0)
-      return;
-
-    var done_path = socket.player_state.changeDir("left");
-    socket.player_state.savePath(done_path, true);
-
-    socket.emit("reapplycurpath", socket.player_state.curpath, socket.player_state.dir, socket.player_state.angle);
-    io.to(socket.currentRoom).emit("dirchanged", socket.playername, "left", done_path );
+    socket.player_state.changeDirSrv("left", path_id);
 
   })
 
-  socket.on("right", function(){
+  socket.on("right", function(path_id){
 
-    if(socket.player_state.speed==0)
-      return;
-
-    var done_path = socket.player_state.changeDir("right");
-    socket.player_state.savePath(done_path, true);
-
-    socket.emit("reapplycurpath", socket.player_state.curpath, socket.player_state.dir, socket.player_state.angle);
-    io.to(socket.currentRoom).emit("dirchanged", socket.playername, "right", done_path );
+    socket.player_state.changeDirSrv("right", path_id);
 
   })
 
-  socket.on("straight", function(){
+  socket.on("straight", function(path_id){
 
-    if(socket.player_state.speed==0)
-      return;
-
-    var done_path = socket.player_state.changeDir("straight");
-    socket.player_state.savePath(done_path, true);
-
-    socket.emit("reapplycurpath", socket.player_state.curpath, socket.player_state.dir, socket.player_state.angle);
-    io.to(socket.currentRoom).emit("dirchanged", socket.playername, "straight", done_path );
-
+    socket.player_state.changeDirSrv("straight", path_id);
 
   })
-
-
 
   socket.on("getgamelist", function(){
 
