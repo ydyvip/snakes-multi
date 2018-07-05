@@ -1,7 +1,7 @@
 
 <template>
   <div style="display: inline-block; vertical-align: top;">
-    <div class="ftr">
+    <div class="ftr" v-bind:style="{'border-color': may_color}">
       FIRST TO REACH: {{first_to_reach}}
     </div>
     <div class="top-box">
@@ -32,7 +32,7 @@
 
   module.exports = {
 
-    props: ["player_table", "first_to_reach"],
+    props: ["player_table", "first_to_reach", "may_color"],
 
     data: ()=>({
 
@@ -192,7 +192,7 @@
     margin-top: 15px;
     text-align: center;
     vertical-align: middle;
-    border-bottom: 1px solid red;
+    border-bottom: 1px solid;
   }
 
   .top-box {

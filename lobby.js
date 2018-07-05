@@ -269,7 +269,7 @@ Game.prototype.start = function(){
       player.speed = player.default_speed;
     }
 
-  }, 2000)
+  }, 4000)
 
   setTimeout(()=>{
 
@@ -280,7 +280,7 @@ Game.prototype.start = function(){
       player.setupBreakout();
     }
 
-  }, 5000);
+  }, 8000);
 
   var curpaths = [];
 

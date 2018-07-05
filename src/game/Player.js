@@ -21,8 +21,9 @@ var Player = function(initial_state){
   this.dir = "straight";
   this.weight = 10;
   this.r = 50;
-  this.paths = [],
+  this.paths = [];
   this.breakout = true;
+  this.show_dir_indicator = true;
 
   this.path_cnt = 0;
 
@@ -47,7 +48,7 @@ var Player = function(initial_state){
 
 }
 
-Player.prototype.draw = function(restart){
+Player.prototype.draw = function(self){
 
   this.ctx.strokeStyle = this.color;
   this.ctx.fillStyle = this.color;
@@ -61,6 +62,21 @@ Player.prototype.draw = function(restart){
     this.restart = false;
   }
 
+  if(!this.dir_indicator && self){
+    this.dir_indicator = new Image();
+    this.dir_indicator.src = "/img/dir_indicators/" + this.color + ".svg";
+    this.dir_indicator.onload = ()=>{
+      this.dir_indicator_ready = true
+    }
+  }
+
+  if(this.dir_indicator_ready && this.show_dir_indicator && self){
+    this.ctx.save();
+    this.ctx.translate(this.curpath.end.x, this.curpath.end.y  )
+    this.ctx.rotate((this.angle + 90) * Math.PI / 180);
+    this.ctx.drawImage(this.dir_indicator, -146/2, -70 , 146, 60);
+    this.ctx.restore();
+  }
 
   // drawing done paths
   this.ctx.lineCap = "butt";

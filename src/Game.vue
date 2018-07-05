@@ -17,10 +17,10 @@
       <button v-on:click="eog" class="btn-back">Return to game list</button>
     </div>
   </transition>
-  <canvas id="canvas"  style="border: 1px solid red; margin: 10px 5px;" width="800px" height="800px">
+  <canvas id="canvas" v-bind:style="{'border-color': may_color}" style="border: 1px solid; margin: 10px 5px;" width="800px" height="800px">
   </canvas>
 
-  <player-table v-bind:player_table="player_table" v-bind:first_to_reach="first_to_reach" ref="pt"/>
+  <player-table v-bind:player_table="player_table" v-bind:first_to_reach="first_to_reach" v-bind:may_color="may_color" ref="pt"/>
 
   </div>
 
@@ -297,7 +297,11 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         players.forEach( (player_item)=>{
-          player_item.draw();
+          var self = false;
+          if(player_item.name == player_me.name){
+            self = true;
+          }
+          player_item.draw(self);
         })
 
         if(!this.veog)
@@ -362,6 +366,7 @@
 
             if(player.name == pos.for){
               player.setupPos(pos);
+              player.show_dir_indicator = true
             }
 
           }
@@ -376,6 +381,7 @@
           this.game_state.player_consideration = true;
           player.breakout = true;
           player.speed = player.default_speed;
+          player.show_dir_indicator = false;
         }
 
       })
@@ -428,6 +434,7 @@
 
         if(initial_state_item.player_name == this.loggedAs ){
           player_me = player_item;
+          this.may_color = player_me.color;
         }
 
       })
@@ -436,9 +443,10 @@
 
         for(var player of players){
           player.speed = player.default_speed;
+          player.show_dir_indicator = false;
         }
 
-      }, 2000)
+      }, 4000)
 
       // Mount gameloop
 
@@ -472,6 +480,7 @@
 
     data: ()=>{
       return {
+        may_color: null,
         player_table: [],
         countdown_active: false,
         countdown_counter: null,
