@@ -3,11 +3,10 @@ var App = require('./App.vue')
 
 import CheckboxRadio from 'vue-checkbox-radio';
 import anime from 'animejs'
-
-
+import Tooltip from 'vue-directive-tooltip';
 
 Vue.use(CheckboxRadio);
-
+Vue.use(Tooltip);
 
 var io = require("socket.io-client")();
 

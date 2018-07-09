@@ -99,6 +99,7 @@ Game.prototype.emitKilled = function(playername){
       this.game_state = null;
       gameloop.clearGameLoop(this.gameloop_id);
       for(var player of this.players){
+        player.socket.currentRoom = null;
         player.socket.leave(this.name);
       }
 
@@ -116,8 +117,6 @@ Game.prototype.startNewRound = function(){
 
 
   io.to(this.name).emit("newround_countdown", new_round_awaiting);
-
-
 
 
   setTimeout( ()=> {
@@ -149,6 +148,10 @@ Game.prototype.startNewRound = function(){
     io.to(this.name).emit("new_positions_generated", new_round_positions);
 
     setTimeout(()=>{
+
+      if(!this.game_state)
+        return;
+
       io.to(this.name).emit("round_start");
       for(var player of this.player_states){
         this.game_state.player_consideration = true;
@@ -158,6 +161,9 @@ Game.prototype.startNewRound = function(){
     }, 3000);
 
     setTimeout(()=>{
+
+      if(!this.game_state)
+        return;
 
       io.to(this.name).emit("quit_consideration");
       this.game_state.player_consideration = false;
@@ -321,9 +327,30 @@ Game.prototype.detachMyselfFromList = function(){
 
   games.splice(idx,1);
 
-  sample_game = null;
+  var arr = games.getGameList();
+  io.emit("updategamelist", arr);
+
 
 }
+
+Game.prototype.delistPlayer = function(playername){
+
+    this.cnt_players--;
+
+    var index = this.players.findIndex((player_item)=>{
+      if(player_item.playername == playername){
+        return true;
+      }
+    });
+    this.players.splice(index, 1);
+
+    if(this.cnt_players==0){
+      this.detachMyselfFromList();
+    }
+
+
+}
+
 
 sample_game = new Game(0,  [], "Empty !!!", 500 );
 
@@ -340,6 +367,34 @@ games.getRoomWithName = function(gamename){
   });
 
   return room;
+
+}
+
+games.getGameList = function(){
+
+  var arr = [];
+
+  games.forEach( (game_item)=>{
+
+    var p_names = [];
+
+    game_item.players.forEach( (player_item)=>{
+      p_names.push(player_item.playername);
+    })
+
+    arr.push({
+      cnt_players: game_item.cnt_players,
+      bet: game_item.bet,
+      name: game_item.name,
+      players: p_names
+    });
+
+
+  });
+
+
+
+  return arr;
 
 }
 
@@ -374,27 +429,7 @@ module.exports = function( io_, socket ){
   socket.on("getgamelist", function(){
 
 
-    var arr = [];
-
-    games.forEach( (game_item)=>{
-
-      var p_names = [];
-
-      game_item.players.forEach( (player_item)=>{
-        p_names.push(player_item.playername);
-      })
-
-      arr.push({
-        cnt_players: game_item.cnt_players,
-        bet: game_item.bet,
-        name: game_item.name,
-        players: p_names
-      });
-
-
-    });
-
-
+    var arr = games.getGameList();
     socket.emit("updategamelist", arr);
 
   })
@@ -410,24 +445,12 @@ module.exports = function( io_, socket ){
     }
 
     // update previous game
-    games.findIndex( (game)=>{
+    if(previousroom){
+      var previous_game = games.getRoomWithName(previousroom);
+      previous_game.delistPlayer(playername);
+      socket.leave(previousroom);
+    }
 
-      if(game.name == socket.currentRoom){
-        game.cnt_players--;
-        // remove player from list
-        var index = game.players.findIndex((player_item)=>{
-
-          if(player_item.playername == playername){
-            return true;
-          }
-
-        });
-        game.players.splice(index, 1);
-        socket.leave(previousroom);
-        return true;
-      }
-
-    })
 
     // update new game
     var new_game = games.find( (game)=>{
@@ -460,6 +483,74 @@ module.exports = function( io_, socket ){
       new_game.start();
 
     }
+
+  })
+
+  socket.on("newgame", (gamename, bet, playername, fn)=>{
+
+    if(socket.currentRoom){
+      fn({
+        for: "confirm",
+        err_msg: "Please leave current room before creating another one"
+      });
+      return;
+    }
+
+    if(games.getRoomWithName(gamename)){
+      fn({
+        for: "gamename",
+        err_msg: "Game with given name already exist"
+      })
+      return;
+    }
+
+    if(bet<100){
+      fn({
+        for: "bet",
+        err_msg: "Minimum bet value is 100 Satoshi"
+      });
+      return;
+    }
+
+    socket.join(gamename);
+
+
+    socket.playername = playername;
+
+    var p = {
+      playername: playername,
+      socket: socket,
+      points: 0,
+      live: true
+    };
+
+    var ng = new Game(1, [p], gamename, bet);
+    games.push(ng);
+
+
+    var arr = games.getGameList();
+
+    io.emit("updategamelist", arr);
+
+    fn({
+      success: true
+    });
+
+  })
+
+  socket.on("leave", ()=>{
+
+    if(!socket.currentRoom){
+      return;
+    }
+
+    var prev_game = games.getRoomWithName(socket.currentRoom);
+    prev_game.delistPlayer(socket.playername);
+
+    socket.broadcast.emit("roomchanged", socket.playername, socket.currentRoom, null);
+
+    socket.leave(socket.currentRoom);
+    socket.currentRoom = null;
 
   })
 

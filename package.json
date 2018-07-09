@@ -29,7 +29,8 @@
     "triangle-circle-collision": "^1.0.4",
     "velocity-animate": "^2.0.5",
     "vue": "^2.0.1",
-    "vue-checkbox-radio": "^0.6.0"
+    "vue-checkbox-radio": "^0.6.0",
+    "vue-directive-tooltip": "^1.4.5"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",
