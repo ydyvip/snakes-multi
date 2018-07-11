@@ -1,0 +1,17 @@
+
+.input {
+  color: black;
+  padding: 6px 10px;
+  margin-right: 20px;
+  font-family: 'Abel', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  outline: none;
+  border: 2px solid black;
+  border-radius: 8px;
+  background-color: #bbbab8;
+}
+
+.input:focus{
+  background-color: #ff9f21;
+}

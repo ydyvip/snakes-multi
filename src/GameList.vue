@@ -7,22 +7,22 @@
     </div>
 
     <div v-else class="game-list-menu">
-      <input type="text" placeholder="Game name" v-model="new_game_form.gamename.val"
+      <input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val"
         v-tooltip.bottom.notrigger="{
           content: new_game_form.gamename.err_msg,
           class: 'tooltip-custom',
           visible: new_game_form.gamename.err
         }"
       />
-      <input type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"
+      <input class="input" type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"
         v-tooltip.bottom.notrigger="{
           content: new_game_form.bet.err_msg,
           class: 'tooltip-custom',
           visible: new_game_form.bet.err
         }"
        />
-      <button v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
-      <button v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
+      <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
+      <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
     </div>
 
     <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
@@ -31,8 +31,8 @@
       <img v-for="n in 6-game.cnt_players" src="img/circle-24-off.png" />
       <span class="game-name">{{game.name}}</span>
       <span class="bet">{{game.bet}} Satoshi</span>
-      <button v-if="currentRoom != game.name" class="green" v-on:click="joinToGame( game.name )"><b>JOIN</b></button>
-      <button v-else class="red" v-on:click="leaveRoom"><b>LEAVE</b></button>
+      <button class="btn green" v-if="currentRoom != game.name" v-on:click="joinToGame( game.name )" style="margin-left: 50px;"><b>JOIN</b></button>
+      <button v-else class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;"><b>LEAVE</b></button>
     </div>
 
   </div>
@@ -275,8 +275,6 @@
 
 <style scoped>
 
-@import url('https://fonts.googleapis.com/css?family=Abel');
-
 
 .href:link, .href:visited {
   color: #daa520;
@@ -301,59 +299,12 @@
   margin-bottom: 8px;
 }
 
-.game-list-menu input{
-  padding: 6px 10px;
-  margin-right: 20px;
-  font-family: 'Abel', sans-serif;
-  font-size: 14px;
-  letter-spacing: 1px;
-  outline: none;
-  border: 2px solid black;
-  border-radius: 8px;
-  background-color: #bbbab8;
-}
-
-.game-list-menu input:focus{
-  background-color: #ff9f21;
-}
-
 .room {
   padding: 5px 0;
 }
 
 .current_room {
   background-color: #abc;
-}
-
-button {
-  color: black;
-  padding: 4px;
-  box-sizing: border-box;
-  vertical-align: middle;
-  width: 100px;
-  border-radius: 10px;
-  border-color: black;
-  box-sizing: border-box;
-  font-family: 'Titillium Web', sans-serif;
-  letter-spacing: 2px;
-}
-
-button.green {
-  background-color: #2ece2e;
-  margin-left: 50px;
-}
-button.red {
-  background-color: #b22222;
-  margin-left: 50px;
-}
-
-button:active {
-  padding-top: 5px;
-  padding-bottom: 3px;
-}
-
-button:focus {
-  outline: none;
 }
 
 a {

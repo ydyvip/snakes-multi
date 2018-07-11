@@ -9,22 +9,22 @@
     </p>
 
     <div class="form-input">
-      <input placeholder="Username" type="text" v-model="username.val" />
+      <input class="input" placeholder="Username" type="text" v-model="username.val" />
       <div class="form-input-err" v-if="username.err">{{username.err}}</div>
     </div>
     <div class="form-input">
-      <input placeholder="Password" type="password" v-model="password.val" />
+      <input class="input" placeholder="Password" type="password" v-model="password.val" />
       <div class="form-input-err" v-if="password.err">{{password.err}}</div>
     </div>
     <div class="form-input">
-      <input placeholder="e-mail" type="text" v-model="email.val" />
+      <input class="input" placeholder="e-mail" type="text" v-model="email.val" />
       <div class="form-input-err" v-if="email.err">{{email.err}}</div>
     </div>
     <div class="form-input">
-      <input placeholder="BTC address" type="text" v-model="btc_address.val" />
+      <input class="input" placeholder="BTC address" type="text" v-model="btc_address.val" />
       <div class="form-input-err" v-if="btc_address.err">{{btc_address.err}}</div>
     </div>
-    <button v-on:click="register">REGISTER</button>
+    <button class="btn green" v-on:click="register">REGISTER</button>
   </div>
 
 </template>
@@ -99,6 +99,6 @@
 
 </script>
 
-<style scoped src="./Form.css">
+<style scoped src="./css/Form.css"/>
 
 </style>

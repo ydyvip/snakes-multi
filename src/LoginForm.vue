@@ -7,17 +7,17 @@
     </p>
 
     <div class="form-input">
-      <input placeholder="Username" type="text" v-model="username" />
+      <input class="input" placeholder="Username" type="text" v-model="username" />
     </div>
     <div class="form-input">
-      <input placeholder="Password" type="password" v-model="password" />
+      <input class="input" placeholder="Password" type="password" v-model="password" />
     </div>
     <div class="form-input">
       <checkbox v-model="rememberMe">
           Remember me
       </checkbox>
     </div>
-    <button v-on:click="login"><b>LOGIN</b></button>
+    <button class="btn green" v-on:click="login">LOGIN</button>
   </div>
 </template>
 
@@ -72,6 +72,7 @@
 
 </script>
 
-<style scoped src="./Form.css">
+<style scoped src="./css/Form.css"/>
+
 
 </style>

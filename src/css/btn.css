@@ -1,0 +1,29 @@
+
+.btn {
+  color: black;
+  padding: 4px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  width: 100px;
+  border-radius: 10px;
+  border-color: black;
+  box-sizing: border-box;
+  font-family: 'Titillium Web', sans-serif;
+  letter-spacing: 2px;
+}
+
+.btn.green {
+  background-color: #2ece2e;
+}
+.btn.red {
+  background-color: #b22222;
+}
+
+.btn:active {
+  padding-top: 5px;
+  padding-bottom: 3px;
+}
+
+.btn:focus {
+  outline: none;
+}
