@@ -8,9 +8,9 @@
         {{tab.text}}
       </a>
     </div>
-
-    <component v-on:successfull-login="$emit('successfull-login', $event)" v-bind:is="activeTabComp"></component>
-
+    <transition v-on:enter="enterRegLogForm" v-on:leave="leaveRegLogForm" mode="out-in">
+      <component v-on:successfull-login="$emit('successfull-login', $event)" v-bind:is="activeTabComp"></component>
+    </transition>
   </div>
 </template>
 
@@ -37,6 +37,26 @@
     components: {
       LoginForm,
       RegisterForm
+    },
+    methods: {
+      enterRegLogForm: function(el, done){
+        this.$anime({
+          targets: el,
+          opacity: [0,1],
+          duration: 200,
+          easing: "linear",
+          complete: done
+        })
+      },
+      leaveRegLogForm: function(el, done){
+        this.$anime({
+          targets: el,
+          opacity: [1,0],
+          duration: 200,
+          easing: "linear",
+          complete: done
+        })
+      }
     }
   }
 
