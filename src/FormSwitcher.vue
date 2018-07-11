@@ -53,6 +53,7 @@
   color: white;
   font-size: 20px;
   font-family: 'Titillium Web', sans-serif;
+  cursor: pointer;
 }
 
 .active {
