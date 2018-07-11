@@ -2,28 +2,30 @@
 
   <div class="game-box">
 
-    <div v-if="menu_active" class="game-list-menu" >
-      <a  v-on:click.prevent="menu_active = false" class="href" href=""><b>New >></b></a>
-    </div>
+    <transition mode="out-in" v-on:enter="enterRoomCreationForm" v-on:leave="leaveRoomCreationForm">
+      <div v-if="menu_active" class="game-list-menu" key="m_a1" >
+        <a  v-on:click.prevent="menu_active = false" class="href" href=""><b>New >></b></a>
+      </div>
 
-    <div v-else class="game-list-menu">
-      <input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val"
-        v-tooltip.bottom.notrigger="{
-          content: new_game_form.gamename.err_msg,
-          class: 'tooltip-custom',
-          visible: new_game_form.gamename.err
-        }"
-      />
-      <input class="input" type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"
-        v-tooltip.bottom.notrigger="{
-          content: new_game_form.bet.err_msg,
-          class: 'tooltip-custom',
-          visible: new_game_form.bet.err
-        }"
-       />
-      <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
-      <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
-    </div>
+      <div v-else class="game-list-menu" key="m_a2">
+        <input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val"
+          v-tooltip.bottom.notrigger="{
+            content: new_game_form.gamename.err_msg,
+            class: 'tooltip-custom',
+            visible: new_game_form.gamename.err
+          }"
+        />
+        <input class="input" type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"
+          v-tooltip.bottom.notrigger="{
+            content: new_game_form.bet.err_msg,
+            class: 'tooltip-custom',
+            visible: new_game_form.bet.err
+          }"
+         />
+        <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
+        <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
+      </div>
+    </transition>
 
     <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
 
@@ -90,6 +92,26 @@
     props: ["loggedAs"],
 
     methods: {
+
+      enterRoomCreationForm: function(el, done){
+        this.$anime({
+          targets: el,
+          opacity: [0,1],
+          duration: 200,
+          easing: "linear",
+          complete: done
+        })
+      },
+
+      leaveRoomCreationForm: function(el, done){
+        this.$anime({
+          targets: el,
+          opacity: [1,0],
+          duration: 200,
+          easing: "linear",
+          complete: done
+        })
+      },
 
       gameStart: function(initial_states, first_to_reach){
 
@@ -252,10 +274,6 @@
       }
 
     }
-
-
-
-
   }
 
 </script>
