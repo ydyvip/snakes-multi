@@ -38,6 +38,10 @@
 
       login: function(){
 
+        if(this.username == "" || this.password == ""){
+          this.msg = "Both fields are required";
+        }
+
         this.$axios.post("http://localhost:3004/login", {
           username: this.username,
           password: this.password,
@@ -50,7 +54,6 @@
         .then( (response)=>{
 
           if(response.status == 401){
-            this.success = false;
             this.msg = "Invalid username or password";
           }
 
