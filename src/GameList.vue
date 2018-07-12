@@ -294,21 +294,6 @@
 <style scoped>
 
 
-.href:link, .href:visited {
-  color: #daa520;
-  text-decoration: none;
-  letter-spacing: 2px;
-}
-
-.href:hover{
-  text-decoration: underline;
-}
-
-.href:active{
-  text-decoration: underline;
-  color: #bb8d18;
-}
-
 .game-list-menu {
   background-color: #737b88;
   padding: 6px;
@@ -325,9 +310,7 @@
   background-color: #abc;
 }
 
-a {
-  font-family: 'Titillium Web', sans-serif;
-}
+
 
 .bet {
   color: #efdf24;

@@ -1,0 +1,15 @@
+.href:link, .href:visited {
+  font-family: 'Titillium Web', sans-serif;
+  color: #daa520;
+  text-decoration: none;
+  letter-spacing: 2px;
+}
+
+.href:hover{
+  text-decoration: underline;
+}
+
+.href:active{
+  text-decoration: underline;
+  color: #bb8d18;
+}

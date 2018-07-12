@@ -1,7 +1,13 @@
 
 <template>
+
   <div class="userpanel">
-    Hello <span class="username">{{username}}</span>
+    <div style="display: inline-block; width: 20%">
+      Hello <span class="username">{{username}}</span>
+    </div>
+    <div style="text-align: right; display: inline-block; width: 75%;" >
+      <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
+    </div>
   </div>
 
 </template>
@@ -15,7 +21,14 @@
 
     }),
     methods: {
+      logout: function(){
 
+        this.$axios.get("/login/logout")
+        .then( ()=>{
+          this.$emit("logout")
+        } )
+
+      }
     }
 
   }
@@ -32,6 +45,10 @@
 
 .username {
   font-weight: 900;
+}
+
+#logout{
+  color: black;
 }
 
 </style>

@@ -5,7 +5,7 @@
     <form-switcher  v-if="!loggedAs" v-on:successfull-login="loggedAs=$event"/>
 
     <template v-if="loggedAs">
-      <user-panel v-bind:username="loggedAs" />
+      <user-panel v-bind:username="loggedAs" v-on:logout="logout" />
       <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs"
         v-on:gamestart="gamestart" v-on:eog="eog">
       </component>
@@ -49,6 +49,9 @@
       eog: function(){
         this.initial_states = null;
         this.GameList_Game = GameList;
+      },
+      logout: function(){
+        this.loggedAs = null;
       }
     },
     components: {
@@ -70,6 +73,7 @@
 
 <style src="./css/btn.css"/>
 <style src="./css/input.css"/>
+<style src="./css/href.css"/>
 
 <style>
 
