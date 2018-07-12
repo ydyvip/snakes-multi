@@ -8,6 +8,10 @@ router.post("/", passport.authenticate("json"), function(req, res){
   // if authentication fails, Passport will respond with a 401 Unauthorized status
   // Strategies must be configured prior to using them in a route
 
+  if(!req.body.rememberMe){
+    req.session.cookie.expires = false;
+  }
+
   res.json({
     success: true
   })
