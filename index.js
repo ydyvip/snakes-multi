@@ -31,7 +31,12 @@ app.use(session({
    secret: "TeraXaxzz",
    store: new MongoStore({
      dbPromise: db.promise
-   })
+   }),
+   cookie: {
+     maxAge: 1000 * 60 * 60 * 24 * 30 // one month
+   },
+   resave: false,
+   saveUninitialized: false
 }));
 app.use(bodyparser.json());
 app.use(passport.initialize());
