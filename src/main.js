@@ -5,6 +5,8 @@ import CheckboxRadio from 'vue-checkbox-radio';
 import anime from 'animejs'
 import Tooltip from 'vue-directive-tooltip';
 
+var axios = require("axios");
+
 Vue.use(CheckboxRadio);
 Vue.use(Tooltip);
 
@@ -12,6 +14,7 @@ var io = require("socket.io-client")();
 
 Vue.prototype.$io = io;
 Vue.prototype.$anime = anime;
+Vue.prototype.$axios = axios;
 
 
 var app = new Vue({

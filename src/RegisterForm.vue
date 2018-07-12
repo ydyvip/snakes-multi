@@ -31,8 +31,6 @@
 
 <script>
 
-  var axios = require("axios");
-
   module.exports = {
 
     data: () => ({
@@ -55,7 +53,7 @@
       },
 
       success: null,
-      msg: "Your account has been created. Now you can login"
+      msg: "Thank you for your registration! Your account is now ready to use."
 
     }),
 
@@ -72,7 +70,7 @@
         this.email.err = null;
         this.btc_address.err = null;
 
-        axios.post("http://localhost:3004/register", {
+        this.$axios.post("http://localhost:3004/register", {
           username: this.username.val,
           password: this.password.val,
           email: this.email.val,

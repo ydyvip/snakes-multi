@@ -66,7 +66,8 @@ var users = {
       username: username,
       password: password,
       email: email,
-      btc_address: btc_address
+      btc_address: btc_address,
+      balance: 100
     } );
 
   }

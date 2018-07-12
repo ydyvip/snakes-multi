@@ -23,8 +23,6 @@
 
 <script>
 
-  var axios = require("axios");
-
   module.exports = {
 
     data: () => ({
@@ -40,12 +38,12 @@
 
       login: function(){
 
-        axios.post("http://localhost:3004/login", {
+        this.$axios.post("http://localhost:3004/login", {
           username: this.username,
           password: this.password,
           rememberMe: this.rememberMe
         }, {
-          validateStatus: function (status) {
+          validateStatus: function (status) { // handle 401 status what is not default behaviour
             return (status >= 200 && status < 300) || status == 401;
           }
         })

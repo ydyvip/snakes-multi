@@ -14,4 +14,21 @@ router.post("/", passport.authenticate("json"), function(req, res){
 
 });
 
+// get initial data from user
+router.get("/session", function(req,res){
+
+    if(!req.user){
+      res.end();
+      return;
+    }
+
+    res.json({
+      username: req.user.username,
+      btc_address: req.user.btc_address,
+      balance: req.user.balance
+    })
+
+
+})
+
 module.exports = router;
