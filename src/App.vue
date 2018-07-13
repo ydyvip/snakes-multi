@@ -52,6 +52,9 @@
       },
       logout: function(){
         this.loggedAs = null;
+        setTimeout(()=>{ // hack: calling immediately after comp creation does'n update data on child comp
+          this.$bus.$emit("logout");
+      },500)
       }
     },
     components: {

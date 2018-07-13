@@ -25,7 +25,7 @@
 
         this.$axios.get("/login/logout")
         .then( ()=>{
-          this.$emit("logout")
+          this.$emit("logout");
         } )
 
       }

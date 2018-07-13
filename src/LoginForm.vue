@@ -2,7 +2,10 @@
 <template>
   <div class="form-box">
 
-    <p v-if="msg!=null" class="form-msg-err">
+    <p v-if="after_logout" class="form-msg-valid">
+      You have been logged out
+    </p>
+    <p v-else-if="msg!=null" class="form-msg-err">
       {{msg}}
     </p>
 
@@ -26,20 +29,30 @@
   module.exports = {
 
     data: () => ({
-
       username: "",
       password: "",
       rememberMe: true,
-      msg: null
-
+      msg: null,
+      after_logout: false
     }),
+
+    mounted: function(){
+
+      this.$bus.$on("logout", ()=>{
+        this.after_logout = true;
+      })
+
+    },
 
     methods: {
 
       login: function(){
 
+        this.after_logout = false;
+
         if(this.username == "" || this.password == ""){
           this.msg = "Both fields are required";
+          return;
         }
 
         this.$axios.post("http://localhost:3004/login", {

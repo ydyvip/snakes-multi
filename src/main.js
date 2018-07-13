@@ -15,12 +15,14 @@ var io = require("socket.io-client")();
 Vue.prototype.$io = io;
 Vue.prototype.$anime = anime;
 Vue.prototype.$axios = axios;
-
+Vue.prototype.$bus = new Vue({});
 
 var app = new Vue({
   el: '#app',
   render: h => h(App)
 })
+
+
 
 
 window.app = app;
