@@ -2,10 +2,13 @@
 <template>
 
   <div class="userpanel">
-    <div style="display: inline-block; width: 20%">
+    <div style="display: inline-block; width: 15%">
       Hello <span class="username">{{username}}</span>
     </div>
-    <div style="text-align: right; display: inline-block; width: 75%;" >
+    <div style="display: inline-block; width: 25%">
+      Balance: <span class="username">{{balance}} Satoshi</span>
+    </div>
+    <div style="text-align: right; display: inline-block; width: 55%;" >
       <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
     </div>
   </div>
@@ -16,7 +19,7 @@
 
   module.exports = {
 
-    props: ["username"],
+    props: ["username", "balance"],
     data: ()=>({
 
     }),

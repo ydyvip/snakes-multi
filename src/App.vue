@@ -5,7 +5,7 @@
     <form-switcher  v-if="!loggedAs" v-on:successfull-login="loggedAs=$event"/>
 
     <template v-if="loggedAs">
-      <user-panel v-bind:username="loggedAs" v-on:logout="logout" />
+      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" />
       <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs"
         v-on:gamestart="gamestart" v-on:eog="eog">
       </component>
@@ -27,6 +27,7 @@
     data: () => ({
       // loggedAs: new String("a" + Math.random()*10).substr(0,6), // TODO:  on debug loggedAs, default to null,
       loggedAs: null,
+      balance: null,
       GameList_Game: GameList,
       initial_states: null,
       first_to_reach: null
@@ -37,6 +38,7 @@
       .then( (response)=>{
 
         this.loggedAs = response.data.username;
+        this.balance = response.data.balance;
 
       })
     },
