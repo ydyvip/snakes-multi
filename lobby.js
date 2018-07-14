@@ -5,6 +5,8 @@ var Player = require("./src/game/PlayerSrv.js");
 var GameState = require("./src/game/GameState.js");
 var random = require("random-js")();
 
+var Users = require("./DB/users.db.js")
+
 var io = null;
 
 var games = [];
@@ -23,6 +25,16 @@ function Game(cnt_players, players, name, bet){
 
   this.gameloop_id = null
   this.serveloop_id = null;
+
+}
+
+Game.prototype.getPlayersName = function(){
+
+  var arr = [];
+  for(var p of this.players){
+    arr.push( p.playername);
+  }
+  return arr;
 
 }
 
@@ -93,7 +105,10 @@ Game.prototype.emitKilled = function(playername){
     }
 
     if(game_winner){
-      io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.85));
+
+      Users.incrementBalanceForWinner(game_winner.playername, Math.floor(this.bet * this.cnt_players * 0.75) )
+
+      io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
       this.detachMyselfFromList();
       clearTimeout(this.serveloop_id);
       this.game_state = null;
@@ -209,6 +224,8 @@ Game.prototype.makeInitPositions = function(player){
 }
 
 Game.prototype.start = function(){
+
+  Users.reduceBalances( this.getPlayersName(), -this.bet );
 
   this.player_states = [];
   var initial_states = [];

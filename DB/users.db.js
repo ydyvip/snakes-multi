@@ -70,6 +70,40 @@ var users = {
       balance: 100
     } );
 
+  },
+
+  reduceBalances: function(users, amount){
+
+    console.log(users)
+
+    this.coll.updateMany(
+      {
+        username: {
+          $in: users
+        }
+      },
+      {
+        $inc: {
+          balance: amount
+        }
+      }
+    );
+
+  },
+
+  incrementBalanceForWinner: function(username, amount){
+
+    this.coll.updateOne(
+      {
+        username: username
+      },
+      {
+        $inc: {
+          balance: amount
+        }
+      }
+    );
+
   }
 
 }
