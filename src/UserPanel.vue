@@ -41,9 +41,10 @@
 <style scoped>
 
 .userpanel{
-  background-color: white;
-  color: black;
+  background-color: #446088;
   padding: 8px;
+  color: #efdf24;
+
 }
 
 .username {
@@ -51,7 +52,7 @@
 }
 
 #logout{
-  color: black;
+  color: #efdf24;
 }
 
 </style>

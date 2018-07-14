@@ -29,8 +29,7 @@
 
     <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
 
-      <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.png" />
-      <img v-for="n in 6-game.cnt_players" src="img/circle-24-off.png" />
+      <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.svg" /><img v-for="n in 6-game.cnt_players" src="img/circle-24-off.svg" />
       <span class="game-name">{{game.name}}</span>
       <span class="bet">{{game.bet}} Satoshi</span>
       <button class="btn green" v-if="currentRoom != game.name" v-on:click="joinToGame( game.name )" style="margin-left: 50px;"><b>JOIN</b></button>
@@ -295,7 +294,7 @@
 
 
 .game-list-menu {
-  background-color: #737b88;
+  background-color: #3e5382;
   padding: 6px;
   border-bottom: 1px solid black;
   box-shadow: 0px 10px 36px -13px rgba(0,0,0,0.75);
@@ -303,11 +302,11 @@
 }
 
 .room {
-  padding: 5px 0;
+  padding: 5px 20px;
 }
 
 .current_room {
-  background-color: #abc;
+  background-color: #31659a;
 }
 
 
@@ -331,7 +330,8 @@
   width: 800px;
   height: 800px;
   margin: 30px auto;
-  background-color: #5e6672;
+  background-color: #314f79;
+  border: 1px solid black;
 }
 
 img {
