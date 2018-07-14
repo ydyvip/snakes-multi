@@ -6,6 +6,7 @@ var GameState = require("./src/game/GameState.js");
 var random = require("random-js")();
 
 var Users = require("./DB/users.db.js")
+var Stats = require("./DB/stats.db.js")
 
 var io = null;
 
@@ -107,6 +108,7 @@ Game.prototype.emitKilled = function(playername){
     if(game_winner){
 
       Users.incrementBalanceForWinner(game_winner.playername, Math.floor(this.bet * this.cnt_players * 0.75) )
+      Stats.updateFromMatchPlayed( Math.floor(this.bet * this.cnt_players * 0.25) );
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
       this.detachMyselfFromList();

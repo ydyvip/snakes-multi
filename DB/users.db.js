@@ -74,8 +74,6 @@ var users = {
 
   reduceBalances: function(users, amount){
 
-    console.log(users)
-
     this.coll.updateMany(
       {
         username: {
