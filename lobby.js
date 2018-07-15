@@ -485,12 +485,11 @@ module.exports = function( io_, socket ){
           live: true
         });
 
+        socket.join(newroom);
         socket.currentRoom = newroom;
         socket.playername = playername;
 
         socket.broadcast.emit("roomchanged", playername, previousroom, newroom);
-
-        socket.join(newroom);
 
         return true;
       }
@@ -532,8 +531,7 @@ module.exports = function( io_, socket ){
     }
 
     socket.join(gamename);
-
-
+    socket.currentRoom = gamename;
     socket.playername = playername;
 
     var p = {
