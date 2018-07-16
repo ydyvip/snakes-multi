@@ -320,7 +320,7 @@
           p = null;
         }
 
-        players = null;
+        players = [];
 
         this.$emit('eog')
 
@@ -411,7 +411,9 @@
 
         player_me.speed = 0;
 
-        this.$bus.$emit("balance_update", reward)
+        if(winner == player_me.name){
+          this.$bus.$emit("balance_update", reward)
+        }
 
       })
 
