@@ -71,20 +71,26 @@
 
     }),
 
-    created: function(){
+    mounted: function(){
 
       this.refreshGameList();
 
-      this.$io.on("updategamelist", (games)=>{
-
-        this.games = games;
-
-      })
+      this.$io.on("updategamelist", this.recreateGameList );
 
       this.$io.on("roomchanged", this.updateGamelist );
 
       this.$io.on("gamestart", this.gameStart);
 
+
+    },
+
+    beforeDestroy: function(){
+
+      this.$io.removeListener("updategamelist", this.recreateGameList );
+
+      this.$io.removeListener("roomchanged", this.updateGamelist );
+
+      this.$io.removeListener("gamestart", this.gameStart);
 
     },
 
@@ -123,6 +129,12 @@
       refreshGameList: function(){
 
         this.$io.emit("getgamelist");
+
+      },
+
+      recreateGameList: function(games){
+
+        this.games = games;
 
       },
 
