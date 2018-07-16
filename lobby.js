@@ -276,7 +276,7 @@ Game.prototype.start = function(){
 
   })
 
-  io.to(this.name).emit("gamestart", initial_states, this.first_to_reach);
+  io.to(this.name).emit("gamestart", initial_states, this.first_to_reach, this.bet);
 
 
   this.gameloop_id = gameloop.setGameLoop( (delta)=>{

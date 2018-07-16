@@ -411,6 +411,8 @@
 
         player_me.speed = 0;
 
+        this.$bus.$emit("balance_update", reward)
+
       })
 
 

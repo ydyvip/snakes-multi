@@ -1,12 +1,20 @@
 
 <template>
 
-  <div class="userpanel">
+  <div class="userpanel" style="position: relative">
     <div style="display: inline-block; width: 15%">
       Hello <span class="username">{{username}}</span>
     </div>
     <div style="display: inline-block; width: 25%">
-      Balance: <span class="username">{{balance}} Satoshi</span>
+      <div style="display: inline-block; min-width: 165px">
+        Balance: <span class="username">{{tweened_balance}} Satoshi</span>
+      </div>
+      <transition v-on:enter="enter_difference">
+        <span v-if="difference" v-bind:class="{reduced: difference<0, incremented: difference>0}">
+          <span v-if="difference>0">+{{difference}}</span>
+          <span v-else>{{difference}}</span>
+        </span>
+      </transition>
     </div>
     <div style="text-align: right; display: inline-block; width: 55%;" >
       <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
@@ -22,6 +30,9 @@
     props: ["username", "balance"],
     data: ()=>({
 
+      tweened_balance: undefined,
+      difference: undefined
+
     }),
     methods: {
       logout: function(){
@@ -31,7 +42,42 @@
           this.$emit("logout");
         } )
 
+      },
+      enter_difference: function(el, done){
+        this.$anime({
+          targets: el,
+          complete: done,
+          translateX: "30px",
+          duration: 3500,
+        })
       }
+
+    },
+    mounted: function(){
+
+      this.tweened_balance = this.balance;
+
+    },
+
+    watch: {
+      balance: function(new_balance, old_balance ){
+
+        this.$anime({
+          targets: this,
+          tweened_balance: [old_balance, new_balance],
+          round: 1,
+          duration: 3500,
+          easing: "easeOutQuint"
+        });
+
+        this.difference = new_balance - old_balance;
+
+        setTimeout( ()=>{
+          this.difference = 0
+        }, 3500 );
+
+      }
+
     }
 
   }
@@ -54,5 +100,16 @@
 #logout{
   color: #efdf24;
 }
+
+.reduced {
+  display: inline-block;
+  color: red;
+}
+
+.incremented {
+  display: inline-block;
+  color: lime;
+}
+
 
 </style>

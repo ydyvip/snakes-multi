@@ -112,10 +112,10 @@
         })
       },
 
-      gameStart: function(initial_states, first_to_reach){
+      gameStart: function(initial_states, first_to_reach, bet){
 
+        this.$bus.$emit("balance_update", -bet);
         this.currentRoom = "";
-
         this.$emit("gamestart", initial_states, first_to_reach);
 
       },

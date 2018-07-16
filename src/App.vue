@@ -41,6 +41,13 @@
         this.balance = response.data.balance;
 
       })
+
+      this.$bus.$on("balance_update", (amount)=>{
+
+        this.balance = this.balance + amount;
+
+      })
+
     },
     methods: {
       gamestart: function(initial_states, first_to_reach){
