@@ -1,4 +1,6 @@
 
+var bcrypt = require("bcrypt");
+
 var ObjectId = require('mongodb').ObjectId;
 
 var p = require("../db.js").promise;
@@ -18,11 +20,15 @@ var users = {
       if(!doc)
         return null;
 
-      if(doc.password != password){
-        return null;
-      }
-
-      return doc;
+      return bcrypt.compare(password, doc.password)
+      .then((res)=>{
+        if(res){
+          return doc; // comparision succed
+        }
+        else{
+          return null;
+        }
+      })
 
     })
 
@@ -62,14 +68,16 @@ var users = {
 
   registerUser: function(username, password, email, btc_address){
 
-    return this.coll.insertOne( {
-      username: username,
-      password: password,
-      email: email,
-      btc_address: btc_address,
-      balance: 100
-    } );
-
+    return bcrypt.hash(password, 9)
+    .then((hash)=>{
+      return this.coll.insertOne( {
+        username: username,
+        password: hash,
+        email: email,
+        btc_address: btc_address,
+        balance: 100
+      } );
+    });
   },
 
   reduceBalances: function(users, amount){
