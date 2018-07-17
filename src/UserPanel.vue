@@ -16,7 +16,10 @@
         </span>
       </transition>
     </div>
-    <div style="text-align: right; display: inline-block; width: 55%;" >
+    <div style="display: inline-block">
+      <button id="btn_faucet_list" v-on:click="$emit('go_to_faucetlist')">Faucet List</button>
+    </div>
+    <div style="text-align: right; display: inline-block; width: 35%;" >
       <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
     </div>
   </div>
@@ -85,6 +88,33 @@
 </script>
 
 <style scoped>
+
+#btn_faucet_list {
+  border: 2px solid #efdf24;
+  background-color: #446088;
+  color: #efdf24;
+  padding: 6px 28px;
+  letter-spacing: 5px;
+  word-spacing: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  vertical-align: baseline;
+  position: absolute;
+  top: 4px;
+}
+
+#btn_faucet_list:hover {
+  background-color: #2e4669;
+}
+
+#btn_faucet_list:active {
+  padding-top: 7px;
+  padding-bottom: 5px;
+}
+
+#btn_faucet_list:focus {
+  outline: none;
+}
 
 .userpanel{
   background-color: #446088;

@@ -1,0 +1,7 @@
+.main-box {
+  width: 800px;
+  height: 800px;
+  margin: 30px auto;
+  background-color: #314f79;
+  border: 1px solid black;
+}

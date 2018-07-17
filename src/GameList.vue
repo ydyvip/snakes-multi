@@ -1,6 +1,6 @@
 <template>
 
-  <div class="game-box">
+  <div class="main-box">
 
     <transition mode="out-in" v-on:enter="enterRoomCreationForm" v-on:leave="leaveRoomCreationForm">
       <div v-if="menu_active" class="game-list-menu" key="m_a1" >
@@ -336,14 +336,6 @@
   color: white;
   font-size: 20px;
   font-family: 'Titillium Web', sans-serif;
-}
-
-.game-box {
-  width: 800px;
-  height: 800px;
-  margin: 30px auto;
-  background-color: #314f79;
-  border: 1px solid black;
 }
 
 img {

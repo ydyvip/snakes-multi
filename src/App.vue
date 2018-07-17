@@ -5,8 +5,8 @@
     <form-switcher  v-if="!loggedAs" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
     <template v-if="loggedAs">
-      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" />
-      <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="GameList_Game" v-bind:loggedAs="loggedAs"
+      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" v-on:go_to_faucetlist="gotoFaucetlist" />
+      <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="CompSwitcher" v-bind:loggedAs="loggedAs"
         v-on:gamestart="gamestart" v-on:eog="eog">
       </component>
     </template>
@@ -21,6 +21,7 @@
   var UserPanel = require("./UserPanel.vue");
   var Game = require("./Game.vue");
   var GameList = require("./GameList.vue");
+  var FaucetList = require("./FaucetList.vue");
 
   module.exports = {
     name: 'app',
@@ -28,7 +29,7 @@
       // loggedAs: new String("a" + Math.random()*10).substr(0,6), // TODO:  on debug loggedAs, default to null,
       loggedAs: null,
       balance: null,
-      GameList_Game: GameList,
+      CompSwitcher: GameList, // Game ; GameList ; FaucetList
       initial_states: null,
       first_to_reach: null
     }),
@@ -51,23 +52,26 @@
     },
     methods: {
       gamestart: function(initial_states, first_to_reach){
-        this.GameList_Game = Game;
+        this.CompSwitcher = Game;
         this.initial_states = initial_states;
         this.first_to_reach = first_to_reach;
       },
       eog: function(){
         this.initial_states = null;
-        this.GameList_Game = GameList;
+        this.CompSwitcher = GameList;
       },
       logout: function(){
         this.loggedAs = null;
-        setTimeout(()=>{ // hack: calling immediately after comp creation does'n update data on child comp
-          this.$bus.$emit("logout");
-      },500)
+          setTimeout(()=>{ // hack: calling immediately after comp creation does'n update data on child comp
+            this.$bus.$emit("logout");
+        },500)
+      },
+      gotoFaucetlist: function(){
+        this.CompSwitcher = FaucetList;
       }
     },
     components: {
-      FormSwitcher, UserPanel, Game, GameList
+      FormSwitcher, UserPanel, Game, GameList, FaucetList
     }
   }
 </script>
@@ -86,6 +90,7 @@
 <style src="./css/btn.css"/>
 <style src="./css/input.css"/>
 <style src="./css/href.css"/>
+<style src="./css/misc.css"/>
 
 <style>
 
