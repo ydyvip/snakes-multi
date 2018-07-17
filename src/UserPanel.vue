@@ -16,8 +16,11 @@
         </span>
       </transition>
     </div>
-    <div style="display: inline-block">
-      <button id="btn_faucet_list" v-on:click="$emit('go_to_faucetlist')">Faucet List</button>
+    <div style="display: inline-block" v-if="!active_faucet_list">
+      <button id="btn_faucet_list" v-on:click="switchGameFaucetList" >Faucet List</button>
+    </div>
+    <div style="display: inline-block" v-else>
+      <button id="btn_faucet_list" v-on:click="switchGameFaucetList">Game List</button>
     </div>
     <div style="text-align: right; display: inline-block; width: 35%;" >
       <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
@@ -34,10 +37,25 @@
     data: ()=>({
 
       tweened_balance: undefined,
-      difference: undefined
+      difference: undefined,
+      active_faucet_list: false
 
     }),
     methods: {
+
+      switchGameFaucetList: function(){
+
+        if(!this.active_faucet_list){
+          this.$emit("go_to_faucetlist", true);
+        }
+        else{
+          this.$emit("go_to_faucetlist", false); // back to game list
+        }
+
+        this.active_faucet_list = !this.active_faucet_list;
+
+      },
+
       logout: function(){
 
         this.$axios.get("/login/logout")
@@ -98,9 +116,10 @@
   word-spacing: 8px;
   font-size: 14px;
   font-weight: 400;
-  vertical-align: baseline;
   position: absolute;
   top: 4px;
+  text-align: center;
+  min-width: 192px;
 }
 
 #btn_faucet_list:hover {

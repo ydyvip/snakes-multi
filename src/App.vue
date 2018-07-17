@@ -66,8 +66,13 @@
             this.$bus.$emit("logout");
         },500)
       },
-      gotoFaucetlist: function(){
-        this.CompSwitcher = FaucetList;
+      gotoFaucetlist: function(faucetlist){
+        if(faucetlist){
+          this.CompSwitcher = FaucetList;
+        }
+        else{ // back to GameList
+          this.CompSwitcher = GameList;
+        }
       }
     },
     components: {
