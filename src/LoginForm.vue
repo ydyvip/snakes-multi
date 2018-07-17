@@ -71,7 +71,7 @@
           }
 
           if(response.data.success == true){
-            this.$emit("successfull-login", this.username);
+            this.$emit("successfull-login", response.data.username, response.data.balance);
           }
 
         })

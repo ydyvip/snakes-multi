@@ -9,7 +9,7 @@
       </a>
     </div>
     <transition v-on:enter="enterRegLogForm" v-on:leave="leaveRegLogForm" mode="out-in">
-      <component v-on:successfull-login="$emit('successfull-login', $event)" v-bind:is="activeTabComp"></component>
+      <component v-on:successfull-login="(username, balance)=>{ $emit('successfull-login', username, balance) }" v-bind:is="activeTabComp"></component>
     </transition>
   </div>
 </template>

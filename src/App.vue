@@ -2,7 +2,7 @@
 
   <div>
 
-    <form-switcher  v-if="!loggedAs" v-on:successfull-login="loggedAs=$event"/>
+    <form-switcher  v-if="!loggedAs" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
     <template v-if="loggedAs">
       <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" />

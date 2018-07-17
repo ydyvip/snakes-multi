@@ -13,7 +13,9 @@ router.post("/", passport.authenticate("json"), function(req, res){
   }
 
   res.json({
-    success: true
+    success: true,
+    username: req.user.username,
+    balance: req.user.balance
   })
 
 });
