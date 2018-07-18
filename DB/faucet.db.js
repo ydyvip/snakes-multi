@@ -13,7 +13,12 @@ var faucets = {
 
     getAllForList: function(){
 
-      return this.coll.find({}).toArray();
+      return this.coll.find(
+        {
+          approved: true,
+          $where: "this.balance >= this.reward"
+        }
+      ).toArray();
 
     }
 
