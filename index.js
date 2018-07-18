@@ -40,6 +40,7 @@ app.use(session({
    saveUninitialized: false
 }));
 app.use(bodyparser.json());
+app.use(bodyparser.urlencoded());
 app.use(passport.initialize());
 app.use(passport.session());
 

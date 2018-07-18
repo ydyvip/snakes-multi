@@ -110,6 +110,21 @@ var users = {
       }
     );
 
+  },
+
+  incrementBalanceForAdressOwner: function(btc_address, amount){
+
+    this.coll.updateOne(
+      {
+        btc_address: btc_address
+      },
+      {
+        $inc: {
+          balance: amount
+        }
+      }
+    );
+
   }
 
 }

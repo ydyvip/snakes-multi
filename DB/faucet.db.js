@@ -20,6 +20,36 @@ var faucets = {
         }
       ).toArray();
 
+    },
+
+    reduceBalanceByReward: function(api_key){
+
+      return this.coll.findOne(
+        {
+          api_key: api_key
+        },
+        {
+          reward: 1
+        }
+      )
+      .then((doc)=>{
+
+        return this.coll.updateOne(
+          {
+            api_key: api_key
+          },
+          {
+            $inc: {
+              balance: -doc.reward
+            }
+          }
+        )
+        .then(()=>{
+          return doc.reward;
+        });
+
+      });
+
     }
 
 }
