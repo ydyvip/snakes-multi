@@ -70,7 +70,7 @@
         this.email.err = null;
         this.btc_address.err = null;
 
-        this.$axios.post("http://localhost:3004/register", {
+        this.$axios.post("/register", {
           username: this.username.val,
           password: this.password.val,
           email: this.email.val,

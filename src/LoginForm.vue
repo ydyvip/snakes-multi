@@ -55,7 +55,7 @@
           return;
         }
 
-        this.$axios.post("http://localhost:3004/login", {
+        this.$axios.post("/login", {
           username: this.username,
           password: this.password,
           rememberMe: this.rememberMe
