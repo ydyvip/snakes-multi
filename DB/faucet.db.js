@@ -22,7 +22,9 @@ var faucets = {
 
     },
 
-    reduceBalanceByReward: function(api_key){
+    withdraw: function(api_key){
+
+      // Reduce balance by reward
 
       return this.coll.findOne(
         {
@@ -41,6 +43,9 @@ var faucets = {
           {
             $inc: {
               balance: -doc.reward
+            },
+            $currentDate: {
+              last_visited: true
             }
           }
         )

@@ -20,7 +20,7 @@ router.post("/send", function(req,res){
 
   // Handling withdraws
 
-  Faucets.reduceBalanceByReward(req.body.api_key)
+  Faucets.withdraw(req.body.api_key)
   .then((reward)=>{
 
     Users.incrementBalanceForAdressOwner(req.body.to, reward );
