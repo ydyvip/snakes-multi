@@ -120,6 +120,7 @@
   top: 4px;
   text-align: center;
   min-width: 192px;
+  cursor: pointer;
 }
 
 #btn_faucet_list:hover {

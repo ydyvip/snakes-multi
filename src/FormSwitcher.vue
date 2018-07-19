@@ -65,8 +65,6 @@
 
 <style scoped>
 
-/* TODO: Change cursor on hover */
-
 .switcher {
   display: inline-block;
   margin-right: 20px;
