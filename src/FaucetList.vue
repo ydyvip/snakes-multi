@@ -1,25 +1,34 @@
 <template>
     <div class="main-box">
 
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Reward</th>
-          <th>Timer</th>
-          <th>Visit</th>
-        </tr>
-        <tr v-for="faucet in faucet_list">
-          <td>{{faucet.name}}</td>
-          <td>{{faucet.reward}}</td>
-          <td>{{faucet.timer}}</td>
-          <td v-if="!faucet.countdown">
-            <a class="href" v-bind:href="faucet.address">Visit >></a>
-          </td>
-          <td v-if="faucet.countdown">
-            {{ checkZero(faucet.countdown.getMinutes()+"") + ":" + checkZero(faucet.countdown.getSeconds()+"") }}
-          </td>
-        </tr>
-      </table>
+      <template v-if="active_panel=='faucetlist'">
+        <table v-if="active_panel=='faucetlist'">
+          <tr>
+            <th>Name</th>
+            <th>Reward</th>
+            <th>Timer</th>
+            <th>Visit</th>
+          </tr>
+          <tr v-for="faucet in faucet_list">
+            <td>{{faucet.name}}</td>
+            <td>{{faucet.reward}}</td>
+            <td>{{faucet.timer}}</td>
+            <td v-if="!faucet.countdown">
+              <a class="href" v-bind:href="faucet.address">Visit >></a>
+            </td>
+            <td v-if="faucet.countdown">
+              {{ checkZero(faucet.countdown.getMinutes()+"") + ":" + checkZero(faucet.countdown.getSeconds()+"") }}
+            </td>
+          </tr>
+        </table>
+
+        <div class="box">
+          Are you faucet owner and wanna add your faucet on above list? <br/>
+          <a class="href" v-on:click.prevent="go_to_newfaucetform" href="">Create a New Faucet >></a>
+        </div>
+      </template>
+      <new-faucet-form v-if="active_panel=='newfaucetform'"></new-faucet-form>
+
 
     </div>
 </template>
@@ -27,14 +36,17 @@
 
 <script>
 
-
+  var NewFaucetForm = require("./NewFaucetForm.vue");
 
   module.exports = {
+
+    components: { NewFaucetForm },
 
     data: ()=>({
 
       faucet_list: [],
-      interval: undefined
+      interval: undefined,
+      active_panel: "faucetlist", // faucetlist; newfaucetform
 
     }),
 
@@ -85,6 +97,10 @@
           data = "0" + data;
         }
         return data;
+      },
+
+      go_to_newfaucetform: function(){
+        this.active_panel = "newfaucetform";
       }
 
     }
@@ -93,6 +109,15 @@
 </script>
 
 <style scoped>
+
+  .box {
+    font-family: 'Titillium Web', sans-serif;
+    color: white;
+    border-top: 1px solid #476fa9;
+    margin: 35px 40px;
+    padding: 15px;
+    text-align: center;
+  }
 
   table {
     margin: 0 auto;
