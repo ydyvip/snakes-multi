@@ -14,7 +14,7 @@
             <td>{{faucet.reward}}</td>
             <td>{{faucet.timer}}</td>
             <td v-if="!faucet.countdown">
-              <a class="href" v-bind:href="faucet.address">Visit >></a>
+              <a class="href" v-bind:href="faucet.url">Visit >></a>
             </td>
             <td v-if="faucet.countdown">
               {{ checkZero(faucet.countdown.getMinutes()+"") + ":" + checkZero(faucet.countdown.getSeconds()+"") }}
@@ -27,7 +27,7 @@
           <a class="href" v-on:click.prevent="go_to_newfaucetform" href="">Create a New Faucet >></a>
         </div>
       </template>
-      <new-faucet-form v-if="active_panel=='newfaucetform'"></new-faucet-form>
+      <new-faucet-form v-on:back="active_panel='faucetlist'" v-if="active_panel=='newfaucetform'"></new-faucet-form>
 
 
     </div>
@@ -109,6 +109,7 @@
 </script>
 
 <style scoped>
+
 
   .box {
     font-family: 'Titillium Web', sans-serif;

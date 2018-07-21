@@ -3,6 +3,7 @@
   color: #daa520;
   text-decoration: none;
   letter-spacing: 2px;
+  cursor: pointer;
 }
 
 .href:hover{

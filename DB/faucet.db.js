@@ -1,4 +1,8 @@
 
+var rand = require("random-key");
+var bitcoin = require("bitcoinjs-lib")
+
+
 var ObjectId = require('mongodb').ObjectId;
 
 var p = require("../db.js").promise;
@@ -26,6 +30,8 @@ var faucets = {
 
       // Reduce balance by reward
 
+      var keyPair = bitcoin.ECPair.makeRandom();
+
       return this.coll.findOne(
         {
           api_key: api_key
@@ -52,6 +58,50 @@ var faucets = {
         .then(()=>{
           return doc.reward;
         });
+
+      });
+
+    },
+
+    faucetNameTaken: function(name){
+
+      return this.coll.findOne( { name: name} )
+      .then( (doc) => {
+        if(doc){
+          return true;
+        }
+        else{
+          return false;
+        }
+      });
+
+    },
+
+    register: function(name, url, reward, timer, username){
+
+      var keyPair = bitcoin.ECPair.makeRandom();
+
+      var api_key = rand.generate(12, "0123456789abcdefghiklmnopqrstuvwxyz");
+      var btc_deposit = keyPair.getAddress();
+
+      return this.coll.insertOne({
+        name: name,
+        url: url,
+        reward: reward,
+        timer: timer,
+        owner: username,
+        balance: 0,
+        api_key: api_key,
+        approved: false,
+        btc_deposit: btc_deposit,
+        btc_private_key: keyPair.toWIF()
+      })
+      .then(()=>{
+
+        return {
+          api_key: api_key,
+          btc_deposit: btc_deposit
+        }
 
       });
 
