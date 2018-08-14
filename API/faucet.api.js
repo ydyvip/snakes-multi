@@ -21,6 +21,24 @@ router.get("/", function(req,res){
 
 })
 
+router.get("/namesofowned", function(req,res){
+
+  Faucets.getNamesOfOwned(req.user.username)
+  .then((names)=>{
+    res.json(names);
+  })
+
+})
+
+router.get("/details/:name", function(req,res){
+
+  Faucets.getDetails(req.params.name)
+  .then((faucet)=>{
+    res.json(faucet);
+  })
+
+})
+
 router.post("/register", function(req,res){
 
   var response = {

@@ -25,10 +25,16 @@
         <div class="box">
           Are you faucet owner and wanna add your faucet on above list? <br/>
           <a class="href" v-on:click.prevent="go_to_newfaucetform" href="">Create a New Faucet >></a>
+          <br/>
+          <br/>
+          Manage your faucets and have insight at API for withdrawal and balance checking: <br/>
+          <a href="" class="href" v-on:click.prevent="go_to_faucetmanager">Faucet Manager >></a>
+
         </div>
       </template>
-      <new-faucet-form v-on:back="active_panel='faucetlist'" v-if="active_panel=='newfaucetform'"></new-faucet-form>
 
+      <new-faucet-form v-on:back="active_panel='faucetlist'" v-on:back_to_faucetmanager="active_panel='faucetmanager'"  v-if="active_panel=='newfaucetform'"></new-faucet-form>
+      <faucet-manager v-if="active_panel=='faucetmanager'"></faucet-manager>
 
     </div>
 </template>
@@ -37,10 +43,11 @@
 <script>
 
   var NewFaucetForm = require("./NewFaucetForm.vue");
+  var FaucetManager = require("./FaucetManager.vue");
 
   module.exports = {
 
-    components: { NewFaucetForm },
+    components: { NewFaucetForm, FaucetManager },
 
     data: ()=>({
 
@@ -101,7 +108,12 @@
 
       go_to_newfaucetform: function(){
         this.active_panel = "newfaucetform";
+      },
+
+      go_to_faucetmanager: function(){
+        this.active_panel = "faucetmanager";
       }
+
 
     }
   }

@@ -26,6 +26,33 @@ var faucets = {
 
     },
 
+    getNamesOfOwned: function(owner){
+
+      return this.coll.find({
+        owner: owner
+      }, {
+        name: 1
+      }).toArray()
+      .then( (docs)=> {
+        var names = [];
+        for(doc of docs){
+          names.push(doc.name);
+        }
+        return names;
+      })
+
+    },
+
+    getDetails: function(name) {
+
+      return this.coll.findOne({
+        name: name
+      }, {
+        btc_private_key: 0
+      })
+
+    },
+
     withdraw: function(api_key){
 
       // Reduce balance by reward

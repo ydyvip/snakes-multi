@@ -4,8 +4,12 @@ var App = require('./App.vue')
 import CheckboxRadio from 'vue-checkbox-radio';
 import anime from 'animejs'
 import Tooltip from 'vue-directive-tooltip';
+import vSelect from 'vue-select'
+
+Vue.component('v-select', vSelect)
 
 var axios = require("axios");
+
 
 Vue.use(CheckboxRadio);
 Vue.use(Tooltip);

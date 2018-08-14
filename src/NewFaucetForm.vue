@@ -16,8 +16,8 @@
       </p>
 
       <p style="margin: 35px 40px; text-align: center; color: white; padding: 25px; border-top: 1px solid #476fa9;  ">
-        Manage your faucets and have insight at API for withdraws and balance checking: <br/>
-        <a href="" class="href" v-on:click:="go_to_faucetmanager">Faucet Manager >></a>
+        Manage your faucets and have insight at API for withdrawal and balance checking: <br/>
+        <a href="" class="href" v-on:click.prevent="go_to_faucetmanager">Faucet Manager >></a>
       </p>
 
     </template>
@@ -114,7 +114,7 @@
       },
 
       go_to_faucetmanager: function(){
-
+        this.$emit("back_to_faucetmanager");
       }
 
     }

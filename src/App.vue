@@ -100,7 +100,6 @@
 
 <style>
 
-
  body {
    background-color: #284165;
    margin: 0;
