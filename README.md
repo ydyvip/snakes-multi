@@ -1,6 +1,7 @@
-# new2
+# nturning-with-satoshi
 
 > A Vue.js project
+> Node.js, Express, Socket.IO, MongoDB on backend
 
 ## Build Setup
 
