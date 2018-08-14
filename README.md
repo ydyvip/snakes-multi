@@ -1,4 +1,4 @@
-# nturning-with-satoshi
+# turning-with-satoshi
 
 > A Vue.js project
 > Node.js, Express, Socket.IO, MongoDB on backend
