@@ -18,3 +18,7 @@ npm run build
 ```
 
 For more information see the [docs for vueify](https://github.com/vuejs/vueify).
+
+### Demonstration of gameplay:
+
+>https://youtu.be/wg3kXAqftyA
