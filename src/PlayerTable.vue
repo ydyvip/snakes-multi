@@ -197,7 +197,7 @@
 
   .top-box {
     vertical-align: top;
-    background-color: #5e6672;
+    background-color: #446088;
     padding: 20px;
     width: 350px;
     margin-left: 15px;

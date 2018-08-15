@@ -57,8 +57,6 @@ var faucets = {
 
       // Reduce balance by reward
 
-      var keyPair = bitcoin.ECPair.makeRandom();
-
       return this.coll.findOne(
         {
           api_key: api_key

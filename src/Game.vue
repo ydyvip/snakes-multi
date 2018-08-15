@@ -1,7 +1,7 @@
 
 <template>
 
-  <div>
+  <div style="width: 1250px; margin: 0 auto; position: relative;">
 
   <transition v-on:enter="enter_countdown_active" v-on:leave="leave_countdown_active">
     <div class="countdown" v-if="countdown_active">New round will start in {{countdown_counter}} seconds</div>
