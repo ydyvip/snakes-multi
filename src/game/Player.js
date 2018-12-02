@@ -133,14 +133,25 @@ Player.prototype.draw = function(self){
 
 }
 
-Player.prototype.savePath = function(path_state, serv_or_path_id) { //sorry
+Player.prototype.savePath = function(path_state, serv_or_path_id) {
 
   if(!path_state || !path_state.body)
     return;
 
   var path = {};
 
-  if(serv_or_path_id!="serv"){
+  var server_active = false;
+  var path_id;
+
+  if(serv_or_path_id=="serv"){
+    server_active = true;
+  }
+  else{
+    path_id = serv_or_path_id;
+  }
+
+
+  if(!server_active){
 
     path = new Path2D();
 
@@ -158,8 +169,8 @@ Player.prototype.savePath = function(path_state, serv_or_path_id) { //sorry
   path.body = path_state.body;
 
 
-  if(Number.isInteger(serv_or_path_id) && serv_or_path_id<this.paths.length){
-    this.paths[serv_or_path_id] = path;
+  if(Number.isInteger(path_id) && path_id<this.paths.length){
+    this.paths[path_id] = path;
   }
   else{
     this.paths.push(path);

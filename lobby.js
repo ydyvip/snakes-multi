@@ -22,7 +22,7 @@ function Game(cnt_players, players, name, bet){
   this.bet = bet;
   this.round_points = 0;
 
-  this.first_to_reach = 5;
+  this.first_to_reach = 50;
 
   this.gameloop_id = null
   this.serveloop_id = null;
