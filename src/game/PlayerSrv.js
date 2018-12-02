@@ -9,6 +9,7 @@ Player.prototype.changeDirSrv = function(newdir, path_id){
 
   var done_path = this.changeDir(newdir);
   this.savePath(done_path, "serv");
+  this.applyChangeDir();
 
   this.socket.emit("reapplycurpath", this.curpath, this.dir, this.angle);
 
