@@ -304,9 +304,6 @@
           player_item.draw(self);
         })
 
-        if(!this.veog)
-          window.requestAnimationFrame(this.draw);
-
       },
 
       eog: function(){
@@ -467,12 +464,11 @@
         this.game_state.detectCollision(players);
         //GameState.curosorPlayerCollision(cursor_circle, player);
 
+        this.draw();
+
 
       }, 1000/60); // Gamestate update every 30fps
 
-
-      if(!this.veog)
-        window.requestAnimationFrame(this.draw);
 
     },
 
