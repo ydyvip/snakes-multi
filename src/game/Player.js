@@ -27,6 +27,8 @@ var Player = function(initial_state){
 
   this.path_cnt = 0;
 
+  this.renderBuff = {};
+
   this.curpath = {
     start: {
       x: initial_state.pos.x,
@@ -211,6 +213,21 @@ Player.prototype.getVerticesFromLinePath = function(){
 
 }
 
+Player.prototype.applyChangeDir = function(){
+
+  this.dir = this.renderBuff.dir;
+
+  this.curpath.start.x = this.renderBuff.start_x;
+  this.curpath.start.y = this.renderBuff.start_y;
+
+  this.curpath.arc_point.x = this.renderBuff.arc_point_x;
+  this.curpath.arc_point.y = this.renderBuff.arc_point_y;
+  this.starting_angle = this.renderBuff.starting_angle;
+
+  this.renderBuff.dir = undefined;
+
+}
+
 Player.prototype.changeDir = function(new_dir){
 
   var path = {};
@@ -257,30 +274,28 @@ Player.prototype.changeDir = function(new_dir){
 
   if(new_dir == "straight"){
 
-    this.curpath.start.x = this.curpath.end.x;
-    this.curpath.start.y = this.curpath.end.y;
+    this.renderBuff.start_x = this.curpath.end.x;
+    this.renderBuff.start_y = this.curpath.end.y;
 
   }
 
   if(new_dir == "left"){
 
-    this.curpath.arc_point.x = this.curpath.end.x + Math.cos(getRad(this.angle-90)) * this.r;
-    this.curpath.arc_point.y = this.curpath.end.y + Math.sin(getRad(this.angle-90)) * this.r;
-
-    this.starting_angle = this.angle + 90;
+    this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle-90)) * this.r;
+    this.renderBuff.arc_point_y  = this.curpath.end.y + Math.sin(getRad(this.angle-90)) * this.r;
+    this.renderBuff.starting_angle = this.angle + 90;
 
   }
 
   if(new_dir == "right"){
 
-    this.curpath.arc_point.x = this.curpath.end.x + Math.cos(getRad(this.angle+90)) * this.r;
-    this.curpath.arc_point.y = this.curpath.end.y + Math.sin(getRad(this.angle+90)) * this.r;
+    this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle+90)) * this.r;
+    this.renderBuff.arc_point_y = this.curpath.end.y + Math.sin(getRad(this.angle+90)) * this.r;
+    this.renderBuff.starting_angle = this.angle - 90;
 
-    this.starting_angle = this.angle - 90;
+    }
 
-  }
-
-  this.dir = new_dir;
+  this.renderBuff.dir = new_dir;
 
   if(this.breakout){
     return null

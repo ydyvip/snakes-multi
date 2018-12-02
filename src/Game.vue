@@ -458,6 +458,9 @@
         }
 
         players.forEach( (player_item)=>{
+          if(player_item.renderBuff.dir != undefined){
+            player_item.applyChangeDir();
+          }
           player_item.go(delta);
         })
 
