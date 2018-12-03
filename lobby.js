@@ -427,21 +427,21 @@ module.exports = function( io_, socket ){
   io = io_;
 
 
-  socket.on("left", function(path_id){
+  socket.on("left", function(path_id, tm){
 
-    socket.player_state.changeDirSrv("left", path_id);
-
-  })
-
-  socket.on("right", function(path_id){
-
-    socket.player_state.changeDirSrv("right", path_id);
+    socket.player_state.changeDirSrv("left", path_id, tm);
 
   })
 
-  socket.on("straight", function(path_id){
+  socket.on("right", function(path_id, tm){
 
-    socket.player_state.changeDirSrv("straight", path_id);
+    socket.player_state.changeDirSrv("right", path_id, tm);
+
+  })
+
+  socket.on("straight", function(path_id, tm){
+
+    socket.player_state.changeDirSrv("straight", path_id, tm);
 
   })
 

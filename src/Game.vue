@@ -74,13 +74,6 @@
 
     })
 
-    io.on("reapplycurpath", (curpath, dir, angle)=>{
-
-      player_me.curpath = curpath;
-      player_me.dir = dir;
-      player_me.angle = angle;
-
-    })
 
     io.on("dirchanged", (playername, newdir, done_path, path_id)=>{
 
@@ -138,13 +131,14 @@
       if(player_me.speed==0){
         return;
       }
+      var tm = Date.now();
       var path = player_me.changeDir("left");
       var path_id = null;
       if(path){
         path_id = path.body.id;
         player_me.savePath(path);
       }
-      io.emit("left", path_id);
+      io.emit("left", path_id, tm);
     }
 
     left.release = function(){
@@ -152,13 +146,14 @@
         if(player_me.speed==0){
           return;
         }
+       var tm = Date.now();
        var path = player_me.changeDir("straight");
        var path_id = null;
        if(path){
          path_id = path.body.id;
          player_me.savePath(path);
        }
-       io.emit("straight", path_id);
+       io.emit("straight", path_id, tm);
       }
     }
 
@@ -166,13 +161,14 @@
       if(player_me.speed==0){
         return;
       }
+      var tm = Date.now();
       var path = player_me.changeDir("right");
       var path_id = null;
       if(path){
         path_id = path.body.id;
         player_me.savePath(path);
       }
-      io.emit("right", path_id);
+      io.emit("right", path_id, tm);
     }
 
     right.release = function(){
@@ -180,13 +176,14 @@
         if(player_me.speed==0){
           return;
         }
+       var tm = Date.now();
        var path = player_me.changeDir("straight");
        var path_id = null;
        if(path){
          path_id = path.body.id;
          player_me.savePath(path);
        }
-       io.emit("straight", path_id);
+       io.emit("straight", path_id, tm);
      }
     }
 
