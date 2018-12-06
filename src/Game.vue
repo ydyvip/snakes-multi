@@ -107,8 +107,8 @@
 
           if(player_state_item.name == player_item.name ){
 
-            player_item.curpath.end = player_state_item.curpath_end;
-            player_item.angle = player_state_item.angle;
+          //  player_item.curpath.end = player_state_item.curpath_end;
+          //  player_item.angle = player_state_item.angle;
 
 
           }
@@ -132,7 +132,7 @@
         return;
       }
       var tm = Date.now();
-      var path = player_me.changeDir("left");
+      var path = player_me.changeDir("left", tm);
       var path_id = null;
       if(path){
         path_id = path.body.id;
@@ -147,7 +147,7 @@
           return;
         }
        var tm = Date.now();
-       var path = player_me.changeDir("straight");
+       var path = player_me.changeDir("straight", tm);
        var path_id = null;
        if(path){
          path_id = path.body.id;
@@ -162,7 +162,7 @@
         return;
       }
       var tm = Date.now();
-      var path = player_me.changeDir("right");
+      var path = player_me.changeDir("right", tm);
       var path_id = null;
       if(path){
         path_id = path.body.id;
@@ -177,7 +177,7 @@
           return;
         }
        var tm = Date.now();
-       var path = player_me.changeDir("straight");
+       var path = player_me.changeDir("straight", tm);
        var path_id = null;
        if(path){
          path_id = path.body.id;

@@ -228,7 +228,7 @@ Player.prototype.applyChangeDir = function(){
 
 }
 
-Player.prototype.changeDir = function(new_dir){
+Player.prototype.changeDir = function(new_dir, tm){
 
   var path = {};
 
@@ -238,6 +238,7 @@ Player.prototype.changeDir = function(new_dir){
   path.body.weight = this.weight;
   path.body.color = this.color;
 
+  this.curpath.tm_creation = tm;
 
   if(this.dir == "straight" && !this.breakout){
 
@@ -281,6 +282,9 @@ Player.prototype.changeDir = function(new_dir){
 
   if(new_dir == "left"){
 
+    this.renderBuff.start_x = this.curpath.end.x;
+    this.renderBuff.start_y = this.curpath.end.y;
+
     this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle-90)) * this.r;
     this.renderBuff.arc_point_y  = this.curpath.end.y + Math.sin(getRad(this.angle-90)) * this.r;
     this.renderBuff.starting_angle = this.angle + 90;
@@ -288,6 +292,9 @@ Player.prototype.changeDir = function(new_dir){
   }
 
   if(new_dir == "right"){
+
+    this.renderBuff.start_x = this.curpath.end.x;
+    this.renderBuff.start_y = this.curpath.end.y;
 
     this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle+90)) * this.r;
     this.renderBuff.arc_point_y = this.curpath.end.y + Math.sin(getRad(this.angle+90)) * this.r;

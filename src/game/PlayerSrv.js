@@ -2,21 +2,32 @@
 var Player = require("./Player.js");
 var random = require("random-js")();
 
+Player.prototype.recomputeCurpath = function(lag_s){
+
+    this.go(lag_s);
+
+    if(this.name=="kubus6"){
+      console.log(lag_s)
+    }
+
+}
+
 Player.prototype.changeDirSrv = function(newdir, path_id, tm){
 
   if(this.speed==0)
     return;
 
-//  var lag = Date.now() - tm;
-//  this.go( (lag / 1000)*-1);
-  var done_path = this.changeDir(newdir);
-  this.savePath(done_path, "serv");
-  this.applyChangeDir();
+  //if(tm)
+//this.recomputeCurpath( (Date.now() - tm)/1000*(-1));
 
-  if(path_id==-1){
+  var done_path = this.changeDir(newdir, tm);
+  this.applyChangeDir();
+  this.savePath(done_path, "serv");
+
+  if(path_id==-1){ // changed from breakdown
     return done_path;
   }
-  else{ // changed from breakdown
+  else{
     this.io.to(this.socket.currentRoom).emit("dirchanged", this.socket.playername, newdir, done_path, path_id );
   }
 
@@ -30,7 +41,7 @@ Player.prototype.setupBreakout = function(){
 
   this.timeout_breakdown = setTimeout( ()=>{
 
-    var done_path = this.changeDirSrv(this.dir, -1);
+    var done_path = this.changeDirSrv(this.dir, -1, Date.now());
 
     this.breakout = true;
 

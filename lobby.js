@@ -173,6 +173,7 @@ Game.prototype.startNewRound = function(){
       for(var player of this.player_states){
         this.game_state.player_consideration = true;
         player.speed = player.default_speed;
+        player.curpath.tm_creation = Date.now();
         player.breakout = true
       }
     }, 3000);
@@ -282,6 +283,8 @@ Game.prototype.start = function(){
   this.gameloop_id = gameloop.setGameLoop( (delta)=>{
 
     this.player_states.forEach( (player_state_item)=>{
+      if(player_state_item.reaplying)
+        return;
       player_state_item.go(delta);
     })
     this.game_state.detectCollision(this.player_states, this);
@@ -291,6 +294,7 @@ Game.prototype.start = function(){
   setTimeout(()=>{
 
     for(var player of this.player_states){
+      player.curpath.tm_creation = Date.now();
       player.speed = player.default_speed;
     }
 
@@ -429,19 +433,27 @@ module.exports = function( io_, socket ){
 
   socket.on("left", function(path_id, tm){
 
-    socket.player_state.changeDirSrv("left", path_id, tm);
+    setTimeout( ()=>{
+      socket.player_state.changeDirSrv("left", path_id, tm);
+    }, 250)
 
   })
 
   socket.on("right", function(path_id, tm){
 
-    socket.player_state.changeDirSrv("right", path_id, tm);
+    setTimeout( ()=>{
+      socket.player_state.changeDirSrv("right", path_id, tm);
+    }, 250)
 
   })
 
   socket.on("straight", function(path_id, tm){
 
-    socket.player_state.changeDirSrv("straight", path_id, tm);
+    setTimeout( ()=>{
+      socket.player_state.changeDirSrv("straight", path_id, tm);
+    }, 250)
+
+
 
   })
 
