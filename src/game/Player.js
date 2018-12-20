@@ -252,7 +252,7 @@ Player.prototype.changeDir = function(new_dir, tm){
   path.state = null;
   path.body = {};
   path.body.timestamp = Date.now();
-  path.body.tm = tm;
+  path.body.tm = this.curpath.tm;
   path.body.weight = this.weight;
   path.body.color = this.color;
 
