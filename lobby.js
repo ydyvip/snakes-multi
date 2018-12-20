@@ -53,7 +53,7 @@ Game.prototype.emitKilled = function(playername){
 
   }
 
-  if(this.round_points == this.max_players-1){ // Only one stay alive
+  if(this.round_points == this.max_players-1){ // Only one stay alive - end of round condition
 
     // apply 5 points to winner
 
@@ -63,6 +63,7 @@ Game.prototype.emitKilled = function(playername){
         player.points += this.round_points;
         player.live = false;
         player.socket.player_state.clearBreakout();
+        player.inputs = [];
         this.round_points = 0;
       }
 
