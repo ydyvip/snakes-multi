@@ -1,5 +1,6 @@
 
 var circleArcCollision = require("./circle-arc-collision.js")
+var circlesCollision = require("./circle-circle-collision.js")
 var lineCircleCollision = require("line-circle-collision");
 var Arc = require("./arc.js");
 
@@ -49,6 +50,9 @@ GameState.prototype.detectCollision = function(players, game_serv){
 
         var self = player_against.name == player.name;
 
+        if(self)
+          return;
+
         if((player_against.dir == "left" || player_against.dir == "right") && !self){
 
           var angle_90 = 0;
@@ -75,13 +79,25 @@ GameState.prototype.detectCollision = function(players, game_serv){
 
         if(player_against.dir == "straight" && !self){
 
-          var vertices = player_against.getVerticesFromLinePath();
-          var c = (
-            lineCircleCollision( vertices[0], vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-            lineCircleCollision( vertices[2], vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-            lineCircleCollision( vertices[3], vertices[0], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-            lineCircleCollision( vertices[1], vertices[2], [player.curpath.end.x, player.curpath.end.y], player.weight/2 )
-          );
+          var c = false;
+
+          if(player_against.breakout == true){
+
+            c = circlesCollision(
+              player.curpath.end.x, player.curpath.end.y, player.weight/2,
+              player_against.curpath.end.x, player_against.curpath.end.y, player.weight/2
+            )
+
+          }
+          else {
+            var vertices = player_against.getVerticesFromLinePath();
+             c = (
+              lineCircleCollision( vertices[0], vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+              lineCircleCollision( vertices[2], vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+              lineCircleCollision( vertices[3], vertices[0], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+              lineCircleCollision( vertices[1], vertices[2], [player.curpath.end.x, player.curpath.end.y], player.weight/2 )
+            );
+          }
 
           if(c){
             player.speed = 0;
@@ -99,7 +115,7 @@ GameState.prototype.detectCollision = function(players, game_serv){
         player_against.paths.forEach( function(path, index){
 
           var timestamp = new Date().getTime();
-          if(timestamp - path.body.timestamp < 100){
+          if(timestamp - path.body.timestamp < 1200){
             return;
           }
 

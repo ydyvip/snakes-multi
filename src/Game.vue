@@ -75,19 +75,31 @@
     })
 
 
-    io.on("dirchanged", (playername, newdir, done_path, path_id)=>{
-
+    io.on("dirchanged", (playername, newdir, tm, state_of_curpath)=>{
 
       for( let player_item of players){
         if( player_item.name == playername){
 
           if(player_item.name!=player_me.name){
-            player_item.changeDir(newdir);
-            player_item.savePath(done_path);
+            // player_item.changeDir(newdir);
+            // player_item.applyChangeDir();
+            //player_item.savePath(done_path, 100, false);
+
+            player_item.inputs.push({
+              dir: newdir,
+              tm: tm,
+              state_of_curpath: state_of_curpath
+            })
+
+          //  player_item.renderBuff = renderBuff;
           }
           else{
-            player_item.savePath(done_path, path_id);
-          }
+            // player_item.inputs.push({
+            //   dir: newdir,
+            //   tm: tm,
+            //   state_of_curpath: state_of_curpath
+            // })
+         }
 
 
         }
@@ -369,22 +381,26 @@
 
       })
 
-      this.$io.on("round_start", ()=>{
+      this.$io.on("round_start", (tm)=>{
 
         for(var player of players){
           this.game_state.player_consideration = true;
           player.breakout = true;
           player.speed = player.default_speed;
           player.show_dir_indicator = false;
+          player.curpath.tm = tm;
         }
 
       })
 
-      this.$io.on("quit_consideration", ()=>{
+      this.$io.on("quit_consideration", (tm)=>{
 
         this.game_state.player_consideration = false;
         for(var player of players){
-          player.breakout = false;
+          player.inputs.push({
+            type: "quit_consideration",
+            tm: tm
+          })
         }
 
       })
@@ -392,8 +408,10 @@
       this.$io.on("killed", (playername)=>{
 
         for(var player of players){
-          if(player.name ==  playername)
+          if(player.name ==  playername){
             player.speed = 0;
+            console.log(player.name + "  killed");
+          }
         }
 
       })
@@ -415,9 +433,13 @@
       this.initialStates.forEach( (initial_state_item)=> {
 
         var player_item = new Player(initial_state_item);
+
+        player_item.inputs = [];
+
         player_item.ctx = ctx;
 
         players.push(player_item);
+
 
         //Setup player_table data
         this.player_table.push({
@@ -442,6 +464,8 @@
         for(var player of players){
           player.speed = player.default_speed;
           player.show_dir_indicator = false;
+          player.curpath.tm = Date.now();
+          console.log(Date.now())
         }
 
       }, 4000)
@@ -455,10 +479,24 @@
         }
 
         players.forEach( (player_item)=>{
+
+          while(player_item.inputs.length>0){
+            var input = player_item.inputs.shift();
+            if(input.type == "quit_consideration"){
+              player_item.quitConsideation(input.tm);
+            }
+            else{
+              player_item.recomputeCurpath( input.tm );
+              player_item.applyCurpathState(input.state_of_curpath);
+              var done_path = player_item.changeDir(input.dir, input.tm);
+              player_item.applyChangeDir();
+              player_item.savePath(done_path, 100, false);
+            }
+          }
           if(player_item.renderBuff.dir != undefined){
             player_item.applyChangeDir();
           }
-          player_item.go(delta);
+         player_item.go(delta);
         })
 
         this.game_state.detectCollision(players);

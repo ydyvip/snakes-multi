@@ -169,12 +169,13 @@ Game.prototype.startNewRound = function(){
       if(!this.game_state)
         return;
 
-      io.to(this.name).emit("round_start");
+      var dn = Date.now();
+      io.to(this.name).emit("round_start", dn);
       for(var player of this.player_states){
         this.game_state.player_consideration = true;
         player.speed = player.default_speed;
-        player.curpath.tm_creation = Date.now();
-        player.breakout = true
+        player.breakout = true;
+        player.curpath.tm = dn;
       }
     }, 3000);
 
@@ -183,11 +184,15 @@ Game.prototype.startNewRound = function(){
       if(!this.game_state)
         return;
 
-      io.to(this.name).emit("quit_consideration");
+      let tm = Date.now();
+      io.to(this.name).emit("quit_consideration", tm);
       this.game_state.player_consideration = false;
       for(var player of this.player_states){
-        player.breakout = false;
-        player.setupBreakout();
+        player.inputs.push({
+          type: "quit_consideration",
+          tm: tm
+        })
+        // player.setupBreakout();
       }
 
     }, 7000);
@@ -216,6 +221,7 @@ Game.prototype.makeInitPositions = function(player){
     player.curpath.end.x = pos.x;
     player.curpath.end.y = pos.y;
     player.angle = angle;
+    player.base_start_angle = angle;
     player.dir = "straight";
   }
 
@@ -268,6 +274,8 @@ Game.prototype.start = function(){
     p.gamename = this.name;
     p.socket = player_item.socket;
 
+    p.inputs = [];
+
     this.player_states.push(p);
 
     player_item.socket.player_state = p;
@@ -283,10 +291,30 @@ Game.prototype.start = function(){
   this.gameloop_id = gameloop.setGameLoop( (delta)=>{
 
     this.player_states.forEach( (player_state_item)=>{
-      if(player_state_item.reaplying)
-        return;
+
+      while(player_state_item.inputs.length>0){
+
+        var input = player_state_item.inputs.shift();
+
+        if(input.type == "quit_consideration"){
+          player_state_item.quitConsideation(input.tm);
+        }
+        else {
+          player_state_item.recomputeCurpath( input.tm );
+          var state_of_curpath = player_state_item.getCurpath();
+          var done_path = player_state_item.changeDir(input.dir, input.tm);
+          player_state_item.savePath(done_path, "serv");
+          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath  );
+          player_state_item.applyChangeDir();
+        }
+
+      }
+
       player_state_item.go(delta);
+
+
     })
+
     this.game_state.detectCollision(this.player_states, this);
 
   }, 1000/66); // update gamestate every 33ms
@@ -294,19 +322,24 @@ Game.prototype.start = function(){
   setTimeout(()=>{
 
     for(var player of this.player_states){
-      player.curpath.tm_creation = Date.now();
       player.speed = player.default_speed;
+      player.curpath.tm = Date.now();
     }
 
-  }, 4000)
+  }, 4000 );
 
   setTimeout(()=>{
 
-    io.to(this.name).emit("quit_consideration");
+    let tm = Date.now();
+
+    io.to(this.name).emit("quit_consideration", tm);
     this.game_state.player_consideration = false;
     for(var player of this.player_states){
-      player.breakout = false;
-      player.setupBreakout();
+      player.inputs.push({
+        type: "quit_consideration",
+        tm: tm
+      })
+      // player.setupBreakout();
     }
 
   }, 8000);
@@ -435,7 +468,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", path_id, tm);
-    }, 250)
+    }, 1)
 
   })
 
@@ -443,7 +476,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", path_id, tm);
-    }, 250)
+    }, 1)
 
   })
 
@@ -451,7 +484,9 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", path_id, tm);
-    }, 250)
+    }, 1)
+
+
 
 
 

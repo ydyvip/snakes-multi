@@ -60,7 +60,7 @@ function circleArcCollision (circle, arc ){
 
 
     var dist = Math.sqrt(dx * dx + dy * dy);
-    var dir = Math.atan2(dy, dx); 
+    var dir = Math.atan2(dy, dx);
 
     if(dir<0){
       dir = 2*Math.PI + dir;
@@ -77,8 +77,6 @@ function circleArcCollision (circle, arc ){
     var tangent_angle =  Math.asin(ball_radius/ dist);
     var dir0 = (dir + tangent_angle);
     var dir1 = (dir - tangent_angle);
-
-  //  console.log(start + " " + end + " " + dir0 + " " + dir1)
 
 //    dir0 = dir0 % (Math.PI*2);
 //    if(dir1<0)

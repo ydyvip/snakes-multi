@@ -30,6 +30,7 @@ var Player = function(initial_state){
   this.renderBuff = {};
 
   this.curpath = {
+    tm: 0,
     start: {
       x: initial_state.pos.x,
       y: initial_state.pos.y
@@ -40,13 +41,14 @@ var Player = function(initial_state){
     },
     arc_point: {
       x: 0,
-      y: 0,
-      starting_angle: 0
+      y: 0
     }
+
   };
 
   this.color = initial_state.color;
-  this.angle = initial_state.angle
+  this.angle = initial_state.angle;
+  this.base_start_angle = initial_state.angle;
 
 }
 
@@ -96,11 +98,12 @@ Player.prototype.draw = function(self){
 
   this.ctx.lineWidth = this.weight;
 
+  //drawing head of curpath
   this.ctx.beginPath();
   this.ctx.arc(this.curpath.end.x, this.curpath.end.y, this.weight/2, 0, 2*Math.PI);
   this.ctx.fill();
 
-  if(this.dir == "straight"){
+  if(this.dir == "straight" && !this.breakout){
     this.ctx.beginPath();
     this.ctx.moveTo(this.curpath.start.x, this.curpath.start.y);
     this.ctx.lineTo(this.curpath.end.x, this.curpath.end.y);
@@ -109,7 +112,7 @@ Player.prototype.draw = function(self){
 
   var starting_angle;
 
-  if(this.dir == "left"){
+  if(this.dir == "left" && !this.breakout){
 
     if(this.breakout)
       starting_angle = this.angle + 90;
@@ -121,7 +124,7 @@ Player.prototype.draw = function(self){
     this.ctx.stroke();
   }
 
-  if(this.dir == "right"){
+  if(this.dir == "right" && !this.breakout){
 
     if(this.breakout)
       starting_angle = this.angle - 90;
@@ -135,7 +138,7 @@ Player.prototype.draw = function(self){
 
 }
 
-Player.prototype.savePath = function(path_state, serv_or_path_id) {
+Player.prototype.savePath = function(path_state, serv_or_path_id, path_from_server) {
 
   if(!path_state || !path_state.body)
     return;
@@ -171,10 +174,24 @@ Player.prototype.savePath = function(path_state, serv_or_path_id) {
   path.body = path_state.body;
 
 
-  if(Number.isInteger(path_id) && path_id<this.paths.length){
-    this.paths[path_id] = path;
+  if(path_from_server){
+
+    var saved = false;
+
+    for(var i = this.paths.length-1; i>=0; i--){
+
+      if(this.paths[i].body.tm == path_state.body.tm){
+        saved = true;
+        this.paths[i] = path;
+      }
+      if(!saved){
+        this.paths.push(path);
+      }
+
+    }
+
   }
-  else{
+  else {
     this.paths.push(path);
   }
 
@@ -234,17 +251,14 @@ Player.prototype.changeDir = function(new_dir, tm){
 
   path.state = null;
   path.body = {};
-  path.body.timestamp = new Date().getTime();
+  path.body.timestamp = Date.now();
+  path.body.tm = tm;
   path.body.weight = this.weight;
   path.body.color = this.color;
 
-  this.curpath.tm_creation = tm;
-
   if(this.dir == "straight" && !this.breakout){
-
     path.body.type = "line";
     path.body.vertices = this.getVerticesFromLinePath();
-
     path.body.line = [ [this.curpath.start.x, this.curpath.start.y], [this.curpath.end.x, this.curpath.end.y] ];
 
     this.curpath.start.x = this.curpath.end.x;
@@ -278,6 +292,8 @@ Player.prototype.changeDir = function(new_dir, tm){
     this.renderBuff.start_x = this.curpath.end.x;
     this.renderBuff.start_y = this.curpath.end.y;
 
+    this.base_start_angle = this.angle;
+
   }
 
   if(new_dir == "left"){
@@ -288,6 +304,9 @@ Player.prototype.changeDir = function(new_dir, tm){
     this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle-90)) * this.r;
     this.renderBuff.arc_point_y  = this.curpath.end.y + Math.sin(getRad(this.angle-90)) * this.r;
     this.renderBuff.starting_angle = this.angle + 90;
+    this.renderBuff.angle = this.angle;
+
+    this.base_start_angle = this.angle;
 
   }
 
@@ -298,9 +317,14 @@ Player.prototype.changeDir = function(new_dir, tm){
 
     this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle+90)) * this.r;
     this.renderBuff.arc_point_y = this.curpath.end.y + Math.sin(getRad(this.angle+90)) * this.r;
-    this.renderBuff.starting_angle = this.angle - 90;
+    this.renderBuff.starting_angle = this.angle -90;
+    this.renderBuff.angle = this.angle;
 
-    }
+    this.base_start_angle = this.angle;
+
+  }
+
+  this.curpath.tm = tm;
 
   this.renderBuff.dir = new_dir;
 
@@ -326,10 +350,10 @@ Player.prototype.go = function(delta) {
     this.goLeft(delta);
   }
 
-  if(this.breakout){
-    this.curpath.start.x = this.curpath.end.x;
-    this.curpath.start.y = this.curpath.end.y;
-  }
+  // if(this.breakout){
+  //   this.curpath.start.x = this.curpath.end.x;
+  //   this.curpath.start.y = this.curpath.end.y;
+  // }
 
 }
 
@@ -346,8 +370,9 @@ Player.prototype.goLeft = function(delta){
   var degree_speed = 360 / (2*Math.PI*this.r) * this.speed * delta;
 
   this.angle-=degree_speed;
-  if(this.breakout)
+  if(this.breakout){
     this.starting_angle = this.angle + 90;
+  }
 
   this.curpath.end.x = this.curpath.arc_point.x + Math.cos( getRad(this.angle+90) ) * this.r;
   this.curpath.end.y = this.curpath.arc_point.y + Math.sin( getRad(this.angle+90) ) * this.r;
@@ -359,8 +384,9 @@ Player.prototype.goRight = function(delta){
   var degree_speed = 360 / (2*Math.PI*this.r) * this.speed * delta;
 
   this.angle+=degree_speed;
-  if(this.breakout)
+  if(this.breakout){
     this.starting_angle = this.angle - 90;
+  }
 
   this.curpath.end.x = this.curpath.arc_point.x + Math.cos( getRad(this.angle-90) ) * this.r;
   this.curpath.end.y = this.curpath.arc_point.y + Math.sin( getRad(this.angle-90) ) * this.r;
@@ -374,7 +400,76 @@ Player.prototype.setupPos = function(pos){
   this.curpath.end.x = pos.pos.x;
   this.curpath.end.y = pos.pos.y;
   this.angle = pos.angle;
+  this.base_start_angle = pos.base_start_angle;
   this.dir = "straight";
+}
+
+Player.prototype.recomputeCurpath = function(new_dir_tm){
+
+    this.curpath.end.x = this.curpath.start.x;
+    this.curpath.end.y = this.curpath.start.y;
+    this.angle = this.base_start_angle;
+    if(this.dir == "left")
+      this.starting_angle = this.angle + 90;
+    if(this.dir == "right")
+      this.starting_angle = this.angle - 90;
+
+    // Go by time since curpath was started (on last changeDir) to time when client changed dir
+    /*
+      curpath start time: this.curpath.tm
+      new dir time: new_dir_tm (past time because of lag)
+    */
+
+    this.go((new_dir_tm - this.curpath.tm)/1000);
+
+    console.log((new_dir_tm - this.curpath.tm)/1000);
+
+
+    // this.go(lag_s);
+    //
+    // if(this.name=="kubus6"){
+    //   console.log(lag_s)
+    // }
+
+}
+
+Player.prototype.getCurpath = function(){
+
+  var obj = {};
+
+  obj.start_x = this.curpath.start.x;
+  obj.start_y = this.curpath.start.y;
+  obj.end_x = this.curpath.end.x;
+  obj.end_y = this.curpath.end.y;
+  obj.angle = this.angle;
+  obj.starting_angle = this.starting_angle;
+  obj.arc_point_x = this.curpath.arc_point.x;
+  obj.arc_point_y = this.curpath.arc_point.y;
+
+  return obj;
+
+
+}
+
+Player.prototype.applyCurpathState = function(state_of_curpath){
+
+  this.curpath.start.x = state_of_curpath.start_x ;
+  this.curpath.start.y = state_of_curpath.start_y  ;
+  this.curpath.end.x = state_of_curpath.end_x ;
+  this.curpath.end.y = state_of_curpath.end_y  ;
+  this.angle = state_of_curpath.angle  ;
+  this.starting_angle = state_of_curpath.starting_angle  ;
+  this.curpath.arc_point.x = state_of_curpath.arc_point_x  ;
+  this.curpath.arc_point.y = state_of_curpath.arc_point_y  ;
+
+
+}
+
+Player.prototype.quitConsideation = function(tm){
+  this.curpath.start.x = this.curpath.end.x;
+  this.curpath.start.y = this.curpath.end.y;
+  this.breakout = false;
+  this.curpath.tm = tm;
 }
 
 var random = require("random-js")();
