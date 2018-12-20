@@ -54,6 +54,16 @@
 
   function setupAuthorativeServer(io){
 
+    io.on("start_speed", (tm)=>{
+
+      for(var player of players){
+        player.speed = player.default_speed;
+        player.show_dir_indicator = false;
+        player.curpath.tm = tm;
+      }
+
+    });
+
     io.on("breakdown", (playername, done_path, path_id)=>{
 
       for( let player_item of players){
@@ -458,17 +468,6 @@
         }
 
       })
-
-      setTimeout(()=>{
-
-        for(var player of players){
-          player.speed = player.default_speed;
-          player.show_dir_indicator = false;
-          player.curpath.tm = Date.now();
-          console.log(Date.now())
-        }
-
-      }, 4000)
 
       // Mount gameloop
 

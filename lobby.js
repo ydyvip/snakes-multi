@@ -321,9 +321,13 @@ Game.prototype.start = function(){
 
   setTimeout(()=>{
 
+    let tm = Date.now();
+
+    io.to(this.name).emit("start_speed", tm);
+
     for(var player of this.player_states){
       player.speed = player.default_speed;
-      player.curpath.tm = Date.now();
+      player.curpath.tm = tm;
     }
 
   }, 4000 );
