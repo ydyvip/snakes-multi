@@ -400,7 +400,7 @@ Player.prototype.setupPos = function(pos){
   this.curpath.end.x = pos.pos.x;
   this.curpath.end.y = pos.pos.y;
   this.angle = pos.angle;
-  this.base_start_angle = pos.base_start_angle;
+  this.base_start_angle = pos.angle;
   this.dir = "straight";
 }
 
@@ -421,8 +421,6 @@ Player.prototype.recomputeCurpath = function(new_dir_tm){
     */
 
     this.go((new_dir_tm - this.curpath.tm)/1000);
-
-    console.log((new_dir_tm - this.curpath.tm)/1000);
 
 
     // this.go(lag_s);

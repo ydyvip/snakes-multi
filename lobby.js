@@ -173,10 +173,10 @@ Game.prototype.startNewRound = function(){
       var dn = Date.now();
       io.to(this.name).emit("round_start", dn);
       for(var player of this.player_states){
+        player.curpath.tm = dn;
         this.game_state.player_consideration = true;
         player.speed = player.default_speed;
         player.breakout = true;
-        player.curpath.tm = dn;
       }
     }, 3000);
 
@@ -310,8 +310,9 @@ Game.prototype.start = function(){
         }
 
       }
-
-      player_state_item.go(delta);
+      if(player_state_item.speed>0){
+        player_state_item.recomputeCurpath(Date.now());
+      }
 
 
     })

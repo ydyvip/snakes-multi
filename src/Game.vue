@@ -57,9 +57,10 @@
     io.on("start_speed", (tm)=>{
 
       for(var player of players){
+        player.curpath.tm = tm;
+        player.breakout = true;
         player.speed = player.default_speed;
         player.show_dir_indicator = false;
-        player.curpath.tm = tm;
       }
 
     });
@@ -382,7 +383,8 @@
 
             if(player.name == pos.for){
               player.setupPos(pos);
-              player.show_dir_indicator = true
+              player.show_dir_indicator = true;
+              player.inputs = [];
             }
 
           }
@@ -394,11 +396,11 @@
       this.$io.on("round_start", (tm)=>{
 
         for(var player of players){
+          player.curpath.tm = tm;
           this.game_state.player_consideration = true;
           player.breakout = true;
           player.speed = player.default_speed;
           player.show_dir_indicator = false;
-          player.curpath.tm = tm;
         }
 
       })
@@ -495,7 +497,9 @@
           if(player_item.renderBuff.dir != undefined){
             player_item.applyChangeDir();
           }
-         player_item.go(delta);
+          if(player_item.speed>0){
+            player_item.recomputeCurpath(Date.now());
+          }
         })
 
         this.game_state.detectCollision(players);
