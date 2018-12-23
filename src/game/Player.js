@@ -466,6 +466,7 @@ Player.prototype.applyCurpathState = function(state_of_curpath){
 Player.prototype.quitConsideation = function(tm){
   this.curpath.start.x = this.curpath.end.x;
   this.curpath.start.y = this.curpath.end.y;
+  this.base_start_angle = this.angle;
   this.breakout = false;
   this.curpath.tm = tm;
 }
