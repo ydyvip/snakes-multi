@@ -26,7 +26,6 @@
   module.exports = {
     name: 'app',
     data: () => ({
-      // loggedAs: new String("a" + Math.random()*10).substr(0,6), // TODO:  on debug loggedAs, default to null,
       loggedAs: null,
       balance: null,
       CompSwitcher: GameList, // Game ; GameList ; FaucetList

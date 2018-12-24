@@ -2,7 +2,7 @@
 var Player = require("./Player.js");
 var random = require("random-js")();
 
-Player.prototype.changeDirSrv = function(newdir, path_id, tm){
+Player.prototype.changeDirSrv = function(newdir, tm){
 
   if(this.speed==0)
     return;
@@ -15,13 +15,13 @@ Player.prototype.changeDirSrv = function(newdir, path_id, tm){
 
   return;
 
-
-  if(path_id==-1){ // changed from breakdown
-    return done_path;
-  }
-  else{
+  //TODO: handle breakouts. path_id is legacy
+  // if(path_id==-1){ // changed from breakdown
+  //   return done_path;
+  // }
+  //else{
     this.io.to(this.socket.currentRoom).emit("dirchanged", this.socket.playername, newdir, done_path, this.renderBuff  );
-  }
+  //}
 
 }
 
@@ -33,6 +33,7 @@ Player.prototype.setupBreakout = function(){
 
   this.timeout_breakdown = setTimeout( ()=>{
 
+    //TODO: handle breakouts. path_id is legacy (2nd arg)
     var done_path = this.changeDirSrv(this.dir, -1, Date.now());
 
     this.breakout = true;

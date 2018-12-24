@@ -65,6 +65,7 @@
 
     });
 
+    //TODO: Legacy path_id, patch when reneabling breakdowns
     io.on("breakdown", (playername, done_path, path_id)=>{
 
       for( let player_item of players){
@@ -156,12 +157,10 @@
       }
       var tm = Date.now();
       var path = player_me.changeDir("left", tm);
-      var path_id = null;
       if(path){
-        path_id = path.body.id;
         player_me.savePath(path);
       }
-      io.emit("left", path_id, tm);
+      io.emit("left", tm);
     }
 
     left.release = function(){
@@ -171,12 +170,10 @@
         }
        var tm = Date.now();
        var path = player_me.changeDir("straight", tm);
-       var path_id = null;
        if(path){
-         path_id = path.body.id;
          player_me.savePath(path);
        }
-       io.emit("straight", path_id, tm);
+       io.emit("straight", tm);
       }
     }
 
@@ -186,12 +183,10 @@
       }
       var tm = Date.now();
       var path = player_me.changeDir("right", tm);
-      var path_id = null;
       if(path){
-        path_id = path.body.id;
         player_me.savePath(path);
       }
-      io.emit("right", path_id, tm);
+      io.emit("right", tm);
     }
 
     right.release = function(){
@@ -201,12 +196,10 @@
         }
        var tm = Date.now();
        var path = player_me.changeDir("straight", tm);
-       var path_id = null;
        if(path){
-         path_id = path.body.id;
          player_me.savePath(path);
        }
-       io.emit("straight", path_id, tm);
+       io.emit("straight", tm);
      }
     }
 
@@ -491,9 +484,10 @@
               player_item.applyCurpathState(input.state_of_curpath);
               var done_path = player_item.changeDir(input.dir, input.tm);
               player_item.applyChangeDir();
-              player_item.savePath(done_path, 100, false);
+              player_item.savePath(done_path, false, false);
             }
           }
+
           if(player_item.renderBuff.dir != undefined){
             player_item.applyChangeDir();
           }

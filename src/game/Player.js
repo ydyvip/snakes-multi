@@ -25,8 +25,6 @@ var Player = function(initial_state){
   this.breakout = true;
   this.show_dir_indicator = true;
 
-  this.path_cnt = 0;
-
   this.renderBuff = {};
 
   this.curpath = {
@@ -59,7 +57,6 @@ Player.prototype.draw = function(self){
 
 
   if(this.restart){
-    this.path_cnt = 0;
     this.speed = 0;
     this.paths = [];
     this.dir = null;
@@ -138,25 +135,14 @@ Player.prototype.draw = function(self){
 
 }
 
-Player.prototype.savePath = function(path_state, serv_or_path_id, path_from_server) {
+Player.prototype.savePath = function(path_state, server_side, reconciled_path) {
 
   if(!path_state || !path_state.body)
     return;
 
   var path = {};
 
-  var server_active = false;
-  var path_id;
-
-  if(serv_or_path_id=="serv"){
-    server_active = true;
-  }
-  else{
-    path_id = serv_or_path_id;
-  }
-
-
-  if(!server_active){
+  if(!server_side){
 
     path = new Path2D();
 
@@ -173,8 +159,8 @@ Player.prototype.savePath = function(path_state, serv_or_path_id, path_from_serv
 
   path.body = path_state.body;
 
-
-  if(path_from_server){
+  // Path is reconciled for self
+  if(reconciled_path){
 
     var saved = false;
 
@@ -332,7 +318,6 @@ Player.prototype.changeDir = function(new_dir, tm){
     return null
   }
   else{
-    path.body.id = this.path_cnt++;
     return path;
   }
 

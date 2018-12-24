@@ -153,7 +153,6 @@ Game.prototype.startNewRound = function(){
 
       player.speed = 0;
       player.paths = [];
-      player.path_cnt = 0;
       player.dir = "straight";
 
       var new_pos =  this.makeInitPositions(player);
@@ -304,7 +303,7 @@ Game.prototype.start = function(){
           player_state_item.recomputeCurpath( input.tm );
           var state_of_curpath = player_state_item.getCurpath();
           var done_path = player_state_item.changeDir(input.dir, input.tm);
-          player_state_item.savePath(done_path, "serv");
+          player_state_item.savePath(done_path, true);
           io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath  );
           player_state_item.applyChangeDir();
         }
@@ -470,26 +469,26 @@ module.exports = function( io_, socket ){
   io = io_;
 
 
-  socket.on("left", function(path_id, tm){
+  socket.on("left", function(tm){
 
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("left", path_id, tm);
+      socket.player_state.changeDirSrv("left", tm);
     }, 1)
 
   })
 
-  socket.on("right", function(path_id, tm){
+  socket.on("right", function(tm){
 
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("right", path_id, tm);
+      socket.player_state.changeDirSrv("right", tm);
     }, 1)
 
   })
 
-  socket.on("straight", function(path_id, tm){
+  socket.on("straight", function(tm){
 
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("straight", path_id, tm);
+      socket.player_state.changeDirSrv("straight", tm);
     }, 1)
 
 
