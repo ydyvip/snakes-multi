@@ -155,12 +155,14 @@
       if(player_me.speed==0){
         return;
       }
+
       var tm = Date.now();
-      var path = player_me.changeDir("left", tm);
-      if(path){
-        player_me.savePath(path);
-      }
+      player_me.inputs.push({
+        dir: "left",
+        tm: tm
+      })
       io.emit("left", tm);
+
     }
 
     left.release = function(){
@@ -169,10 +171,10 @@
           return;
         }
        var tm = Date.now();
-       var path = player_me.changeDir("straight", tm);
-       if(path){
-         player_me.savePath(path);
-       }
+       player_me.inputs.push({
+         dir: "straight",
+         tm: tm
+       })
        io.emit("straight", tm);
       }
     }
@@ -182,10 +184,10 @@
         return;
       }
       var tm = Date.now();
-      var path = player_me.changeDir("right", tm);
-      if(path){
-        player_me.savePath(path);
-      }
+      player_me.inputs.push({
+        dir: "right",
+        tm: tm
+      })
       io.emit("right", tm);
     }
 
@@ -195,10 +197,10 @@
           return;
         }
        var tm = Date.now();
-       var path = player_me.changeDir("straight", tm);
-       if(path){
-         player_me.savePath(path);
-       }
+       player_me.inputs.push({
+         dir: "straight",
+         tm: tm
+       })
        io.emit("straight", tm);
      }
     }
@@ -481,7 +483,8 @@
             }
             else{
               player_item.recomputeCurpath( input.tm );
-              player_item.applyCurpathState(input.state_of_curpath);
+              if(input.state_of_curpath)
+                player_item.applyCurpathState(input.state_of_curpath);
               var done_path = player_item.changeDir(input.dir, input.tm);
               player_item.applyChangeDir();
               player_item.savePath(done_path, false, false);
@@ -502,7 +505,7 @@
         this.draw();
 
 
-      }, 1000/60); // Gamestate update every 30fps
+      }, 1000/66); // Gamestate update every 30fps
 
 
     },
