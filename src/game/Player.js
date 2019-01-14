@@ -48,6 +48,8 @@ var Player = function(initial_state){
   this.angle = initial_state.angle;
   this.base_start_angle = initial_state.angle;
 
+  this.reckoning_events = [];
+
 }
 
 Player.prototype.draw = function(self){
@@ -407,13 +409,6 @@ Player.prototype.recomputeCurpath = function(new_dir_tm){
 
     this.go((new_dir_tm - this.curpath.tm)/1000);
 
-
-    // this.go(lag_s);
-    //
-    // if(this.name=="kubus6"){
-    //   console.log(lag_s)
-    // }
-
 }
 
 Player.prototype.getCurpath = function(){
@@ -428,6 +423,7 @@ Player.prototype.getCurpath = function(){
   obj.starting_angle = this.starting_angle;
   obj.arc_point_x = this.curpath.arc_point.x;
   obj.arc_point_y = this.curpath.arc_point.y;
+  obj.dir = this.dir;
 
   return obj;
 
@@ -448,12 +444,32 @@ Player.prototype.applyCurpathState = function(state_of_curpath){
 
 }
 
-Player.prototype.quitConsideation = function(tm){
-  this.curpath.start.x = this.curpath.end.x;
-  this.curpath.start.y = this.curpath.end.y;
-  this.base_start_angle = this.angle;
+Player.prototype.getPos = function(){
+
+  var pos = {};
+
+  pos.x = this.curpath.end.x;
+  pos.y = this.curpath.end.y;
+  pos.angle = this.angle;
+
+  return pos;
+
+}
+
+Player.prototype.quitConsideation = function(pos){
+
+  console.log(pos);
+
+  this.curpath.start.x = pos.x;
+  this.curpath.start.y = pos.y;
+  this.curpath.end.x = pos.x;
+  this.curpath.end.y = pos.y;
+
+  this.base_start_angle = pos.angle;
+  this.angle = pos.angle;
+
   this.breakout = false;
-  this.curpath.tm = tm;
+  this.curpath.tm = pos.tm;
 }
 
 var random = require("random-js")();

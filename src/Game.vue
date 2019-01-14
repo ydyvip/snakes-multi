@@ -400,24 +400,35 @@
 
       })
 
-      this.$io.on("quit_consideration", (tm)=>{
+      this.$io.on("quit_consideration", (positions)=>{
 
         this.game_state.player_consideration = false;
+
         for(var player of players){
-          player.inputs.push({
-            type: "quit_consideration",
-            tm: tm
-          })
+          for(var pos of positions){
+            if(pos.for == player.name){
+              console.log(pos);
+              player.inputs.push({
+                type: "quit_consideration",
+                pos: pos
+              })
+            }
+          }
         }
 
       })
 
-      this.$io.on("killed", (playername)=>{
+      this.$io.on("killed", (playername, evt)=>{
 
         for(var player of players){
           if(player.name ==  playername){
-            player.speed = 0;
-            console.log(player.name + "  killed");
+
+            player.inputs.push({
+              type: "killed",
+              evt: evt
+            });
+
+            return;
           }
         }
 
@@ -474,17 +485,22 @@
           return;
         }
 
+
         players.forEach( (player_item)=>{
 
           while(player_item.inputs.length>0){
             var input = player_item.inputs.shift();
             if(input.type == "quit_consideration"){
-              player_item.quitConsideation(input.tm);
+              player_item.quitConsideation(input.pos);
+            }
+            else if(input.type == "killed"){
+              player_item.applyCurpathState(input.evt.curpath)
+              player_item.speed = 0;
+              console.log(input.evt.tm);
+              return;
             }
             else{
               player_item.recomputeCurpath( input.tm );
-              if(input.state_of_curpath)
-                player_item.applyCurpathState(input.state_of_curpath);
               var done_path = player_item.changeDir(input.dir, input.tm);
               player_item.applyChangeDir();
               player_item.savePath(done_path, false, false);

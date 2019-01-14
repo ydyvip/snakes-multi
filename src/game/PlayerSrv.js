@@ -20,7 +20,7 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   //   return done_path;
   // }
   //else{
-    this.io.to(this.socket.currentRoom).emit("dirchanged", this.socket.playername, newdir, done_path, this.renderBuff  );
+  //  this.io.to(this.socket.currentRoom).emit("dirchanged", this.socket.playername, newdir, done_path, this.renderBuff  );
   //}
 
 }
@@ -62,6 +62,21 @@ Player.prototype.clearBreakout = function(){
   clearTimeout(this.timeout_breakdown);
   this.timeout_breakdown = undefined;
 
+}
+
+Player.prototype.saveEvent = function(evt){
+
+  this.reckoning_events.push(evt);
+
+}
+
+Player.prototype.isEventValid = function(tm){
+
+  for( evt of this.reckoning_events){
+    if( evt.tm == tm )
+      return evt;
+  }
+  return false;
 }
 
 module.exports = Player;

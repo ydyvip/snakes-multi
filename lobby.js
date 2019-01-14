@@ -39,9 +39,37 @@ Game.prototype.getPlayersName = function(){
 
 }
 
-Game.prototype.emitKilled = function(playername){
+Game.prototype.collisionDetected = function(player_state, collision_tm){
 
-  io.to(this.name).emit("killed", playername);
+  player_state.saveEvent({
+    type: "collision",
+    tm: collision_tm,
+    curpath: player_state.getCurpath()
+  });
+
+  player_state.speed = 0;
+
+  setTimeout( ()=>{
+
+    // collision detected but player can move in last time, we should wait for input beacuse of lag
+    // dead reckoning phase may be wrong, we will wait some time for new input
+    // if new input arrived it will delete all events from dead reckoning phase
+
+    var evt = player_state.isEventValid(collision_tm);
+
+    if(evt){
+      player_state.recomputeCurpath(evt.tm);
+      player_state.speed = 0;
+      this.emitKilled(player_state.name, evt);
+    }
+
+  }, 250);
+
+}
+
+Game.prototype.emitKilled = function(playername, evt){
+
+  io.to(this.name).emit("killed", playername, evt);
 
   for( var player of this.players){
 
@@ -52,7 +80,6 @@ Game.prototype.emitKilled = function(playername){
     }
 
   }
-
   if(this.round_points == this.max_players-1){ // Only one stay alive - end of round condition
 
     // apply 5 points to winner
@@ -185,24 +212,37 @@ Game.prototype.startNewRound = function(){
         return;
 
       let tm = Date.now();
-      io.to(this.name).emit("quit_consideration", tm);
       this.game_state.player_consideration = false;
+
+      var positions = [];
+
+
       for(var player of this.player_states){
+
+        if(player.speed == 0){
+          continue;
+        }
+
+        var pos = player.getPos();
+        pos.tm = tm;
+        pos.for = player.name;
+
+        positions.push(pos);
+
         player.inputs.push({
           type: "quit_consideration",
-          tm: tm
+          pos: pos
         })
         // player.setupBreakout();
       }
+
+      io.to(this.name).emit("quit_consideration", positions);
 
     }, 7000);
 
 
 
   }, (new_round_awaiting+2)*1000 );
-
-
-
 
 }
 
@@ -275,6 +315,7 @@ Game.prototype.start = function(){
     p.socket = player_item.socket;
 
     p.inputs = [];
+    p.events = [];
 
     this.player_states.push(p);
 
@@ -290,6 +331,8 @@ Game.prototype.start = function(){
 
   this.gameloop_id = gameloop.setGameLoop( (delta)=>{
 
+    let tm = Date.now();
+
     this.player_states.forEach( (player_state_item)=>{
 
       while(player_state_item.inputs.length>0){
@@ -297,26 +340,25 @@ Game.prototype.start = function(){
         var input = player_state_item.inputs.shift();
 
         if(input.type == "quit_consideration"){
-          player_state_item.quitConsideation(input.tm);
+          player_state_item.quitConsideation(input.pos);
         }
         else {
           player_state_item.recomputeCurpath( input.tm );
           var state_of_curpath = player_state_item.getCurpath();
           var done_path = player_state_item.changeDir(input.dir, input.tm);
+          player_state_item.applyChangeDir();
           player_state_item.savePath(done_path, true);
           io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath  );
-          player_state_item.applyChangeDir();
         }
-
       }
       if(player_state_item.speed>0){
-        player_state_item.recomputeCurpath(Date.now());
+        tm = Date.now();
+        player_state_item.recomputeCurpath(tm);
       }
-
 
     })
 
-    this.game_state.detectCollision(this.player_states, this);
+    this.game_state.detectCollision(this.player_states, this, tm );
 
   }, 1000/66); // update gamestate every 33ms
 
@@ -337,15 +379,26 @@ Game.prototype.start = function(){
 
     let tm = Date.now();
 
-    io.to(this.name).emit("quit_consideration", tm);
     this.game_state.player_consideration = false;
+
+    var positions = [];
+
     for(var player of this.player_states){
+
+      var pos = player.getPos();
+      pos.tm = tm;
+      pos.for = player.name;
+
+      positions.push(pos);
+
       player.inputs.push({
         type: "quit_consideration",
-        tm: tm
+        pos: pos
       })
       // player.setupBreakout();
     }
+
+    io.to(this.name).emit("quit_consideration", positions);
 
   }, 8000);
 
@@ -463,7 +516,6 @@ games.getGameList = function(){
   socket.currentRoom
 */
 
-
 module.exports = function( io_, socket ){
 
   io = io_;
@@ -473,7 +525,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm);
-    }, 1)
+    }, 222)
 
   })
 
@@ -481,7 +533,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", tm);
-    }, 1)
+    }, 222)
 
   })
 
@@ -489,7 +541,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", tm);
-    }, 1)
+    }, 222)
 
 
 
