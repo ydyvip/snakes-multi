@@ -25,8 +25,6 @@ var Player = function(initial_state){
   this.breakout = true;
   this.show_dir_indicator = true;
 
-  this.renderBuff = {};
-
   this.curpath = {
     tm: 0,
     start: {
@@ -218,21 +216,6 @@ Player.prototype.getVerticesFromLinePath = function(){
 
 }
 
-Player.prototype.applyChangeDir = function(){
-
-  this.dir = this.renderBuff.dir;
-
-  this.curpath.start.x = this.renderBuff.start_x;
-  this.curpath.start.y = this.renderBuff.start_y;
-
-  this.curpath.arc_point.x = this.renderBuff.arc_point_x;
-  this.curpath.arc_point.y = this.renderBuff.arc_point_y;
-  this.starting_angle = this.renderBuff.starting_angle;
-
-  this.renderBuff.dir = undefined;
-
-}
-
 Player.prototype.changeDir = function(new_dir, tm){
 
   var path = {};
@@ -277,44 +260,46 @@ Player.prototype.changeDir = function(new_dir, tm){
 
   if(new_dir == "straight"){
 
-    this.renderBuff.start_x = this.curpath.end.x;
-    this.renderBuff.start_y = this.curpath.end.y;
+    this.curpath.start.x = this.curpath.end.x;
+    this.curpath.start.y = this.curpath.end.y;
 
     this.base_start_angle = this.angle;
+
+    this.dir = "straight";
 
   }
 
   if(new_dir == "left"){
 
-    this.renderBuff.start_x = this.curpath.end.x;
-    this.renderBuff.start_y = this.curpath.end.y;
+    this.curpath.start.x = this.curpath.end.x;
+    this.curpath.start.y = this.curpath.end.y;
 
-    this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle-90)) * this.r;
-    this.renderBuff.arc_point_y  = this.curpath.end.y + Math.sin(getRad(this.angle-90)) * this.r;
-    this.renderBuff.starting_angle = this.angle + 90;
-    this.renderBuff.angle = this.angle;
+    this.curpath.arc_point.x= this.curpath.end.x + Math.cos(getRad(this.angle-90)) * this.r;
+    this.curpath.arc_point.y  = this.curpath.end.y + Math.sin(getRad(this.angle-90)) * this.r;
+    this.starting_angle = this.angle + 90;
 
     this.base_start_angle = this.angle;
+
+    this.dir = "left";
 
   }
 
   if(new_dir == "right"){
 
-    this.renderBuff.start_x = this.curpath.end.x;
-    this.renderBuff.start_y = this.curpath.end.y;
+    this.curpath.start.x = this.curpath.end.x;
+    this.curpath.start.x = this.curpath.end.y;
 
-    this.renderBuff.arc_point_x = this.curpath.end.x + Math.cos(getRad(this.angle+90)) * this.r;
-    this.renderBuff.arc_point_y = this.curpath.end.y + Math.sin(getRad(this.angle+90)) * this.r;
-    this.renderBuff.starting_angle = this.angle -90;
-    this.renderBuff.angle = this.angle;
+    this.curpath.arc_point.x = this.curpath.end.x + Math.cos(getRad(this.angle+90)) * this.r;
+    this.curpath.arc_point.y = this.curpath.end.y + Math.sin(getRad(this.angle+90)) * this.r;
+    this.starting_angle = this.angle -90;
 
     this.base_start_angle = this.angle;
+
+    this.dir = "right";
 
   }
 
   this.curpath.tm = tm;
-
-  this.renderBuff.dir = new_dir;
 
   if(this.breakout){
     return null

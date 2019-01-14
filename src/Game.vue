@@ -94,7 +94,6 @@
 
           if(player_item.name!=player_me.name){
             // player_item.changeDir(newdir);
-            // player_item.applyChangeDir();
             //player_item.savePath(done_path, 100, false);
 
             player_item.inputs.push({
@@ -103,7 +102,6 @@
               state_of_curpath: state_of_curpath
             })
 
-          //  player_item.renderBuff = renderBuff;
           }
           else{
             // player_item.inputs.push({
@@ -502,14 +500,10 @@
             else{
               player_item.recomputeCurpath( input.tm );
               var done_path = player_item.changeDir(input.dir, input.tm);
-              player_item.applyChangeDir();
               player_item.savePath(done_path, false, false);
             }
           }
 
-          if(player_item.renderBuff.dir != undefined){
-            player_item.applyChangeDir();
-          }
           if(player_item.speed>0){
             player_item.recomputeCurpath(Date.now());
           }
