@@ -206,45 +206,10 @@ Game.prototype.startNewRound = function(){
       }
     }, 3000);
 
-    setTimeout(()=>{
-
-      if(!this.game_state)
-        return;
-
-      let tm = Date.now();
-      this.game_state.player_consideration = false;
-
-      var positions = [];
-
-
-      for(var player of this.player_states){
-
-        if(player.speed == 0){
-          continue;
-        }
-
-        var pos = player.getPos();
-        pos.tm = tm;
-        pos.for = player.name;
-
-        positions.push(pos);
-
-        player.inputs.push({
-          type: "quit_consideration",
-          pos: pos
-        })
-        // player.setupBreakout();
-      }
-
-      io.to(this.name).emit("quit_consideration", positions);
-
-    }, 7000);
-
-
-
   }, (new_round_awaiting+2)*1000 );
 
 }
+
 
 Game.prototype.makeInitPositions = function(player){
 
@@ -347,7 +312,7 @@ Game.prototype.start = function(){
           var state_of_curpath = player_state_item.getCurpath();
           var done_path = player_state_item.changeDir(input.dir, input.tm);
           player_state_item.savePath(done_path, true);
-          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath  );
+          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
         }
       }
       if(player_state_item.speed>0){
@@ -365,11 +330,13 @@ Game.prototype.start = function(){
 
     let tm = Date.now();
 
-    io.to(this.name).emit("start_speed", tm);
+    io.to(this.name).emit("round_start", tm);
 
     for(var player of this.player_states){
-      player.speed = player.default_speed;
       player.curpath.tm = tm;
+      this.game_state.player_consideration = true;
+      player.speed = player.default_speed;
+      player.breakout = true;
     }
 
   }, 4000 );
@@ -542,9 +509,19 @@ module.exports = function( io_, socket ){
       socket.player_state.changeDirSrv("straight", tm);
     }, 222)
 
+  })
 
+  socket.on("quit_consideration", function(pos){
 
+    setTimeout( ()=>{
+      socket.player_state.inputs.push({
+        type: "quit_consideration",
+        pos: pos
+      });
 
+      socket.to(socket.currentRoom).emit("quit_consideration", pos );
+
+    }, 222);
 
   })
 
@@ -558,7 +535,7 @@ module.exports = function( io_, socket ){
 
   socket.on("join", function(playername, newroom){
 
-    var previousroom = socket.currentroom;
+    var previousroom = socket.currentRoom;
 
     // Check if there is space for new player in room
     var room = games.getRoomWithName(newroom);

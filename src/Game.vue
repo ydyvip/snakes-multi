@@ -52,18 +52,7 @@
 
 
 
-  function setupAuthorativeServer(io){
-
-    io.on("start_speed", (tm)=>{
-
-      for(var player of players){
-        player.curpath.tm = tm;
-        player.breakout = true;
-        player.speed = player.default_speed;
-        player.show_dir_indicator = false;
-      }
-
-    });
+  function setupAuthorativeServer(io, gamestate){
 
     //TODO: Legacy path_id, patch when reneabling breakdowns
     io.on("breakdown", (playername, done_path, path_id)=>{
@@ -87,7 +76,7 @@
     })
 
 
-    io.on("dirchanged", (playername, newdir, tm, state_of_curpath)=>{
+    io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
 
       for( let player_item of players){
         if( player_item.name == playername){
@@ -104,14 +93,14 @@
 
           }
           else{
-            // player_item.inputs.push({
-            //   dir: newdir,
-            //   tm: tm,
-            //   state_of_curpath: state_of_curpath
-            // })
+            player_item.inputs.push({
+              type: "reconciling",
+              dir: newdir,
+              tm: tm,
+              done_path: done_path
+            })
+
          }
-
-
         }
       }
 
@@ -355,7 +344,7 @@
       ctx = canvas.getContext("2d");
 
       setupKeyboard(this.$io);
-      setupAuthorativeServer(this.$io);
+      setupAuthorativeServer(this.$io, this.game_state);
 
 
       window.ctx = ctx;
@@ -396,24 +385,41 @@
           player.show_dir_indicator = false;
         }
 
+        setTimeout(()=>{
+
+          let tm = Date.now();
+
+          this.game_state.player_consideration = false;
+
+          if(player_me.speed == 0){
+            return;
+          }
+
+          var pos = player_me.getPos();
+          pos.tm = tm;
+          pos.for = player_me.name;
+
+          player_me.inputs.push({
+            type: "quit_consideration",
+            pos: pos
+          });
+
+          this.$io.emit("quit_consideration", pos);
+
+        }, 4000);
+
       })
 
-      this.$io.on("quit_consideration", (positions)=>{
-
-        this.game_state.player_consideration = false;
+      this.$io.on("quit_consideration", (pos)=>{
 
         for(var player of players){
-          for(var pos of positions){
-            if(pos.for == player.name){
-              console.log(pos);
-              player.inputs.push({
-                type: "quit_consideration",
-                pos: pos
-              })
-            }
+          if(pos.for == player.name){
+            player.inputs.push({
+              type: "quit_consideration",
+              pos: pos
+            })
           }
         }
-
       })
 
       this.$io.on("killed", (playername, evt)=>{
@@ -494,8 +500,13 @@
             else if(input.type == "killed"){
               player_item.applyCurpathState(input.evt.curpath)
               player_item.speed = 0;
-              console.log(input.evt.tm);
               return;
+            }
+            else if(input.type == "reconciling"){
+              player_item.savePath(input.done_path, false, true);
+            }
+            else if(input.type == "quit_consideration"){
+              player_item.quitConsideation(input.pos);
             }
             else{
               player_item.recomputeCurpath( input.tm );

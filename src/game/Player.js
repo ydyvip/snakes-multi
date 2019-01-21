@@ -165,15 +165,17 @@ Player.prototype.savePath = function(path_state, server_side, reconciled_path) {
     var saved = false;
 
     for(var i = this.paths.length-1; i>=0; i--){
-
       if(this.paths[i].body.tm == path_state.body.tm){
+        console.log("path reconciled");
         saved = true;
+        console.log(this.paths[i]);
+        console.log(path);
         this.paths[i] = path;
       }
-      if(!saved){
-        this.paths.push(path);
-      }
-
+    }
+    if(!saved){
+      console.log("path not reconciled");
+      this.paths.push(path);
     }
 
   }
@@ -220,7 +222,6 @@ Player.prototype.changeDir = function(new_dir, tm){
 
   var path = {};
 
-  path.state = null;
   path.body = {};
   path.body.timestamp = Date.now();
   path.body.tm = this.curpath.tm;
@@ -443,8 +444,6 @@ Player.prototype.getPos = function(){
 
 Player.prototype.quitConsideation = function(pos){
 
-  console.log(pos);
-
   this.curpath.start.x = pos.x;
   this.curpath.start.y = pos.y;
   this.curpath.end.x = pos.x;
@@ -455,6 +454,7 @@ Player.prototype.quitConsideation = function(pos){
 
   this.breakout = false;
   this.curpath.tm = pos.tm;
+
 }
 
 var random = require("random-js")();

@@ -70,6 +70,16 @@ Player.prototype.saveEvent = function(evt){
 
 }
 
+Player.prototype.clearEvent = function(tm){
+
+  for( let i = 0; i++; i<this.reckoning_events.length){
+    if( evt.tm == tm ){
+      this.reckoning_events.splice(i, 1);
+    }
+  }
+
+}
+
 Player.prototype.isEventValid = function(tm){
 
   for( evt of this.reckoning_events){
