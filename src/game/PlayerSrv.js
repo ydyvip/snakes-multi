@@ -4,14 +4,30 @@ var random = require("random-js")();
 
 Player.prototype.changeDirSrv = function(newdir, tm){
 
-  if(this.speed==0)
+  if(this.killed==true)
     return;
 
-  this.inputs.push({
+  var input = {
     dir: newdir,
     tm: tm,
-    breakout: -1
-  });
+    breakout: -1,
+  }
+
+  // 250ms lag tolerance
+  if(tm<Date.now()-250){
+    //lag reduction
+    //TODO: path must be reconciled on client side
+    tm = Date.now()-250;
+  }
+
+
+  if(this.collision_tm != 0 && tm<this.collision_tm){
+    //TODO: check for collision in 250ms
+    this.collision_tm = 0;
+    clearTimeout(this.collision_timeout);
+  }
+
+  this.inputs.push(input);
 
   return;
 
@@ -66,13 +82,13 @@ Player.prototype.clearBreakout = function(){
 
 Player.prototype.saveEvent = function(evt){
 
-  this.reckoning_events.push(evt);
+  this.collisions.push(evt);
 
 }
 
 Player.prototype.clearEvent = function(tm){
 
-  for( let i = 0; i++; i<this.reckoning_events.length){
+  for( let i = 0; i<this.reckoning_events.length; i++){
     if( evt.tm == tm ){
       this.reckoning_events.splice(i, 1);
     }
@@ -80,9 +96,33 @@ Player.prototype.clearEvent = function(tm){
 
 }
 
+Player.prototype.clearEvents = function(after_tm){
+
+  if(after_tm == undefined){
+    this.reckoning_events = [];
+  }
+
+  if(this.reckoning_events.length==0)
+    return;
+
+  if(this.name=="kubus6"){
+    console.log("clearing events before " + after_tm);
+  }
+  for(let i = this.reckoning_events.length-1; i>=0; i--){
+
+    if(this.reckoning_events[i].tm>=after_tm){
+      if(this.name=="kubus6")
+        console.log("event deleted");
+      this.reckoning_events.splice(i, 1);
+    }
+
+  }
+
+}
+
 Player.prototype.isEventValid = function(tm){
 
-  for( evt of this.reckoning_events){
+  for( evt of this.collisions){
     if( evt.tm == tm )
       return evt;
   }

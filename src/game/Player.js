@@ -17,13 +17,15 @@ var Player = function(initial_state){
 
   this.name = initial_state.player_name;
   this.speed = 0;
-  this.default_speed = 90;
+  this.default_speed = 60;
   this.dir = "straight";
   this.weight = 10;
-  this.r = 50;
+  this.r = 18;
   this.paths = [];
   this.breakout = true;
   this.show_dir_indicator = true;
+  this.killed = true;
+  this.collision_tm = 0;
 
   this.curpath = {
     tm: 0,
@@ -47,6 +49,7 @@ var Player = function(initial_state){
   this.base_start_angle = initial_state.angle;
 
   this.reckoning_events = [];
+  this.collisions = [];
 
 }
 
@@ -410,7 +413,7 @@ Player.prototype.getCurpath = function(){
   obj.arc_point_x = this.curpath.arc_point.x;
   obj.arc_point_y = this.curpath.arc_point.y;
   obj.dir = this.dir;
-
+  obj.tm = this.curpath.tm;
   return obj;
 
 
@@ -426,7 +429,8 @@ Player.prototype.applyCurpathState = function(state_of_curpath){
   this.starting_angle = state_of_curpath.starting_angle  ;
   this.curpath.arc_point.x = state_of_curpath.arc_point_x  ;
   this.curpath.arc_point.y = state_of_curpath.arc_point_y  ;
-
+  this.dir = state_of_curpath.dir;
+  this.curpath.tm = state_of_curpath.tm;
 
 }
 
@@ -454,6 +458,20 @@ Player.prototype.quitConsideation = function(pos){
 
   this.breakout = false;
   this.curpath.tm = pos.tm;
+
+}
+
+Player.prototype.clearFurtherPaths = function(tm){
+
+  if(this.paths.length == 0)
+    return;
+
+  for(var i = this.paths.length-1; i>=0; i--){
+    if(this.paths[i].body.tm > tm )
+    {
+      this.paths.splice(i,1);
+    }
+  }
 
 }
 

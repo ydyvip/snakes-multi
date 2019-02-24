@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "watchify": "watchify -vd -p browserify-hmr -e src/main.js -o dist/build.js",
-    "serve": "nodemon --watch API --watch DB --watch index.js --watch socket.js --watch lobby.js",
+    "serve": "nodemon --watch API --watch DB --watch index.js --watch socket.js --watch lobby.js --watch src/game/Player.js --watch src/game/PlayerSrv.js index.js TEST_MODE",
     "dev": "npm-run-all --parallel watchify",
     "build": "cross-env NODE_ENV=production browserify -g envify src/main.js | uglifyjs -c warnings=false -m > dist/build.js"
   },

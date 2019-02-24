@@ -23,21 +23,28 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
     for( var player of players){
 
-      if(player.speed == 0){
+      if(player.speed == 0 || player.collision_tm != 0){
         continue;
       }
 
       // test for boundaries
 
       var c = (
-        lineCircleCollision([0,0], [0,799], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
-        lineCircleCollision([0,799], [799,799], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
-        lineCircleCollision([799,799], [799,0], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
-        lineCircleCollision([799,0], [0,0], [player.curpath.end.x, player.curpath.end.y], player.weight/2)
+        lineCircleCollision([0,0], [0,800], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
+        lineCircleCollision([0,800], [800,800], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
+        lineCircleCollision([800,800], [800,0], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
+        lineCircleCollision([800,0], [0,0], [player.curpath.end.x, player.curpath.end.y], player.weight/2)
       )
       if(c){
         if(game_serv)
           game_serv.collisionDetected(player, tm);
+        // collision with boundaries on client side is taken for sure
+        else{
+          if(player.name=="kubus6"){
+            console.log("collision detected on cs");
+          }
+          player.speed = 0;
+        }
       }
 
       if(this.player_consideration)

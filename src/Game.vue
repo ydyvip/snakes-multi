@@ -422,14 +422,15 @@
         }
       })
 
-      this.$io.on("killed", (playername, evt)=>{
+      this.$io.on("killed", (playername, collision_tm, path_at_collision)=>{
 
         for(var player of players){
           if(player.name ==  playername){
 
             player.inputs.push({
               type: "killed",
-              evt: evt
+              collision_tm: collision_tm,
+              path_at_collision: path_at_collision
             });
 
             return;
@@ -489,7 +490,6 @@
           return;
         }
 
-
         players.forEach( (player_item)=>{
 
           while(player_item.inputs.length>0){
@@ -498,8 +498,12 @@
               player_item.quitConsideation(input.pos);
             }
             else if(input.type == "killed"){
-              player_item.applyCurpathState(input.evt.curpath)
+              player_item.clearFurtherPaths(input.collision_tm);
+              player_item.applyCurpathState(input.path_at_collision);
               player_item.speed = 0;
+              if(player_item.name=="kubus6"){
+                console.log("killed from server");
+              }
               return;
             }
             else if(input.type == "reconciling"){

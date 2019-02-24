@@ -8,6 +8,8 @@ var random = require("random-js")();
 var Users = require("./DB/users.db.js")
 var Stats = require("./DB/stats.db.js")
 
+var stubber = require("./stubber.js");
+
 var io = null;
 
 var games = [];
@@ -29,6 +31,11 @@ function Game(cnt_players, players, name, bet){
 
 }
 
+if(process.TEST_MODE == true){
+  stubber.stubGamePrototype(Game);
+}
+
+
 Game.prototype.getPlayersName = function(){
 
   var arr = [];
@@ -36,40 +43,52 @@ Game.prototype.getPlayersName = function(){
     arr.push( p.playername);
   }
   return arr;
-
 }
 
 Game.prototype.collisionDetected = function(player_state, collision_tm){
 
-  player_state.saveEvent({
-    type: "collision",
-    tm: collision_tm,
-    curpath: player_state.getCurpath()
-  });
+  player_state.collision_tm = collision_tm;
 
-  player_state.speed = 0;
+  if(player_state.name=="kubus6")
+    console.log("collision detected " + collision_tm);
 
-  setTimeout( ()=>{
+  // Why some collisions are detected twice?
+  // if(player_state.collision_tm != 0){
+  //   return;
+  // }
+
+
+  var path_at_collision = player_state.getCurpath()
+
+  player_state.collision_timeout = setTimeout( ()=>{
+
 
     // collision detected but player can move in last time, we should wait for input beacuse of lag
     // dead reckoning phase may be wrong, we will wait some time for new input
     // if new input arrived it will delete all events from dead reckoning phase
 
-    var evt = player_state.isEventValid(collision_tm);
-
-    if(evt){
-      player_state.recomputeCurpath(evt.tm);
+    if(player_state.collision_tm != 0){
+      player_state.collision_timeout = null;
+      player_state.recomputeCurpath(player_state.collision_tm);
       player_state.speed = 0;
-      this.emitKilled(player_state.name, evt);
+      player_state.collision_tm = 0;
+      player_state.killed = true;
+      this.emitKilled(player_state.name, collision_tm, path_at_collision);
+    }
+    else{
+      player_state.collision_timeout = null;
+      player_state.speed = player_state.default_speed;
+      player_state.collision_tm = 0;
+      if(player_state.name=="kubus6")
+        console.log("collision rejected "+collision_tm);
     }
 
   }, 250);
-
 }
 
-Game.prototype.emitKilled = function(playername, evt){
+Game.prototype.emitKilled = function(playername, collision_tm, path_at_collision){
 
-  io.to(this.name).emit("killed", playername, evt);
+  io.to(this.name).emit("killed", playername, collision_tm, path_at_collision);
 
   for( var player of this.players){
 
@@ -160,9 +179,7 @@ Game.prototype.startNewRound = function(){
 
   var new_round_awaiting = 10;
 
-
   io.to(this.name).emit("newround_countdown", new_round_awaiting);
-
 
   setTimeout( ()=> {
 
@@ -181,6 +198,7 @@ Game.prototype.startNewRound = function(){
       player.speed = 0;
       player.paths = [];
       player.dir = "straight";
+      player.collision_tm = 0;
 
       var new_pos =  this.makeInitPositions(player);
       new_pos.for = player.name;
@@ -202,6 +220,7 @@ Game.prototype.startNewRound = function(){
         player.curpath.tm = dn;
         this.game_state.player_consideration = true;
         player.speed = player.default_speed;
+        player.killed = false;
         player.breakout = true;
       }
     }, 3000);
@@ -336,6 +355,7 @@ Game.prototype.start = function(){
       player.curpath.tm = tm;
       this.game_state.player_consideration = true;
       player.speed = player.default_speed;
+      player.killed = player.true;
       player.breakout = true;
     }
 
@@ -478,6 +498,7 @@ games.getGameList = function(){
 
 }
 
+
 /*
   socket.currentRoom
 */
@@ -491,15 +512,16 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm);
-    }, 222)
+    }, 150)
 
   })
+
 
   socket.on("right", function(tm){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", tm);
-    }, 222)
+    }, 150)
 
   })
 
@@ -507,7 +529,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", tm);
-    }, 222)
+    }, 150)
 
   })
 
@@ -521,7 +543,7 @@ module.exports = function( io_, socket ){
 
       socket.to(socket.currentRoom).emit("quit_consideration", pos );
 
-    }, 222);
+    }, 150);
 
   })
 
