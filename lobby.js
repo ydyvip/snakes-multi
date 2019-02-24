@@ -8,7 +8,7 @@ var random = require("random-js")();
 var Users = require("./DB/users.db.js")
 var Stats = require("./DB/stats.db.js")
 
-var stubber = require("./stubber.js");
+var stubber = require("./cypress/stubber.js");
 
 var io = null;
 
