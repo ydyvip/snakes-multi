@@ -4,8 +4,6 @@ if(process.argv[2] == "TEST_MODE"){
   console.log("running in test mode");
 }
 
-console.log(process.argv);
-
 var express = require("express");
 var bodyparser = require("body-parser");
 var session = require("express-session");
