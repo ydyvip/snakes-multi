@@ -264,9 +264,9 @@ Game.prototype.start = function(){
   var initial_states = [];
   var colors = ["orange", "cyan", "blue", "red", "pink", "yellow"];
 
-  this.players.forEach((player_item)=>{
+  this.game_state = new GameState();
 
-    this.game_state = new GameState();
+  this.players.forEach((player_item)=>{
 
     var color = random.pick(colors);
     var index = colors.findIndex( function(color_item){
@@ -276,7 +276,7 @@ Game.prototype.start = function(){
     })
     colors.splice(index, 1);
 
-    var angle_pos = this.makeInitPositions(); // angle & pos: returned and setted
+    var angle_pos = this.makeInitPositions(null, player_item.playername); // angle & pos: returned and setted
 
     var initial_state = {
       player_name: player_item.playername,
