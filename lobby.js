@@ -49,7 +49,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm){
 
   player_state.collision_tm = collision_tm;
 
-  if(player_state.name=="kubus6")
+  if(player_state.name=="user6")
     console.log("collision detected " + collision_tm);
 
   // Why some collisions are detected twice?
@@ -79,7 +79,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm){
       player_state.collision_timeout = null;
       player_state.speed = player_state.default_speed;
       player_state.collision_tm = 0;
-      if(player_state.name=="kubus6")
+      if(player_state.name=="user6")
         console.log("collision rejected "+collision_tm);
     }
 
@@ -452,7 +452,7 @@ Game.prototype.delistPlayer = function(playername){
 }
 
 
-sample_game = new Game(0,  [], "Empty !!!", 500 );
+sample_game = new Game(0,  [], "Empty", 500 );
 
 
 games.push(sample_game);

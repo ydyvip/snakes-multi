@@ -457,6 +457,8 @@
 
         var player_item = new Player(initial_state_item);
 
+        window.player = player_item;
+
         player_item.inputs = [];
 
         player_item.ctx = ctx;
@@ -501,7 +503,7 @@
               player_item.clearFurtherPaths(input.collision_tm);
               player_item.applyCurpathState(input.path_at_collision);
               player_item.speed = 0;
-              if(player_item.name=="kubus6"){
+              if(player_item.name=="user6"){
                 console.log("killed from server");
               }
               return;

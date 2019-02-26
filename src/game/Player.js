@@ -17,7 +17,7 @@ var Player = function(initial_state){
 
   this.name = initial_state.player_name;
   this.speed = 0;
-  this.default_speed = 60;
+  this.default_speed = 50;
   this.dir = "straight";
   this.weight = 10;
   this.r = 18;

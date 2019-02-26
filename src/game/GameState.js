@@ -40,7 +40,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           game_serv.collisionDetected(player, tm);
         // collision with boundaries on client side is taken for sure
         else{
-          if(player.name=="kubus6"){
+          if(player.name=="user6"){
             console.log("collision detected on cs");
           }
           player.speed = 0;
