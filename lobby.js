@@ -158,12 +158,7 @@ Game.prototype.emitKilled = function(playername, collision_tm, path_at_collision
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
       this.detachMyselfFromList();
-      this.game_state = null;
-      gameloop.clearGameLoop(this.gameloop_id);
-      for(var player of this.players){
-        player.socket.currentRoom = null;
-        player.socket.leave(this.name);
-      }
+      this.game_state.end_of_game = true;
 
     }
     else{
@@ -340,6 +335,15 @@ Game.prototype.start = function(){
     })
 
     this.game_state.detectCollision(this.player_states, this, tm );
+
+    if(this.game_state.end_of_game){
+      this.game_state = null;
+      gameloop.clearGameLoop(this.gameloop_id);
+      for(var player of this.players){
+        player.socket.currentRoom = null;
+        player.socket.leave(this.name);
+      }
+    }
 
   }, 1000/66); // update gamestate every 33ms
 
