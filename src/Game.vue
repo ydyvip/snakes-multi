@@ -106,31 +106,6 @@
 
     })
 
-    io.on("stateupdate", (player_states)=>{
-
-      for( let player_state_item of player_states ){
-
-        for( let player_item of players){
-
-          // if(player_me.name == player_state_item.name){
-            // continue;
-          // }
-
-          if(player_state_item.name == player_item.name ){
-
-          //  player_item.curpath.end = player_state_item.curpath_end;
-          //  player_item.angle = player_state_item.angle;
-
-
-          }
-
-        }
-
-      }
-
-    })
-
-
   }
 
   function setupKeyboard(io){

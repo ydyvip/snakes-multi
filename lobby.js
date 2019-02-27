@@ -27,7 +27,6 @@ function Game(cnt_players, players, name, bet){
   this.first_to_reach = 50;
 
   this.gameloop_id = null
-  this.serveloop_id = null;
 
 }
 
@@ -159,7 +158,6 @@ Game.prototype.emitKilled = function(playername, collision_tm, path_at_collision
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
       this.detachMyselfFromList();
-      clearTimeout(this.serveloop_id);
       this.game_state = null;
       gameloop.clearGameLoop(this.gameloop_id);
       for(var player of this.players){
@@ -389,29 +387,6 @@ Game.prototype.start = function(){
   }, 8000);
 
   var curpaths = [];
-
-  // GameState broadcast
-  this.serveloop_id = setInterval( ()=> {
-
-    // constant broadcast of game GameState
-      // - curpath
-
-    var states_for_emit = [];
-
-     this.player_states.forEach( (player_state_item)=>{
-
-       states_for_emit.push({
-         name: player_state_item.name,
-         curpath_end: player_state_item.curpath.end,
-         angle: player_state_item.angle,
-       })
-
-     })
-
-     io.to(this.name).emit("stateupdate", states_for_emit );
-
-  }, 45 )
-
 
 }
 

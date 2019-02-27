@@ -23,8 +23,11 @@ Player.prototype.changeDirSrv = function(newdir, tm){
 
   if(this.collision_tm != 0 && tm<this.collision_tm){
     //TODO: check for collision in 250ms
+    console.log("input reject collision");
+    console.log("1: " + this.collision_tm)
+    console.log("2: " + tm)
     this.collision_tm = 0;
-    //server should emit kill event once so previous timeout must be cleared. if another collision will be detected two timeouts will be active 
+    //server should emit kill event once so previous timeout must be cleared. if another collision will be detected two timeouts will be active
     clearTimeout(this.collision_timeout);
   }
 
