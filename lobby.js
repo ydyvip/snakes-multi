@@ -168,7 +168,41 @@ Game.prototype.emitKilled = function(playername, collision_tm, path_at_collision
 
 }
 
-Game.prototype.startNewRound = function(){
+Game.prototype.startNewRound = function(first_round){
+
+  var initial_states = [];
+
+  if(first_round){
+
+    this.player_states = [];
+
+    var colors = ["orange", "cyan", "blue", "red", "pink", "yellow"];
+    random.shuffle(colors);
+
+    for( var player_socket of this.players){
+
+      var initial_state = {
+        player_name: player_socket.playername,
+        color: colors[0]
+      }
+
+      initial_states.push(initial_state);
+
+      colors.splice(0, 1);
+
+      var p = new Player(initial_state);
+      p.gamename = this.name;
+      p.socket = player_socket.socket;
+
+      player_socket.socket.player_state = p;
+
+      this.player_states.push(p);
+
+    }
+
+    io.to(this.name).emit("gamestart", initial_states, this.first_to_reach, this.bet);
+
+  }
 
   var new_round_awaiting = 10;
 
@@ -253,58 +287,11 @@ Game.prototype.start = function(){
 
   Users.reduceBalances( this.getPlayersName(), -this.bet );
 
-  this.player_states = [];
-  var initial_states = [];
-  var colors = ["orange", "cyan", "blue", "red", "pink", "yellow"];
-
   this.game_state = new GameState();
 
-  this.players.forEach((player_item)=>{
+  Player.prototype.io = io;
 
-    var color = random.pick(colors);
-    var index = colors.findIndex( function(color_item){
-      if(color_item == color){
-        return true;
-      }
-    })
-    colors.splice(index, 1);
-
-    var angle_pos = this.makeInitPositions(null, player_item.playername); // angle & pos: returned and setted
-
-    var initial_state = {
-      player_name: player_item.playername,
-      color: color,
-      angle: angle_pos.angle,
-      pos: angle_pos.pos
-    };
-
-    Player.prototype.io = io;
-
-    var p = new Player(initial_state);
-
-    p.curpath.start.x = angle_pos.pos.x;
-    p.curpath.start.y = angle_pos.pos.y;
-    p.curpath.end.x = angle_pos.pos.x;
-    p.curpath.end.y = angle_pos.pos.y;
-    p.color = color;
-    p.angle = angle_pos.angle;
-    p.gamename = this.name;
-    p.socket = player_item.socket;
-
-    p.inputs = [];
-    p.events = [];
-
-    this.player_states.push(p);
-
-    player_item.socket.player_state = p;
-
-
-    initial_states.push(initial_state);
-
-  })
-
-  io.to(this.name).emit("gamestart", initial_states, this.first_to_reach, this.bet);
-
+  this.startNewRound(true);
 
   this.gameloop_id = gameloop.setGameLoop( (delta)=>{
 
@@ -346,51 +333,6 @@ Game.prototype.start = function(){
     }
 
   }, 1000/66); // update gamestate every 33ms
-
-  setTimeout(()=>{
-
-    let tm = Date.now();
-
-    io.to(this.name).emit("round_start", tm);
-
-    for(var player of this.player_states){
-      player.curpath.tm = tm;
-      this.game_state.player_consideration = true;
-      player.speed = player.default_speed;
-      player.killed = player.true;
-      player.breakout = true;
-    }
-
-  }, 4000 );
-
-  setTimeout(()=>{
-
-    let tm = Date.now();
-
-    this.game_state.player_consideration = false;
-
-    var positions = [];
-
-    for(var player of this.player_states){
-
-      var pos = player.getPos();
-      pos.tm = tm;
-      pos.for = player.name;
-
-      positions.push(pos);
-
-      player.inputs.push({
-        type: "quit_consideration",
-        pos: pos
-      })
-      // player.setupBreakout();
-    }
-
-    io.to(this.name).emit("quit_consideration", positions);
-
-  }, 8000);
-
-  var curpaths = [];
 
 }
 

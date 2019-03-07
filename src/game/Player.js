@@ -30,12 +30,12 @@ var Player = function(initial_state){
   this.curpath = {
     tm: 0,
     start: {
-      x: initial_state.pos.x,
-      y: initial_state.pos.y
+      x: undefined,
+      y: undefined
     },
     end: {
-      x: initial_state.pos.x,
-      y: initial_state.pos.y
+      x: undefined,
+      y: undefined
     },
     arc_point: {
       x: 0,
@@ -45,11 +45,13 @@ var Player = function(initial_state){
   };
 
   this.color = initial_state.color;
-  this.angle = initial_state.angle;
-  this.base_start_angle = initial_state.angle;
+  this.angle = undefined;
+  this.base_start_angle = undefined;
 
   this.reckoning_events = [];
   this.collisions = [];
+  this.inputs = [];
+  this.events = [];
 
 }
 

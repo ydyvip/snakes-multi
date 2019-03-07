@@ -486,9 +486,6 @@
             else if(input.type == "reconciling"){
               player_item.savePath(input.done_path, false, true);
             }
-            else if(input.type == "quit_consideration"){
-              player_item.quitConsideation(input.pos);
-            }
             else{
               player_item.recomputeCurpath( input.tm );
               var done_path = player_item.changeDir(input.dir, input.tm);
