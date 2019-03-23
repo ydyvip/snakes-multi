@@ -193,6 +193,7 @@ Game.prototype.startNewRound = function(first_round){
       var p = new Player(initial_state);
       p.gamename = this.name;
       p.socket = player_socket.socket;
+      p.game_state = this.game_state;
 
       player_socket.socket.player_state = p;
 
@@ -202,13 +203,17 @@ Game.prototype.startNewRound = function(first_round){
 
     io.to(this.name).emit("gamestart", initial_states, this.first_to_reach, this.bet);
 
-  }
+  } // first round
 
   var new_round_awaiting = 10;
 
   io.to(this.name).emit("newround_countdown", new_round_awaiting);
 
-  setTimeout( ()=> {
+  // (new_round_awaiting+2)*1000 -- 12 sec await
+  // round_start emitted after 15 sec (12+3)
+  // quit_consideration emmitted after 19 sec (12+3+4)
+
+  setTimeout( ()=> { // 12sec
 
     var new_round_positions = [];
 
@@ -236,20 +241,34 @@ Game.prototype.startNewRound = function(first_round){
 
     io.to(this.name).emit("new_positions_generated", new_round_positions);
 
-    setTimeout(()=>{
+    setTimeout(()=>{ // 3sec
 
       if(!this.game_state)
         return;
 
-      var dn = Date.now();
-      io.to(this.name).emit("round_start", dn);
+      var tm_round_start = Date.now();
+      io.to(this.name).emit("round_start", tm_round_start);
       for(var player of this.player_states){
-        player.curpath.tm = dn;
+        player.curpath.tm = tm_round_start;
         this.game_state.player_consideration = true;
         player.speed = player.default_speed;
         player.killed = false;
         player.breakout = true;
       }
+
+      this.game_state.tm_quit_consideration = tm_round_start + 4000;
+
+      setTimeout(()=>{ // 4sec
+
+        for(var player of this.player_states){
+          player.inputs.push({
+           type: "quit_consideration"
+          })
+          // player.setupBreakout();
+        }
+
+      }, 4000);
+
     }, 3000);
 
   }, (new_round_awaiting+2)*1000 );
@@ -291,6 +310,7 @@ Game.prototype.start = function(){
 
   Player.prototype.io = io;
 
+  // Start first round
   this.startNewRound(true);
 
   this.gameloop_id = gameloop.setGameLoop( (delta)=>{
@@ -304,7 +324,7 @@ Game.prototype.start = function(){
         var input = player_state_item.inputs.shift();
 
         if(input.type == "quit_consideration"){
-          player_state_item.quitConsideation(input.pos);
+          player_state_item.quitConsideation(this.game_state.tm_quit_consideration);
         }
         else {
           player_state_item.recomputeCurpath( input.tm );
@@ -451,20 +471,6 @@ module.exports = function( io_, socket ){
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", tm);
     }, 150)
-
-  })
-
-  socket.on("quit_consideration", function(pos){
-
-    setTimeout( ()=>{
-      socket.player_state.inputs.push({
-        type: "quit_consideration",
-        pos: pos
-      });
-
-      socket.to(socket.currentRoom).emit("quit_consideration", pos );
-
-    }, 150);
 
   })
 

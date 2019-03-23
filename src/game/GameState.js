@@ -15,7 +15,8 @@ function getRad(degree){
 
 function GameState() {
 
-  this.player_consideration = true
+  this.player_consideration = true;
+  this.tm_quit_consideration = 0;
 
 }
 

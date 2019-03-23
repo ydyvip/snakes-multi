@@ -93,13 +93,36 @@
 
           }
           else{
+
+            if(game_state.player_consideration == false && tm<this.game_state.tm_quit_consideration){
+
+              //apply first path before qc
+
+              player_item.curpath.start.x = player_item.path_before_qc.start_x;
+              player_item.curpath.start.y = player_item.path_before_qc.start_y;
+              player_item.base_start_angle = player_item.path_before_qc.base_start_angle;
+              player_item.curpath.tm = player_item.path_before_qc.tm;
+              player_item.dir = player_item.path_before_qc.dir;
+
+              player_item.inputs.push({
+                type: "reconciling",
+                dir: newdir,
+                tm: tm,
+                done_path: done_path
+              });
+              player_item.inputs.push({
+                type: "quit_consideration"
+              })
+
+              return;
+            }
+
             player_item.inputs.push({
               type: "reconciling",
               dir: newdir,
               tm: tm,
               done_path: done_path
             })
-
          }
         }
       }
@@ -350,51 +373,37 @@
 
       })
 
-      this.$io.on("round_start", (tm)=>{
+      // round start
+        // quit_consideration + 4sec
+
+      this.$io.on("round_start", (tm_round_start)=>{
 
         for(var player of players){
-          player.curpath.tm = tm;
+          player.curpath.tm = tm_round_start;
           this.game_state.player_consideration = true;
           player.breakout = true;
           player.speed = player.default_speed;
           player.show_dir_indicator = false;
         }
 
+        var tm_quit_consideration = tm_round_start + 4000;
+
+        this.game_state.tm_quit_consideration = tm_quit_consideration;
+
         setTimeout(()=>{
-
-          let tm = Date.now();
-
-          this.game_state.player_consideration = false;
 
           if(player_me.speed == 0){
             return;
           }
 
-          var pos = player_me.getPos();
-          pos.tm = tm;
-          pos.for = player_me.name;
-
-          player_me.inputs.push({
-            type: "quit_consideration",
-            pos: pos
-          });
-
-          this.$io.emit("quit_consideration", pos);
+          for(var player_ of players){
+            player_.inputs.push({
+              type: "quit_consideration"
+            });
+          }
 
         }, 4000);
 
-      })
-
-      this.$io.on("quit_consideration", (pos)=>{
-
-        for(var player of players){
-          if(pos.for == player.name){
-            player.inputs.push({
-              type: "quit_consideration",
-              pos: pos
-            })
-          }
-        }
       })
 
       this.$io.on("killed", (playername, collision_tm, path_at_collision)=>{
@@ -435,6 +444,7 @@
         window.player = player_item;
 
         player_item.inputs = [];
+        player_item.game_state = this.game_state;
 
         player_item.ctx = ctx;
 
@@ -472,7 +482,7 @@
           while(player_item.inputs.length>0){
             var input = player_item.inputs.shift();
             if(input.type == "quit_consideration"){
-              player_item.quitConsideation(input.pos);
+              player_item.quitConsideation(this.game_state.tm_quit_consideration);
             }
             else if(input.type == "killed"){
               player_item.clearFurtherPaths(input.collision_tm);

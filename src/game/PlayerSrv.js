@@ -20,15 +20,29 @@ Player.prototype.changeDirSrv = function(newdir, tm){
     tm = Date.now()-250;
   }
 
-
+  // new input with tm earlier than collision tm
   if(this.collision_tm != 0 && tm<this.collision_tm){
     //TODO: check for collision in 250ms
-    console.log("input reject collision");
-    console.log("1: " + this.collision_tm)
-    console.log("2: " + tm)
-    this.collision_tm = 0;
-    //server should emit kill event once so previous timeout must be cleared. if another collision will be detected two timeouts will be active
+    this.collision_tm = 0; // reset collision
+    //server should emit kill event once so previous timeout must be cleared. otherwise if another collision will be detected two timeouts will be active
     clearTimeout(this.collision_timeout);
+  }
+
+  if(this.game_state.player_consideration == false && tm<this.game_state.tm_quit_consideration){
+
+    //apply first path before qc
+
+    this.curpath.start.x = this.path_before_qc.start_x;
+    this.curpath.start.y = this.path_before_qc.start_y;
+    this.base_start_angle = this.path_before_qc.base_start_angle;
+    this.curpath.tm = this.path_before_qc.tm;
+    this.dir = this.path_before_qc.dir;
+
+    this.inputs.push(input);
+    this.inputs.push({
+      type: "quit_consideration"
+    })
+
   }
 
   this.inputs.push(input);

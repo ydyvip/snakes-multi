@@ -20,6 +20,22 @@ app.get("/join", function(req, res){
   socket4.emit("join", "user4", gamename);
   socket5.emit("join", "user5", gamename);
 
+  socket5.on("round_start", (tm_round_start)=>{
+
+    setTimeout(()=>{
+
+      socket5.emit("right", Date.now());
+
+    }, 3950);
+
+    setTimeout(()=>{
+
+      socket5.emit("straight", Date.now());
+
+    }, 5000);
+
+  })
+
   res.end();
 
 })

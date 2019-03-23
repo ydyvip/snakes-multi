@@ -238,6 +238,7 @@ Player.prototype.changeDir = function(new_dir, tm){
     path.body.vertices = this.getVerticesFromLinePath();
     path.body.line = [ [this.curpath.start.x, this.curpath.start.y], [this.curpath.end.x, this.curpath.end.y] ];
 
+    // TODO: that stuff is unnecessary
     this.curpath.start.x = this.curpath.end.x;
     this.curpath.start.y = this.curpath.end.y;
 
@@ -448,18 +449,24 @@ Player.prototype.getPos = function(){
 
 }
 
-Player.prototype.quitConsideation = function(pos){
+Player.prototype.quitConsideation = function(tm){
 
-  this.curpath.start.x = pos.x;
-  this.curpath.start.y = pos.y;
-  this.curpath.end.x = pos.x;
-  this.curpath.end.y = pos.y;
+  // Save curpath for case when new input that occured before quit consideration arrive.
 
-  this.base_start_angle = pos.angle;
-  this.angle = pos.angle;
+  this.path_before_qc = {
+    start_x: this.curpath.start.x,
+    start_y: this.curpath.start.y,
+    base_start_angle: this.base_start_angle,
+    tm: this.curpath.tm,
+    dir: this.dir
+  }
+
+  this.recomputeCurpath(tm);
+  this.changeDir(this.dir, tm);
 
   this.breakout = false;
-  this.curpath.tm = pos.tm;
+
+  this.game_state.player_consideration = false;
 
 }
 
