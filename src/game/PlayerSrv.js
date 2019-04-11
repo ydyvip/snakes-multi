@@ -32,16 +32,25 @@ Player.prototype.changeDirSrv = function(newdir, tm){
 
     //apply first path before qc
 
-    this.curpath.start.x = this.path_before_qc.start_x;
-    this.curpath.start.y = this.path_before_qc.start_y;
-    this.base_start_angle = this.path_before_qc.base_start_angle;
-    this.curpath.tm = this.path_before_qc.tm;
-    this.dir = this.path_before_qc.dir;
+
+    this.clearFurtherPaths(this.game_state.tm_quit_consideration, true);
+    this.applyStartPoitOfCurpathState(this.path_before_qc);
+
+    if(this.name=="user6"){
+      console.log("input triggered before qc arrived after qc");
+      console.log("tm of curpath: " + this.curpath.tm);
+      console.log("tm of input:" + input.tm);
+      console.log("tm of qc: " + this.game_state.tm_quit_consideration );
+    }
+
+    input.discard_save = true;
 
     this.inputs.push(input);
     this.inputs.push({
       type: "quit_consideration"
     })
+
+    return;
 
   }
 

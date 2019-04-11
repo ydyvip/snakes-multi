@@ -51,12 +51,6 @@ Game.prototype.collisionDetected = function(player_state, collision_tm){
   if(player_state.name=="user6")
     console.log("collision detected " + collision_tm);
 
-  // Why some collisions are detected twice?
-  // if(player_state.collision_tm != 0){
-  //   return;
-  // }
-
-
   var path_at_collision = player_state.getCurpath()
 
   player_state.collision_timeout = setTimeout( ()=>{
@@ -73,13 +67,15 @@ Game.prototype.collisionDetected = function(player_state, collision_tm){
       player_state.collision_tm = 0;
       player_state.killed = true;
       this.emitKilled(player_state.name, collision_tm, path_at_collision);
+      if(player_state.name=="user6")
+        console.log("collision emmitted: " + collision_tm);
     }
     else{
       player_state.collision_timeout = null;
       player_state.speed = player_state.default_speed;
       player_state.collision_tm = 0;
       if(player_state.name=="user6")
-        console.log("collision rejected "+collision_tm);
+        console.log("collision rejected: "+collision_tm);
     }
 
   }, 250);
@@ -205,7 +201,8 @@ Game.prototype.startNewRound = function(first_round){
 
   } // first round
 
-  var new_round_awaiting = 10;
+  var new_round_awaiting = 2;
+
 
   io.to(this.name).emit("newround_countdown", new_round_awaiting);
 
@@ -240,7 +237,6 @@ Game.prototype.startNewRound = function(first_round){
     }
 
     io.to(this.name).emit("new_positions_generated", new_round_positions);
-
     setTimeout(()=>{ // 3sec
 
       if(!this.game_state)
@@ -318,10 +314,17 @@ Game.prototype.start = function(){
     let tm = Date.now();
 
     this.player_states.forEach( (player_state_item)=>{
-
+      //INPUT QUEUE
       while(player_state_item.inputs.length>0){
 
         var input = player_state_item.inputs.shift();
+
+
+        if(player_state_item.name=="user6"){
+          console.log("***************************************")
+          console.log(input);
+          console.log("***************************************")
+        }
 
         if(input.type == "quit_consideration"){
           player_state_item.quitConsideation(this.game_state.tm_quit_consideration);
@@ -330,7 +333,12 @@ Game.prototype.start = function(){
           player_state_item.recomputeCurpath( input.tm );
           var state_of_curpath = player_state_item.getCurpath();
           var done_path = player_state_item.changeDir(input.dir, input.tm);
-          player_state_item.savePath(done_path, true);
+          if(!input.discard_save){
+            player_state_item.savePath(done_path, true);
+          }
+          if(input.discard_save){
+            done_path = null;
+          }
           io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
         }
       }

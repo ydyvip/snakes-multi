@@ -3,7 +3,7 @@ var copy = require("../../copyobj.js");
 
 describe("collisions", function(){
 
-  it("server should emit kill event once", function(){
+  it("there should be proper reconcilation even setTimeout break sequence of input", function(){
 
     cy.visit("http://localhost:3004/");
 
@@ -17,25 +17,18 @@ describe("collisions", function(){
 
     cy.get('.btn').click();
 
-    return;
+    cy.wait(4000); // for round start
 
-    cy.window().its("player.speed").should("to.eq", 50);
+    cy.window({timeout: 15000}).its("player.speed").should("to.eq", 50);
 
-    cy.wait(850);
+    cy.wait(3950);
 
     cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
 
-    cy.window().its("player.speed").should("to.eq", 0);
+    cy.wait(1000);
 
-    cy.window().its("player").then((player)=>{
+    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
 
-      const spy = cy.spy(player, "clearFurtherPaths");
-      cy.wait(2000).then(()=>{
-        expect(spy).to.be.calledOnce
-      })
-
-
-    })
 
   })
 

@@ -82,41 +82,38 @@
         if( player_item.name == playername){
 
           if(player_item.name!=player_me.name){
-            // player_item.changeDir(newdir);
-            //player_item.savePath(done_path, 100, false);
 
-            player_item.inputs.push({
-              dir: newdir,
-              tm: tm,
-              state_of_curpath: state_of_curpath
-            })
-
-          }
-          else{
-
-            if(game_state.player_consideration == false && tm<this.game_state.tm_quit_consideration){
+            // @TODO ... gamestate.player_consideration == false na biezaca date
+            if(gamestate.player_consideration == false && tm<gamestate.tm_quit_consideration){
 
               //apply first path before qc
 
-              player_item.curpath.start.x = player_item.path_before_qc.start_x;
-              player_item.curpath.start.y = player_item.path_before_qc.start_y;
-              player_item.base_start_angle = player_item.path_before_qc.base_start_angle;
-              player_item.curpath.tm = player_item.path_before_qc.tm;
-              player_item.dir = player_item.path_before_qc.dir;
+              player_item.clearFurtherPaths(gamestate.tm_quit_consideration, true);
+              player_item.applyStartPoitOfCurpathState(player_item.path_before_qc);
 
               player_item.inputs.push({
-                type: "reconciling",
+                type: "input",
                 dir: newdir,
                 tm: tm,
-                done_path: done_path
+                done_path: done_path,
+                discard_save: true
               });
               player_item.inputs.push({
                 type: "quit_consideration"
               })
 
-              return;
+            }
+            else {
+              player_item.inputs.push({
+                type: "input",
+                dir: newdir,
+                tm: tm,
+                state_of_curpath: state_of_curpath
+              })
             }
 
+          }
+          else{
             player_item.inputs.push({
               type: "reconciling",
               dir: newdir,
@@ -143,10 +140,12 @@
 
       var tm = Date.now();
       player_me.inputs.push({
+        type: "input",
         dir: "left",
         tm: tm
       })
       io.emit("left", tm);
+
 
     }
 
@@ -157,6 +156,7 @@
         }
        var tm = Date.now();
        player_me.inputs.push({
+         type: "input",
          dir: "straight",
          tm: tm
        })
@@ -170,6 +170,7 @@
       }
       var tm = Date.now();
       player_me.inputs.push({
+        type: "input",
         dir: "right",
         tm: tm
       })
@@ -183,6 +184,7 @@
         }
        var tm = Date.now();
        player_me.inputs.push({
+         type: "input",
          dir: "straight",
          tm: tm
        })
@@ -478,9 +480,16 @@
         }
 
         players.forEach( (player_item)=>{
-
+          //INPUT QUEUE
           while(player_item.inputs.length>0){
             var input = player_item.inputs.shift();
+
+            if(player_item.name == "user6"){
+              console.log("******************")
+              console.log(input);
+              console.log("******************")
+            }
+
             if(input.type == "quit_consideration"){
               player_item.quitConsideation(this.game_state.tm_quit_consideration);
             }
@@ -496,10 +505,30 @@
             else if(input.type == "reconciling"){
               player_item.savePath(input.done_path, false, true);
             }
-            else{
+            else if(input.type == "input"){
+
+              //handle case when input has tm greater than tm of qc
+              //but due to latency of timeot of qc - qc input was pushed to queue later
+              if(player_item.name == "user6"){
+                console.log("1: " + input.tm);
+                console.log("2: " + this.game_state.tm_quit_consideration);
+                console.log("3: " + this.game_state.player_consideration);
+              }
+              if(input.tm>this.game_state.tm_quit_consideration && this.game_state.player_consideration == true){
+
+                setTimeout(()=>{
+                  player_item.inputs.unshift(input);
+                }, 100);
+
+                continue;
+
+              }
+
               player_item.recomputeCurpath( input.tm );
               var done_path = player_item.changeDir(input.dir, input.tm);
-              player_item.savePath(done_path, false, false);
+              if(!input.discard_save){
+                player_item.savePath(done_path, false, false);
+              }
             }
           }
 

@@ -22,7 +22,7 @@ var Player = function(initial_state){
   this.weight = 10;
   this.r = 18;
   this.paths = [];
-  this.breakout = true;
+  this.breakout = true; // breakout should be used only for rendering purpose, not for determining if path should be saved or not
   this.show_dir_indicator = true;
   this.killed = true;
   this.collision_tm = 0;
@@ -173,13 +173,15 @@ Player.prototype.savePath = function(path_state, server_side, reconciled_path) {
       if(this.paths[i].body.tm == path_state.body.tm){
         console.log("path reconciled");
         saved = true;
-        console.log(this.paths[i]);
-        console.log(path);
         this.paths[i] = path;
       }
     }
     if(!saved){
       console.log("path not reconciled");
+      console.log("___________________");
+      console.log(path.body.tm);
+      console.log(this.game_state.tm_quit_consideration);
+      console.log("___________________");
       this.paths.push(path);
     }
 
@@ -227,42 +229,46 @@ Player.prototype.changeDir = function(new_dir, tm){
 
   var path = {};
 
-  path.body = {};
-  path.body.timestamp = Date.now();
-  path.body.tm = this.curpath.tm;
-  path.body.weight = this.weight;
-  path.body.color = this.color;
+  if( tm>=this.game_state.tm_quit_consideration )
+  {
 
-  if(this.dir == "straight" && !this.breakout){
-    path.body.type = "line";
-    path.body.vertices = this.getVerticesFromLinePath();
-    path.body.line = [ [this.curpath.start.x, this.curpath.start.y], [this.curpath.end.x, this.curpath.end.y] ];
+    path.body = {};
+    path.body.timestamp = Date.now();
+    path.body.tm = this.curpath.tm;
+    path.body.weight = this.weight;
+    path.body.color = this.color;
 
-    // TODO: that stuff is unnecessary
-    this.curpath.start.x = this.curpath.end.x;
-    this.curpath.start.y = this.curpath.end.y;
+    if(this.dir == "straight"){
+      path.body.type = "line";
+      path.body.vertices = this.getVerticesFromLinePath();
+      path.body.line = [ [this.curpath.start.x, this.curpath.start.y], [this.curpath.end.x, this.curpath.end.y] ];
 
-  }
+      // TODO: that stuff is unnecessary
+      this.curpath.start.x = this.curpath.end.x;
+      this.curpath.start.y = this.curpath.end.y;
 
-  // Path definition for collision detection
-  if((this.dir == "left" || this.dir == "right") && !this.breakout){
-
-    var angle_90 = 0;
-    var counterclockwise = false;
-
-    path.body.type = "arc";
-
-    if(this.dir == "left"){
-      counterclockwise = true;
-      angle_90 = 90;
-    }
-    if(this.dir =="right"){
-      angle_90 = -90;
     }
 
-    var arc = new Arc(this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad(this.angle + angle_90), this.weight, counterclockwise  );
-    path.body.arc = arc;
+    // Path definition for collision detection
+    if(this.dir == "left" || this.dir == "right"){
 
+      var angle_90 = 0;
+      var counterclockwise = false;
+
+      path.body.type = "arc";
+
+      if(this.dir == "left"){
+        counterclockwise = true;
+        angle_90 = 90;
+      }
+      if(this.dir =="right"){
+        angle_90 = -90;
+      }
+
+      var arc = new Arc(this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(this.starting_angle), getRad(this.angle + angle_90), this.weight, counterclockwise  );
+      path.body.arc = arc;
+
+    }
   }
 
   if(new_dir == "straight"){
@@ -308,11 +314,11 @@ Player.prototype.changeDir = function(new_dir, tm){
 
   this.curpath.tm = tm;
 
-  if(this.breakout){
-    return null
+  if(path.body){
+    return path;
   }
   else{
-    return path;
+    return null;
   }
 
 }
@@ -437,6 +443,21 @@ Player.prototype.applyCurpathState = function(state_of_curpath){
 
 }
 
+Player.prototype.applyStartPoitOfCurpathState = function(state_of_curpath){
+
+  this.curpath.start.x = state_of_curpath.start_x ;
+  this.curpath.start.y = state_of_curpath.start_y  ;
+  this.curpath.end.x = state_of_curpath.start_x ;
+  this.curpath.end.y = state_of_curpath.start_y  ;
+  this.angle = state_of_curpath.starting_angle  ;
+  this.starting_angle = state_of_curpath.starting_angle  ;
+  this.curpath.arc_point.x = state_of_curpath.arc_point_x  ;
+  this.curpath.arc_point.y = state_of_curpath.arc_point_y  ;
+  this.dir = state_of_curpath.dir;
+  this.curpath.tm = state_of_curpath.tm;
+
+}
+
 Player.prototype.getPos = function(){
 
   var pos = {};
@@ -453,15 +474,10 @@ Player.prototype.quitConsideation = function(tm){
 
   // Save curpath for case when new input that occured before quit consideration arrive.
 
-  this.path_before_qc = {
-    start_x: this.curpath.start.x,
-    start_y: this.curpath.start.y,
-    base_start_angle: this.base_start_angle,
-    tm: this.curpath.tm,
-    dir: this.dir
-  }
-
   this.recomputeCurpath(tm);
+
+  this.path_before_qc = this.getCurpath();
+
   this.changeDir(this.dir, tm);
 
   this.breakout = false;
@@ -470,15 +486,25 @@ Player.prototype.quitConsideation = function(tm){
 
 }
 
-Player.prototype.clearFurtherPaths = function(tm){
+Player.prototype.clearFurtherPaths = function(tm, include){
 
   if(this.paths.length == 0)
     return;
 
-  for(var i = this.paths.length-1; i>=0; i--){
-    if(this.paths[i].body.tm > tm )
-    {
-      this.paths.splice(i,1);
+  if(!include){
+    for(var i = this.paths.length-1; i>=0; i--){
+      if(this.paths[i].body.tm > tm )
+      {
+        this.paths.splice(i,1);
+      }
+    }
+  }
+  else{
+    for(var i = this.paths.length-1; i>=0; i--){
+      if(this.paths[i].body.tm >= tm )
+      {
+        this.paths.splice(i,1);
+      }
     }
   }
 

@@ -50,7 +50,6 @@ module.exports = {
     }
   });
 
-    console.log(Game.prototype);
 
   }
 
