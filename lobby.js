@@ -319,13 +319,6 @@ Game.prototype.start = function(){
 
         var input = player_state_item.inputs.shift();
 
-
-        if(player_state_item.name=="user6"){
-          console.log("***************************************")
-          console.log(input);
-          console.log("***************************************")
-        }
-
         if(input.type == "quit_consideration"){
           player_state_item.quitConsideation(this.game_state.tm_quit_consideration);
         }

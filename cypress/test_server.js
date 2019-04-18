@@ -8,11 +8,11 @@ var app = express();
 
 app.get("/join", function(req, res){
 
-  var socket1 = io("http://localhost:3004/");
-  var socket2 = io("http://localhost:3004/");
-  var socket3 = io("http://localhost:3004/");
-  var socket4 = io("http://localhost:3004/");
-  var socket5 = io("http://localhost:3004/");
+  var socket1 = io("http://localhost:3006/");
+  var socket2 = io("http://localhost:3006/");
+  var socket3 = io("http://localhost:3006/");
+  var socket4 = io("http://localhost:3006/");
+  var socket5 = io("http://localhost:3006/");
 
   socket1.emit("join", "user1", gamename);
   socket2.emit("join", "user2", gamename);
@@ -26,7 +26,7 @@ app.get("/join", function(req, res){
       var tm = Date.now();
       socket5.emit("right", tm);
       console.log(tm);
-    }, 3900);
+    }, 3850);
 
     setTimeout(()=>{
 
@@ -40,7 +40,7 @@ app.get("/join", function(req, res){
 
 })
 
-app.listen(5000, ()=>{
+app.listen(3007, ()=>{
 
   console.log("test server running on 5000");
 

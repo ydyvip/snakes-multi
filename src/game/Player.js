@@ -178,10 +178,6 @@ Player.prototype.savePath = function(path_state, server_side, reconciled_path) {
     }
     if(!saved){
       console.log("path not reconciled");
-      console.log("___________________");
-      console.log(path.body.tm);
-      console.log(this.game_state.tm_quit_consideration);
-      console.log("___________________");
       this.paths.push(path);
     }
 

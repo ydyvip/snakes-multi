@@ -484,12 +484,6 @@
           while(player_item.inputs.length>0){
             var input = player_item.inputs.shift();
 
-            if(player_item.name == "user6"){
-              console.log("******************")
-              console.log(input);
-              console.log("******************")
-            }
-
             if(input.type == "quit_consideration"){
               player_item.quitConsideation(this.game_state.tm_quit_consideration);
             }
@@ -509,11 +503,6 @@
 
               //handle case when input has tm greater than tm of qc
               //but due to latency of timeot of qc - qc input was pushed to queue later
-              if(player_item.name == "user6"){
-                console.log("1: " + input.tm);
-                console.log("2: " + this.game_state.tm_quit_consideration);
-                console.log("3: " + this.game_state.player_consideration);
-              }
               if(input.tm>this.game_state.tm_quit_consideration && this.game_state.player_consideration == true){
 
                 setTimeout(()=>{
