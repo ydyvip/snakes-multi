@@ -50,7 +50,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
       players.forEach( function(player_against){
 
-        // test for currently generated path
+        // test for curpath
 
         var self = player_against.name == player.name;
 
@@ -115,12 +115,6 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
         var size = player_against.paths.length;
 
         player_against.paths.forEach( function(path, index){
-
-          var timestamp = new Date().getTime();
-          if(timestamp - path.body.timestamp < 1200){
-            return;
-          }
-
 
           if(path.body.type=="arc")
           {
