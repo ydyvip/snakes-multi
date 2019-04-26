@@ -76,6 +76,9 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           if(c){
             if(game_serv)
               game_serv.collisionDetected(player, tm);
+            else{
+              player.speed = 0;
+            }
           }
 
         }

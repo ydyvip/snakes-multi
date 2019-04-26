@@ -51,14 +51,25 @@ Game.prototype.collisionDetected = function(player_state, collision_tm){
   if(player_state.name=="user6")
     console.log("collision detected " + collision_tm);
 
-  var path_at_collision = player_state.getCurpath()
+  player_state.path_at_collision = player_state.getCurpath()
+
+  if(player_state.collision_force){
+    player_state.collision_timeout = null;
+    player_state.clearFurtherPaths(collision_tm, false, true);
+    player_state.applyCurpathState(player_state.collision_before_input.path_at_collision);
+    player_state.speed = 0;
+    player_state.collision_tm = 0;
+    player_state.killed = true;
+    this.emitKilled(player_state.name, player_state.collision_before_input.collision_tm, player_state.collision_before_input.path_at_collision);
+    if(player_state.name=="user6")
+      console.log("collision emmitted(forced): " + collision_tm);
+    return;
+  }
 
   player_state.collision_timeout = setTimeout( ()=>{
 
-
     // collision detected but player can move in last time, we should wait for input beacuse of lag
     // dead reckoning phase may be wrong, we will wait some time for new input
-    // if new input arrived it will delete all events from dead reckoning phase
 
     if(player_state.collision_tm != 0){
       player_state.collision_timeout = null;
@@ -66,7 +77,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm){
       player_state.speed = 0;
       player_state.collision_tm = 0;
       player_state.killed = true;
-      this.emitKilled(player_state.name, collision_tm, path_at_collision);
+      this.emitKilled(player_state.name, collision_tm, player_state.path_at_collision);
       if(player_state.name=="user6")
         console.log("collision emmitted: " + collision_tm);
     }
@@ -254,6 +265,10 @@ Game.prototype.startNewRound = function(first_round){
 
       this.game_state.tm_quit_consideration = tm_round_start + 4000;
 
+      console.log("NEW ROUND STARTED");
+      console.log("tm_round_start: " + tm_round_start);
+      console.log("tm_quit_consideration: " + parseInt(tm_round_start + 4000));
+
       setTimeout(()=>{ // 4sec
 
         for(var player of this.player_states){
@@ -335,6 +350,7 @@ Game.prototype.start = function(){
           io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
         }
       }
+
       if(player_state_item.speed>0){
         tm = Date.now();
         player_state_item.recomputeCurpath(tm);
@@ -343,6 +359,11 @@ Game.prototype.start = function(){
     })
 
     this.game_state.detectCollision(this.player_states, this, tm );
+
+    for(var player_state_item of this.player_states){
+      //collision not detected then we return to normal condition of reseting collisions
+     player_state_item.collision_force = false;
+    }
 
     if(this.game_state.end_of_game){
       this.game_state = null;

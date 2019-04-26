@@ -26,6 +26,9 @@ var Player = function(initial_state){
   this.show_dir_indicator = true;
   this.killed = true;
   this.collision_tm = 0;
+  this.collision_timeout = null;
+  this.collision_force = false;
+  this.collision_before_input = {};
 
   this.curpath = {
     tm: 0,
@@ -482,7 +485,7 @@ Player.prototype.quitConsideation = function(tm){
 
 }
 
-Player.prototype.clearFurtherPaths = function(tm, include){
+Player.prototype.clearFurtherPaths = function(tm, include, pop_last){
 
   if(this.paths.length == 0)
     return;
@@ -502,6 +505,9 @@ Player.prototype.clearFurtherPaths = function(tm, include){
         this.paths.splice(i,1);
       }
     }
+  }
+  if(pop_last){
+    this.paths.pop();
   }
 
 }

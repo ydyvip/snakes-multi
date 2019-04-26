@@ -488,7 +488,7 @@
               player_item.quitConsideation(this.game_state.tm_quit_consideration);
             }
             else if(input.type == "killed"){
-              player_item.clearFurtherPaths(input.collision_tm);
+              player_item.clearFurtherPaths(input.collision_tm, false, true);
               player_item.applyCurpathState(input.path_at_collision);
               player_item.speed = 0;
               if(player_item.name=="user6"){

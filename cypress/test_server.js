@@ -22,17 +22,26 @@ app.get("/join", function(req, res){
 
   socket5.on("round_start", (tm_round_start)=>{
 
+    /*
     setTimeout(()=>{
       var tm = Date.now();
       socket5.emit("right", tm);
       console.log(tm);
-    }, 3850);
+    }, 4200);
 
     setTimeout(()=>{
 
       socket5.emit("straight", Date.now());
 
-    }, 5000);
+    }, 4300);
+
+    setTimeout(()=>{
+
+      socket5.emit("left", Date.now());
+
+    }, 7300);
+
+    */
 
   })
 

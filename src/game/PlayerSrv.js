@@ -21,8 +21,23 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   }
 
   // new input with tm earlier than collision tm
+
+  if(this.name == "user6"){
+    console.log("tm_input: " + tm);
+  }
+
+  // reset collision if input was triggered earlier
   if(this.collision_tm != 0 && tm<this.collision_tm){
-    //TODO: check for collision in 250ms
+    if(this.name == "user6"){
+      console.log("collision_tm: " + this.collision_tm);
+    }
+    //handle case when collision may be detected even input of user
+    //then collision will be emitted immediately
+    this.collision_force = true;
+    this.collision_before_input = {
+      collision_tm: this.collision_tm,
+      path_at_collision: Object.assign({}, this.path_at_collision)
+    }
     this.collision_tm = 0; // reset collision
     //server should emit kill event once so previous timeout must be cleared. otherwise if another collision will be detected two timeouts will be active
     clearTimeout(this.collision_timeout);
