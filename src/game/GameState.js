@@ -125,15 +125,21 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
         }
 
-        if(self){
-          return;
-        }
-
         // test for done paths
 
         var size = player_against.paths.length;
+        var tm_elapsed = 0;
+        if(self){
+          tm_elapsed = tm - player_against.curpath.tm;
+        }
+        for( var i = size-1; i>=0; i--){
 
-        player_against.paths.forEach( function(path, index){
+          var path = player_against.paths[i];
+
+          if(self && tm_elapsed<500){
+            tm_elapsed = tm - path.body.tm;
+            continue;
+          }
 
           if(path.body.type=="arc")
           {
@@ -146,7 +152,6 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           if(path.body.type=="line")
           {
-
             var c = (
               lineCircleCollision( path.body.vertices[0], path.body.vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
               lineCircleCollision( path.body.vertices[2], path.body.vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
@@ -159,8 +164,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
                 game_serv.collisionDetected(player, tm);
             }
           }
-
-        })
+        } // DONE PATHS loop
       })
     }
 
