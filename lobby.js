@@ -65,7 +65,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
     player_state.speed = 0;
     player_state.collision_tm = 0;
     player_state.killed = true;
-    this.emitKilled(player_state.name, player_state.collision_before_input.collision_tm, player_state.collision_before_input.path_at_collision);
+    this.emitKilled(player_state.name, player_state.collision_before_input.collision_tm, player_state.collision_before_input.path_at_collision, true); //4th arg true due to force
     if(player_state.name=="user6")
       console.log("collision emmitted(forced): " + collision_tm);
     return;
@@ -97,9 +97,13 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
   }, 250);
 }
 
-Game.prototype.emitKilled = function(playername, collision_tm, path_at_collision){
+Game.prototype.emitKilled = function(playername, collision_tm, path_at_collision, forced){
 
-  io.to(this.name).emit("killed", playername, collision_tm, path_at_collision);
+  // forced
+  // done path in history of paths covers path_before_input (strictly curpath head).
+  // when input caused reseting, and then collision was detected again, input caused also save of path. path before input is actually equivalent path.
+
+  io.to(this.name).emit("killed", playername, collision_tm, path_at_collision, forced);
 
   for( var player of this.players){
 
@@ -480,7 +484,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm);
-    }, 250)
+    }, 100)
 
   })
 
@@ -489,7 +493,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", tm);
-    }, 250)
+    }, 100)
 
   })
 
@@ -497,7 +501,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", tm);
-    }, 150)
+    }, 100)
 
   })
 

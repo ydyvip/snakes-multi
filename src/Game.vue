@@ -408,7 +408,7 @@
 
       })
 
-      this.$io.on("killed", (playername, collision_tm, path_at_collision)=>{
+      this.$io.on("killed", (playername, collision_tm, path_at_collision, forced)=>{
 
         for(var player of players){
           if(player.name ==  playername){
@@ -416,7 +416,8 @@
             player.inputs.push({
               type: "killed",
               collision_tm: collision_tm,
-              path_at_collision: path_at_collision
+              path_at_collision: path_at_collision,
+              forced: forced
             });
 
             return;
@@ -488,7 +489,8 @@
               player_item.quitConsideation(this.game_state.tm_quit_consideration);
             }
             else if(input.type == "killed"){
-              player_item.clearFurtherPaths(input.collision_tm, false, true);
+
+              player_item.clearFurtherPaths(input.collision_tm, false, input.forced);
               player_item.applyCurpathState(input.path_at_collision);
               player_item.speed = 0;
               if(player_item.name=="user6"){

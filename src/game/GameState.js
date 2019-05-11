@@ -53,9 +53,9 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
         // test for curpath
 
         var self = player_against.name == player.name;
-
-        if(self)
+        if(self){
           return;
+        }
 
         if((player_against.dir == "left" || player_against.dir == "right") && !self){
 

@@ -508,6 +508,7 @@ Player.prototype.clearFurtherPaths = function(tm, include, pop_last){
       }
     }
   }
+
   if(pop_last){
     this.paths.pop();
   }
