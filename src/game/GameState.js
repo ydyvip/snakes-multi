@@ -39,10 +39,6 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
       if(c){
         if(game_serv)
           game_serv.collisionDetected(player, tm);
-        // collision with boundaries on client side is taken for sure
-        else{
-          player.speed = 0;
-        }
       }
 
       if(this.player_consideration)
@@ -63,9 +59,6 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           if(c){
             if(game_serv)
               game_serv.collisionDetected(player, tm);
-            else{
-              player.speed = 0;
-            }
           }
         }
 
@@ -88,9 +81,6 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           if(c){
             if(game_serv)
               game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
-            else{
-              player.speed = 0;
-            }
           }
 
         }
