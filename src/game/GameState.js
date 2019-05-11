@@ -53,8 +53,20 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
         // test for curpath
 
         var self = player_against.name == player.name;
-        if(self){
-          return;
+
+        if(self && (player_against.dir=="left" || player_against.dir=="right" ))
+        {
+          var degree_per_1px = 360 / (2*Math.PI*player_against.r);
+          var degree_distance = degree_per_1px * player_against.weight/2;
+
+          var c = Math.abs(player_against.angle - player_against.base_start_angle) > (360-degree_distance);
+          if(c){
+            if(game_serv)
+              game_serv.collisionDetected(player, tm);
+            else{
+              player.speed = 0;
+            }
+          }
         }
 
         if((player_against.dir == "left" || player_against.dir == "right") && !self){
@@ -113,6 +125,9 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
         }
 
+        if(self){
+          return;
+        }
 
         // test for done paths
 

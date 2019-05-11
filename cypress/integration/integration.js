@@ -1,8 +1,9 @@
+
 var copy = require("../../copyobj.js");
 
 describe("collisions", function(){
 
-  it("when collision is rejected due to new input, in the next cycle of loop we should force collision to emit if it was detected again", function(){
+  it("in curpath-curpath collision case, input of both players can reject collision (mutual rejecting)", function(){
 
     cy.visit("http://localhost:3006/");
 
@@ -20,72 +21,9 @@ describe("collisions", function(){
 
     cy.window({timeout: 15000}).its("player.speed").should("to.eq", 50);
 
-    cy.wait(5218);
+    cy.wait(3900); // for last moment before collision
 
     cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-
-    cy.wait(10);
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-    cy.wait(10);
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-    return;
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-    /*
-
-
-
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
-
-    cy.wait(500);
-
-    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
-
-    */
 
   })
 
