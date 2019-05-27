@@ -23,7 +23,7 @@ describe("collisions", function(){
 
     cy.wait(3900); // for last moment before collision
 
-    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
+    //cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
 
   })
 
