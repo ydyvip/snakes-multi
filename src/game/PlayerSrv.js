@@ -29,16 +29,45 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   // reset collision if input was triggered earlier
   if(this.collision_tm != 0 && tm<this.collision_tm){
     if(this.name == "user6"){
-      console.log("collision_tm: " + this.collision_tm);
+      console.log("RESETING")
+      console.log(" collision_tm: " + this.collision_tm);
+      console.log(" type: " + this.collision_type);
+      if(this.collision_participant){
+        console.log( " participant: " + this.collision_participant.name);
+      }
     }
-    //handle case when collision may be detected even input of user
-    //then collision will be emitted immediately
+    //handle case when input of user does not prevent collision
+    //then collision detected again will be emitted immediately
     this.collision_force = true;
     this.collision_before_input = {
       collision_tm: this.collision_tm,
       path_at_collision: Object.assign({}, this.path_at_collision)
     }
     this.collision_tm = 0; // reset collision
+
+    // in curpath-curpath collision case, input of both players can reject collision (mutual rejecting)
+    if(this.collision_type=="curpath-curpath"){
+      if(this.collision_participant.collision_tm != 0 && this.collision_participant.collision_type=="curpath-curpath"
+         && this.collision_participant.collision_participant == this){
+
+          console.log("RESETING COLLISION OF PARTICIPANT")
+          console.log(" collision_tm: " + this.collision_participant.collision_tm);
+
+          this.collision_participant.collision_force = true;
+          this.collision_participant.collision_before_input = {
+            collision_tm: this.collision_participant.collision_tm,
+            path_at_collision: Object.assign({}, this.collision_participant.path_at_collision)
+          }
+          this.collision_participant.collision_tm = 0; // reset collision
+          this.collision_participant.collision_type = null;
+          this.collision_participant.collision_participant = null;
+          clearTimeout(this.collision_participant.collision_timeout);
+      }
+    }
+
+    this.collision_type = null;
+    this.collision_participant = null;
+
     //server should emit kill event once so previous timeout must be cleared. otherwise if another collision will be detected two timeouts will be active
     clearTimeout(this.collision_timeout);
   }

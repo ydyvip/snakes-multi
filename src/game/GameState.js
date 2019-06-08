@@ -75,7 +75,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           );
           if(c){
             if(game_serv)
-              game_serv.collisionDetected(player, tm);
+              game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
             else{
               player.speed = 0;
             }
@@ -87,7 +87,8 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           var c = false;
 
-          if(player_against.breakout == true){
+
+          if(player_against.breakout == true){ // TODO: How??? legacy???
 
             c = circlesCollision(
               player.curpath.end.x, player.curpath.end.y, player.weight/2,
@@ -107,7 +108,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           if(c){
             if(game_serv)
-              game_serv.collisionDetected(player, tm);
+              game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
           }
 
         }

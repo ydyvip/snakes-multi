@@ -44,14 +44,19 @@ Game.prototype.getPlayersName = function(){
   return arr;
 }
 
-Game.prototype.collisionDetected = function(player_state, collision_tm){
+Game.prototype.collisionDetected = function(player_state, collision_tm, type, participant){
+
+  if(player_state.name=="user6")
+    console.log("collision detected: " + collision_tm);
 
   player_state.collision_tm = collision_tm;
 
-  if(player_state.name=="user6")
-    console.log("collision detected " + collision_tm);
+  player_state.path_at_collision = player_state.getCurpath();
 
-  player_state.path_at_collision = player_state.getCurpath()
+  if(type=="curpath-curpath"){
+    player_state.collision_type = type;
+    player_state.collision_participant = participant;
+  }
 
   if(player_state.collision_force){
     player_state.collision_timeout = null;
@@ -475,7 +480,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm);
-    }, 150)
+    }, 250)
 
   })
 
@@ -484,7 +489,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", tm);
-    }, 150)
+    }, 250)
 
   })
 

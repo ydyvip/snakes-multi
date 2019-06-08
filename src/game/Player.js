@@ -29,6 +29,8 @@ var Player = function(initial_state){
   this.collision_timeout = null;
   this.collision_force = false;
   this.collision_before_input = {};
+  this.collision_type = null;
+  this.collision_participant = null;
 
   this.curpath = {
     tm: 0,
