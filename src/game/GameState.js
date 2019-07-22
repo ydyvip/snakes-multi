@@ -50,33 +50,33 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
         var self = player_against.name == player.name;
 
-        if(self && (player_against.dir=="left" || player_against.dir=="right" ))
+        if(self && (player_against.curpath.dir=="left" || player_against.curpath.dir=="right" ))
         {
           var degree_per_1px = 360 / (2*Math.PI*player_against.r);
           var degree_distance = degree_per_1px * player_against.weight/2;
 
-          var c = Math.abs(player_against.angle - player_against.base_start_angle) > (360-degree_distance);
+          var c = Math.abs(player_against.curpath.angle - player_against.curpath.base_start_angle) > (360-degree_distance);
           if(c){
             if(game_serv)
               game_serv.collisionDetected(player, tm);
           }
         }
 
-        if((player_against.dir == "left" || player_against.dir == "right") && !self){
+        if((player_against.curpath.dir == "left" || player_against.curpath.dir == "right") && !self){
 
           var angle_90 = 0;
           var counterclockwise = false;
 
-          if(player_against.dir == "left"){
+          if(player_against.curpath.dir == "left"){
             counterclockwise = true;
             angle_90 = 90;
           }
-          if(player_against.dir =="right"){
+          if(player_against.curpath.dir =="right"){
             angle_90 = -90;
           }
 
           var c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2},
-            new Arc( player_against.curpath.arc_point.x, player_against.curpath.arc_point.y, player_against.r, getRad(player_against.starting_angle), getRad(player_against.angle + angle_90), player_against.weight, counterclockwise  )
+            new Arc( player_against.curpath.arc_point.x, player_against.curpath.arc_point.y, player_against.r, getRad(player_against.curpath.starting_angle), getRad(player_against.curpath.angle + angle_90), player_against.weight, counterclockwise  )
           );
           if(c){
             if(game_serv)
@@ -85,7 +85,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
         }
 
-        if(player_against.dir == "straight" && !self){
+        if(player_against.curpath.dir == "straight" && !self){
 
           var c = false;
 

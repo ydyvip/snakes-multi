@@ -37,9 +37,9 @@ module.exports = {
         player.curpath.start.y = pos.y;
         player.curpath.end.x = pos.x;
         player.curpath.end.y = pos.y;
-        player.angle = angle;
-        player.base_start_angle = angle;
-        player.dir = "straight";
+        player.curpath.angle = angle;
+        player.curpath.base_start_angle = angle;
+        player.curpath.dir = "straight";
       }
 
       return {

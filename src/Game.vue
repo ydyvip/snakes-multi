@@ -60,7 +60,7 @@
       for( let player_item of players){
         if( player_item.name == playername){
 
-          player_item.changeDir(player_item.dir);
+          player_item.changeDir(player_item.curpath.dir);
           player_item.savePath(done_path, path_id);
 
           player_item.breakout = true;
@@ -76,7 +76,7 @@
     })
 
 
-    io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
+    io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path, forcepos)=>{
 
       for( let player_item of players){
         if( player_item.name == playername){
@@ -84,6 +84,7 @@
           if(player_item.name!=player_me.name){
 
             // @TODO ... gamestate.player_consideration == false na biezaca date
+            // handle input triggered before qc, when qc is already active
             if(gamestate.player_consideration == false && tm<gamestate.tm_quit_consideration){
 
               //apply first path before qc
@@ -114,19 +115,63 @@
 
           }
           else{
-            player_item.inputs.push({
-              type: "reconciling",
-              dir: newdir,
-              tm: tm,
-              done_path: done_path
-            })
+            if(forcepos){
+              if(gamestate.player_consideration == false && tm<=gamestate.tm_quit_consideration){
+
+                //apply first path before qc
+
+                player_item.clearFurtherPaths(gamestate.tm_quit_consideration, true);
+                player_item.applyStartPoitOfCurpathState(player_item.path_before_qc);
+
+                player_item.inputs.push({
+                  type: "input",
+                  dir: newdir,
+                  tm: tm,
+                  state_of_curpath: state_of_curpath,
+                  forcepos: true
+                })
+                player_item.inputs.push({
+                  type: "quit_consideration"
+                })
+
+              }
+              else{
+                player_item.inputs.push({
+                  type: "input",
+                  dir: newdir,
+                  tm: tm,
+                  state_of_curpath: state_of_curpath,
+                  forcepos: true
+                })
+              }
+            }
+            else {
+              // TODO: reconciling to remove
+              player_item.inputs.push({
+                type: "reconciling",
+                dir: newdir,
+                tm: tm,
+                done_path: done_path
+              })
+            }
          }
         }
       }
 
     })
 
-  }
+    io.on("reduction", (from, to, id)=>{
+
+      player_me.inputs.push({
+        type: "reduction",
+        from: from,
+        to: to,
+        id: id
+      })
+    });
+
+
+  };
 
   function setupKeyboard(io){
 
@@ -485,7 +530,10 @@
           while(player_item.inputs.length>0){
             var input = player_item.inputs.shift();
 
-            if(input.type == "quit_consideration"){
+            if(input.type == "reduction"){
+              player_item.reduction(input.from, input.to, input.id, player_item);
+            }
+            else if(input.type == "quit_consideration"){
               player_item.quitConsideation(this.game_state.tm_quit_consideration);
             }
             else if(input.type == "killed"){
@@ -499,7 +547,7 @@
               return;
             }
             else if(input.type == "reconciling"){
-              player_item.savePath(input.done_path, false, true);
+              //player_item.savePath(input.done_path, false, true);
             }
             else if(input.type == "input"){
 
@@ -515,10 +563,17 @@
 
               }
 
-              player_item.recomputeCurpath( input.tm );
-              var done_path = player_item.changeDir(input.dir, input.tm);
-              if(!input.discard_save){
-                player_item.savePath(done_path, false, false);
+              if(input.forcepos){
+                player_item.applyCurpathState(input.state_of_curpath);
+                this.id_cnt = input.state_of_curpath.id;
+                this.$io.emit("stopignore");
+              }
+              else{
+                player_item.recomputeCurpath( input.tm );
+                var done_path = player_item.changeDir(input.dir, input.tm);
+                if(!input.discard_save){
+                  player_item.savePath(done_path, false, false);
+                }
               }
             }
           }

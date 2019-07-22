@@ -7,18 +7,71 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   if(this.killed==true)
     return;
 
+  if(this.ignore_till_sync == true){
+    return;
+  }
+
   var input = {
     dir: newdir,
     tm: tm,
     breakout: -1,
   }
 
-  // 250ms lag tolerance
-  if(tm<Date.now()-250){
-    //lag reduction
-    //TODO: path must be reconciled on client side
-    tm = Date.now()-250;
+  // Collision test should be performed every 10px (player weight)
+  //  1000[1s] / (50[px/s]/10px[weight]) --> 200ms
+  // So collision test should be performed every 200ms, if lag is bigger there should be additional collision checking performed...
+  // For speed 100px/s - every 100ms
+
+  var tm_now = Date.now();
+  var lag_tolerance = 1000 / (this.speed/this.weight) ; //200ms for 50px/s
+  var lag = tm_now - tm;
+  var tm_to;
+  if(lag>lag_tolerance){
+
+    // not good idea
+    // if(lag>lag_tolerance*2){
+    //   tm_to = tm+lag_tolerance;
+    // }
+
+    tm_to = tm_now-lag_tolerance;
+
+    if(tm_to > this.game_state.tm_quit_consideration && tm<=this.game_state.tm_quit_consideration ){
+      tm_to = this.game_state.tm_quit_consideration;
+    }
+
+    console.log("");
+    console.log("LAG REDUCTION");
+    console.log("input tm(from): " + input.tm );
+    console.log("new tm(to): " + tm_to);
+    console.log("reduced by: " + parseInt(tm_to-input.tm));
+    console.log("");
+
+    // input.tm -- from
+    // tm_to
+
+    // lag before consideration: forcepos
+    if(input.tm <= this.game_state.tm_quit_consideration){
+
+      // after reduction we force new position on client side without shifting.
+      // we can not shifts paths because paths in consideration phase are not saved
+      // we must ignore inputs from client after lagged input and before reduction
+      // due to ignored inputs we must sync path_id
+
+      input.forcepos = true;
+      this.igore_till_sync = true;
+
+    }
+
+    //after consideration
+    else{
+      this.socket.emit("reduction", input.tm, tm_to, this.id_cnt+1 ); // from  -  to
+    }
+
+    input.tm = tm_to; // new time,
+    tm = tm_to;
+
   }
+
 
   // new input with tm earlier than collision tm
 
@@ -121,7 +174,7 @@ Player.prototype.setupBreakout = function(){
   this.timeout_breakdown = setTimeout( ()=>{
 
     //TODO: handle breakouts. path_id is legacy (2nd arg)
-    var done_path = this.changeDirSrv(this.dir, -1, Date.now());
+    var done_path = this.changeDirSrv(this.curpath.dir, -1, Date.now());
 
     this.breakout = true;
 

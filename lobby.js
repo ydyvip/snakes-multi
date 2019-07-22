@@ -246,7 +246,7 @@ Game.prototype.startNewRound = function(first_round){
 
       player.speed = 0;
       player.paths = [];
-      player.dir = "straight";
+      player.curpath.dir = "straight";
       player.collision_tm = 0;
 
       var new_pos =  this.makeInitPositions(player);
@@ -310,9 +310,9 @@ Game.prototype.makeInitPositions = function(player){
     player.curpath.start.y = pos.y;
     player.curpath.end.x = pos.x;
     player.curpath.end.y = pos.y;
-    player.angle = angle;
-    player.base_start_angle = angle;
-    player.dir = "straight";
+    player.curpath.angle = angle;
+    player.curpath.base_start_angle = angle;
+    player.curpath.dir = "straight";
   }
 
   return {
@@ -356,7 +356,9 @@ Game.prototype.start = function(){
           if(input.discard_save){
             done_path = null;
           }
-          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
+
+          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path, input.forcepos  );
+
         }
       }
 
@@ -479,21 +481,23 @@ module.exports = function( io_, socket ){
 
   io = io_;
 
+  socket.on("stopignore", function(){
+    socket.player_state.ignore_till_sync = false;
+  })
 
   socket.on("left", function(tm){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm);
-    }, 100)
+    }, 400)
 
   })
-
 
   socket.on("right", function(tm){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", tm);
-    }, 100)
+    }, 400)
 
   })
 
@@ -501,7 +505,7 @@ module.exports = function( io_, socket ){
 
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", tm);
-    }, 100)
+    }, 400)
 
   })
 
