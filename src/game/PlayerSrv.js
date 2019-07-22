@@ -7,10 +7,6 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   if(this.killed==true)
     return;
 
-  if(this.ignore_till_sync == true){
-    return;
-  }
-
   var input = {
     dir: newdir,
     tm: tm,
@@ -57,8 +53,6 @@ Player.prototype.changeDirSrv = function(newdir, tm){
       // we must ignore inputs from client after lagged input and before reduction
       // due to ignored inputs we must sync path_id
 
-      input.forcepos = true;
-      this.igore_till_sync = true;
 
     }
 

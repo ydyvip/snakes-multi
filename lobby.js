@@ -357,7 +357,7 @@ Game.prototype.start = function(){
             done_path = null;
           }
 
-          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path, input.forcepos  );
+          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
 
         }
       }
@@ -480,10 +480,6 @@ games.getGameList = function(){
 module.exports = function( io_, socket ){
 
   io = io_;
-
-  socket.on("stopignore", function(){
-    socket.player_state.ignore_till_sync = false;
-  })
 
   socket.on("left", function(tm){
 

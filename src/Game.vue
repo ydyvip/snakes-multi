@@ -76,7 +76,7 @@
     })
 
 
-    io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path, forcepos)=>{
+    io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
 
       for( let player_item of players){
         if( player_item.name == playername){
@@ -115,45 +115,14 @@
 
           }
           else{
-            if(forcepos){
-              if(gamestate.player_consideration == false && tm<=gamestate.tm_quit_consideration){
 
-                //apply first path before qc
-
-                player_item.clearFurtherPaths(gamestate.tm_quit_consideration, true);
-                player_item.applyStartPoitOfCurpathState(player_item.path_before_qc);
-
-                player_item.inputs.push({
-                  type: "input",
-                  dir: newdir,
-                  tm: tm,
-                  state_of_curpath: state_of_curpath,
-                  forcepos: true
-                })
-                player_item.inputs.push({
-                  type: "quit_consideration"
-                })
-
-              }
-              else{
-                player_item.inputs.push({
-                  type: "input",
-                  dir: newdir,
-                  tm: tm,
-                  state_of_curpath: state_of_curpath,
-                  forcepos: true
-                })
-              }
-            }
-            else {
-              // TODO: reconciling to remove
-              player_item.inputs.push({
-                type: "reconciling",
-                dir: newdir,
-                tm: tm,
-                done_path: done_path
-              })
-            }
+            // TODO: reconciling to remove
+            player_item.inputs.push({
+              type: "reconciling",
+              dir: newdir,
+              tm: tm,
+              done_path: done_path
+            })
          }
         }
       }
@@ -563,18 +532,13 @@
 
               }
 
-              if(input.forcepos){
-                player_item.applyCurpathState(input.state_of_curpath);
-                this.id_cnt = input.state_of_curpath.id;
-                this.$io.emit("stopignore");
+
+              player_item.recomputeCurpath( input.tm );
+              var done_path = player_item.changeDir(input.dir, input.tm);
+              if(!input.discard_save){
+                player_item.savePath(done_path, false, false);
               }
-              else{
-                player_item.recomputeCurpath( input.tm );
-                var done_path = player_item.changeDir(input.dir, input.tm);
-                if(!input.discard_save){
-                  player_item.savePath(done_path, false, false);
-                }
-              }
+
             }
           }
 
