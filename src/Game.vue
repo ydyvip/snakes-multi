@@ -494,9 +494,10 @@
           return;
         }
 
-        players.forEach( (player_item)=>{
+        for( var player_item of players){
           //INPUT QUEUE
           while(player_item.inputs.length>0){
+
             var input = player_item.inputs.shift();
 
             if(input.type == "reduction"){
@@ -545,7 +546,7 @@
           if(player_item.speed>0){
             player_item.recomputeCurpath(Date.now());
           }
-        })
+        }
 
         this.game_state.detectCollision(players);
         //GameState.curosorPlayerCollision(cursor_circle, player);

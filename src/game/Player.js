@@ -646,9 +646,27 @@ Player.prototype.clearFurtherPaths = function(tm, include, pop_last){
 
 Player.prototype.reduction = function(from, to, id,  player_me){
 
+  /* bad idea
+  var tm_elapsed = Date.now() - this.reduction.last_call;
+  if( tm_elapsed < 250){
+
+    this.reduction.last_call = Date.now() + (250 - tm_elapsed);
+
+    setTimeout(()=>{
+      this.reduction(from, to, id, player_me);
+    }, this.reduction.last_call - Date.now() );
+
+    return;
+
+  }
+  else{
+    this.reduction.last_call = Date.now();
+  }
+  */
 
   console.log("________________________________");
   console.log("LAG REDUCTION");
+
 
   var lag_vector = to - from;
 
@@ -694,6 +712,7 @@ Player.prototype.reduction = function(from, to, id,  player_me){
   //shift following paths
   var working_curpath = curpath_for_extended;
   var new_tm = to;
+
   for(var i = index_of_extended+1; i<player_me.paths.length; i++){
 
     console.log("shifting[" + i + "]" );
