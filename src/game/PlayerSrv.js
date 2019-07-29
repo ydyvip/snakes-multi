@@ -7,6 +7,10 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   if(this.killed==true)
     return;
 
+  if(tm > this.game_state.tm_quit_consideration){
+    this.id_cnt_srv++;
+  }
+
   var input = {
     dir: newdir,
     tm: tm,
@@ -31,7 +35,7 @@ Player.prototype.changeDirSrv = function(newdir, tm){
 
     tm_to = tm_now-lag_tolerance;
 
-    if(tm_to > this.game_state.tm_quit_consideration && tm<=this.game_state.tm_quit_consideration ){
+    if(tm_to >= this.game_state.tm_quit_consideration && tm<=this.game_state.tm_quit_consideration ){
       tm_to = this.game_state.tm_quit_consideration;
     }
 
@@ -62,7 +66,7 @@ Player.prototype.changeDirSrv = function(newdir, tm){
       this.reduction_queue.push({
         input_tm: input.tm,
         tm_to: tm_to,
-        id: this.id_cnt+1
+        id: this.id_cnt_srv // id of next path(shortended)
       });
 
       if(this.reduction_timeout){

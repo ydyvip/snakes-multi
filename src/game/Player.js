@@ -31,6 +31,7 @@ var Player = function(initial_state){
   this.collision_type = null;
   this.collision_participant = null;
   this.id_cnt = 0;
+  this.id_cnt_srv = 0;
   this.curpath = {
     id: 0,
     dir: "straight",
@@ -366,12 +367,13 @@ Player.prototype.changeDir = function(new_dir, tm){
 
   var path = {};
 
-  if( tm>=this.game_state.tm_quit_consideration )
+  if( tm>this.game_state.tm_quit_consideration )
   {
+    this.id_cnt++;
     path = this.getPathBodyFromCurpath(this.curpath);
+    this.curpath.id = this.id_cnt;
   }
 
-  this.id_cnt++;
   if(this.name == "user6"){
     console.log("curpath id: " + this.curpath.id);
     console.log("new dir: " + new_dir);
@@ -379,7 +381,7 @@ Player.prototype.changeDir = function(new_dir, tm){
     console.log("_ _ _ _ _ _")
   }
   this.setInitPositionForCurpath(new_dir, tm );
-  this.curpath.id = this.id_cnt;
+
 
 
   if(path.body){

@@ -249,6 +249,8 @@ Game.prototype.startNewRound = function(first_round){
       player.curpath.dir = "straight";
       player.collision_tm = 0;
       player.id_cnt = 0;
+      player.id_cnt_srv = 0;
+      player.curpath.id = 0;
       if(this.reduction_timeout){
         clearTimeout(this.reduction_timeout);
       }

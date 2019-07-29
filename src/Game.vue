@@ -166,7 +166,7 @@
     }
 
     left.release = function(){
-      if(!right.isDown){
+      if(player_me.curpath.dir != "straight"){
         if(player_me.speed==0){
           return;
         }
@@ -194,7 +194,7 @@
     }
 
     right.release = function(){
-      if(!left.isDown){
+      if(player_me.curpath.dir != "straight"){
         if(player_me.speed==0){
           return;
         }
@@ -384,6 +384,7 @@
               player.show_dir_indicator = true;
               player.inputs = [];
               player.id_cnt = 0;
+              player.curpath.id = 0;
             }
 
           }
