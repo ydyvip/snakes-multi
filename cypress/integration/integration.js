@@ -21,9 +21,36 @@ describe("collisions", function(){
 
     cy.window({timeout: 15000}).its("player.speed").should("to.eq", 50);
 
-    cy.wait(3900); // for last moment before collision
+    //cy.wait(3900); // for last moment before collision
 
-    //cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
+    cy.wait(4100); // for qc
+
+    var tm_wait = 10;
+
+    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keydown", "top", {code: "ArrowLeft", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keydown", "top", {code: "ArrowRight", force: true});
+    cy.wait(tm_wait);
+    cy.get("canvas").trigger("keyup", "top", {code: "ArrowRight", force: true});
+    cy.wait(tm_wait);
 
   })
 
