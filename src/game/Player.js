@@ -52,6 +52,9 @@ var Player = function(initial_state){
 
   };
 
+  this.reduction_queue = [];
+  this.reduction_timeout = null;
+
   this.color = initial_state.color;
 
   this.reckoning_events = [];
@@ -169,19 +172,13 @@ Player.prototype.createPath2 = function(path_state){
 // used for reduction
 Player.prototype.overwritePath = function(path_state_new, index){
 
-  console.log("____________________");
-  console.log("overwritePath");
-
   var path = this.createPath2(path_state_new);
   path.body = path_state_new.body;
 
-  console.log(this.paths[index].body);
-  console.log(path_state_new.body);
+  //console.log(this.paths[index].body);
+  //console.log(path_state_new.body);
 
   this.paths[index] = path;
-
-  console.log("overwritePath");
-  console.log("____________________");
 
 }
 
@@ -366,17 +363,24 @@ Player.prototype.setInitPositionForCurpath = function(new_dir, tm, prev_curpath,
 
 Player.prototype.changeDir = function(new_dir, tm){
 
-  var path = {};
 
-  this.id_cnt++;
+  var path = {};
 
   if( tm>=this.game_state.tm_quit_consideration )
   {
     path = this.getPathBodyFromCurpath(this.curpath);
   }
 
+  this.id_cnt++;
+  if(this.name == "user6"){
+    console.log("curpath id: " + this.curpath.id);
+    console.log("new dir: " + new_dir);
+    console.log("previous dir: " + this.curpath.dir);
+    console.log("_ _ _ _ _ _")
+  }
   this.setInitPositionForCurpath(new_dir, tm );
   this.curpath.id = this.id_cnt;
+
 
   if(path.body){
     return path;
@@ -646,6 +650,8 @@ Player.prototype.clearFurtherPaths = function(tm, include, pop_last){
 
 Player.prototype.reduction = function(from, to, id,  player_me){
 
+  console.log("REDUCTION; from: " + from + " to: " + to + " id: " + id );
+
   /* bad idea
   var tm_elapsed = Date.now() - this.reduction.last_call;
   if( tm_elapsed < 250){
@@ -664,8 +670,6 @@ Player.prototype.reduction = function(from, to, id,  player_me){
   }
   */
 
-  console.log("________________________________");
-  console.log("LAG REDUCTION");
 
 
   var lag_vector = to - from;
@@ -715,8 +719,9 @@ Player.prototype.reduction = function(from, to, id,  player_me){
 
   for(var i = index_of_extended+1; i<player_me.paths.length; i++){
 
-    console.log("shifting[" + i + "]" );
-    console.log(player_me.paths.length-i-1 + " left");
+    console.log("SHIFTING");
+    console.log("shifting " + i + " to " + (player_me.paths.length-1));
+
 
     var tm_lenght; // we get tm of following path as lenght
     if(i+1 == player_me.paths.length){
@@ -741,8 +746,8 @@ Player.prototype.reduction = function(from, to, id,  player_me){
   player_me.recomputeCurpath(Date.now(), working_curpath);
   player_me.assignCurpath(player_me.curpath, working_curpath);
 
-  console.log("LAG REDUCTION");
-  console.log("________________________________");
+  console.log("_________________________");
+
 
 }
 

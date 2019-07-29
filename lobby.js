@@ -248,6 +248,10 @@ Game.prototype.startNewRound = function(first_round){
       player.paths = [];
       player.curpath.dir = "straight";
       player.collision_tm = 0;
+      player.id_cnt = 0;
+      if(this.reduction_timeout){
+        clearTimeout(this.reduction_timeout);
+      }
 
       var new_pos =  this.makeInitPositions(player);
       new_pos.for = player.name;

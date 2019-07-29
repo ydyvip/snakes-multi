@@ -129,14 +129,18 @@
 
     })
 
-    io.on("reduction", (from, to, id)=>{
+    io.on("reduction", (reduction_queue)=>{
 
-      player_me.inputs.push({
-        type: "reduction",
-        from: from,
-        to: to,
-        id: id
-      })
+      for(var reduction_item of reduction_queue){
+
+        player_me.inputs.push({
+          type: "reduction",
+          from: reduction_item.input_tm,
+          to: reduction_item.tm_to,
+          id: reduction_item.id
+        });
+
+      }
     });
 
 
@@ -159,8 +163,6 @@
         tm: tm
       })
       io.emit("left", tm);
-
-
     }
 
     left.release = function(){
@@ -381,6 +383,7 @@
               player.setupPos(pos);
               player.show_dir_indicator = true;
               player.inputs = [];
+              player.id_cnt = 0;
             }
 
           }
@@ -511,6 +514,8 @@
               player_item.clearFurtherPaths(input.collision_tm, false, input.forced);
               player_item.applyCurpathState(input.path_at_collision);
               player_item.speed = 0;
+              player_item.collision_tm = 0;
+              player_item.id_cnt = 0;
               if(player_item.name=="user6"){
                 console.log("killed from server");
               }

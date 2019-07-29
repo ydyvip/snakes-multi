@@ -58,7 +58,24 @@ Player.prototype.changeDirSrv = function(newdir, tm){
 
     //after consideration
     else{
-      this.socket.emit("reduction", input.tm, tm_to, this.id_cnt+1 ); // from  -  to
+
+      this.reduction_queue.push({
+        input_tm: input.tm,
+        tm_to: tm_to,
+        id: this.id_cnt+1
+      });
+
+      if(this.reduction_timeout){
+        clearTimeout(this.reduction_timeout);
+      }
+
+      this.reduction_timeout = setTimeout(()=>{
+        this.reduction_timeout = null;
+        this.socket.emit("reduction", this.reduction_queue ); // from  -  to
+        this.reduction_queue = [];
+      }, 2000);
+
+
     }
 
     input.tm = tm_to; // new time,
