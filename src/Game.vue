@@ -385,6 +385,7 @@
               player.inputs = [];
               player.id_cnt = 0;
               player.curpath.id = 0;
+              player.curpath.after_qc = false;
             }
 
           }

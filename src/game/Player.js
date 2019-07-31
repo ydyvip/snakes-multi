@@ -329,7 +329,7 @@ Player.prototype.setInitPositionForCurpath = function(new_dir, tm, working_curpa
     working_curpath.after_qc = true
   }
   else{
-    working_curpath.after_qc = true
+    working_curpath.after_qc = false
   }
 
   if(new_dir == "straight"){
@@ -550,6 +550,7 @@ Player.prototype.getCurpath = function(){
   obj.dir = this.curpath.dir;
   obj.tm = this.curpath.tm;
   obj.id = this.curpath.id;
+  obj.after_qc = this.curpath.after_qc;
   return obj;
 
 
@@ -568,6 +569,7 @@ Player.prototype.applyCurpathState = function(state_of_curpath){
   this.curpath.dir = state_of_curpath.dir;
   this.curpath.tm = state_of_curpath.tm;
   this.curpath.id = state_of_curpath.id;
+  this.curpath.after_qc = state_of_curpath.after_qc;
 
 }
 
@@ -584,6 +586,7 @@ Player.prototype.applyStartPoitOfCurpathState = function(state_of_curpath){
   this.curpath.dir = state_of_curpath.dir;
   this.curpath.tm = state_of_curpath.tm;
   this.curpath.id = state_of_curpath.id;
+  this.curpath.after_qc = state_of_curpath.after_qc;
 
 }
 
@@ -608,6 +611,7 @@ Player.prototype.quitConsideation = function(tm){
   this.path_before_qc = this.getCurpath();
 
   this.changeDir(this.curpath.dir, tm);
+  this.id_cnt_srv++
 
   this.breakout = false;
 

@@ -7,9 +7,7 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   if(this.killed==true)
     return;
 
-  if(tm > this.game_state.tm_quit_consideration){
-    this.id_cnt_srv++;
-  }
+  this.id_cnt_srv++;
 
   var input = {
     dir: newdir,
@@ -34,7 +32,7 @@ Player.prototype.changeDirSrv = function(newdir, tm){
     // }
 
     tm_to = tm_now-lag_tolerance;
-    
+
     if(tm_to >= this.game_state.tm_quit_consideration && tm<=this.game_state.tm_quit_consideration ){
       tm_to = this.game_state.tm_quit_consideration;
     }
