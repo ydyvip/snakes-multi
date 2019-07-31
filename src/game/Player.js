@@ -100,7 +100,7 @@ Player.prototype.draw = function(self){
   for(var i = 0; i<this.paths.length; i++){
 
     //Paths from consideration phase are not drawed
-    if(path.body.after_qc == false){
+    if(this.paths[i].body.after_qc == false){
       continue;
     }
     this.ctx.strokeStyle = this.paths[i].body.color;

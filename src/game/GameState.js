@@ -44,6 +44,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
       if(this.player_consideration)
         continue;
 
+      // TODO: apply for .. of
       players.forEach( function(player_against){
 
         // test for curpath
@@ -126,9 +127,14 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           var path = player_against.paths[i];
 
+          // check time elapsed since particular path to avoid collision after changeDir
           if(self && tm_elapsed<500){
             tm_elapsed = tm - path.body.tm;
             continue;
+          }
+
+          if(path.body.after_qc==false){
+            break;
           }
 
           if(path.body.type=="arc")
