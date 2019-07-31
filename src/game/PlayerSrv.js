@@ -34,7 +34,7 @@ Player.prototype.changeDirSrv = function(newdir, tm){
     // }
 
     tm_to = tm_now-lag_tolerance;
-
+    
     if(tm_to >= this.game_state.tm_quit_consideration && tm<=this.game_state.tm_quit_consideration ){
       tm_to = this.game_state.tm_quit_consideration;
     }
@@ -49,38 +49,21 @@ Player.prototype.changeDirSrv = function(newdir, tm){
     // input.tm -- from
     // tm_to
 
-    // lag before consideration: forcepos
-    if(input.tm <= this.game_state.tm_quit_consideration){
+    this.reduction_queue.push({
+      input_tm: input.tm,
+      tm_to: tm_to,
+      id: this.id_cnt_srv // id of next path(shortended)
+    });
 
-      // after reduction we force new position on client side without shifting.
-      // we can not shifts paths because paths in consideration phase are not saved
-      // we must ignore inputs from client after lagged input and before reduction
-      // due to ignored inputs we must sync path_id
-
-
+    if(this.reduction_timeout){
+      clearTimeout(this.reduction_timeout);
     }
 
-    //after consideration
-    else{
-
-      this.reduction_queue.push({
-        input_tm: input.tm,
-        tm_to: tm_to,
-        id: this.id_cnt_srv // id of next path(shortended)
-      });
-
-      if(this.reduction_timeout){
-        clearTimeout(this.reduction_timeout);
-      }
-
-      this.reduction_timeout = setTimeout(()=>{
-        this.reduction_timeout = null;
-        this.socket.emit("reduction", this.reduction_queue ); // from  -  to
-        this.reduction_queue = [];
-      }, 2000);
-
-
-    }
+    this.reduction_timeout = setTimeout(()=>{
+      this.reduction_timeout = null;
+      this.socket.emit("reduction", this.reduction_queue ); // from  -  to
+      this.reduction_queue = [];
+    }, 2000);
 
     input.tm = tm_to; // new time,
     tm = tm_to;
