@@ -602,7 +602,7 @@ Player.prototype.getPos = function(){
 
 }
 
-Player.prototype.quitConsideation = function(tm){
+Player.prototype.quitConsideation = function(tm, server){
 
   // Save curpath for case when new input that occured before quit consideration arrive.
 
@@ -610,7 +610,9 @@ Player.prototype.quitConsideation = function(tm){
 
   this.path_before_qc = this.getCurpath();
 
-  this.changeDir(this.curpath.dir, tm);
+  var path = this.changeDir(this.curpath.dir, tm);
+  this.savePath(path, server, false);
+
   this.id_cnt_srv++
 
   this.breakout = false;

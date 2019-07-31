@@ -509,7 +509,7 @@
               player_item.reduction(input.from, input.to, input.id, player_item);
             }
             else if(input.type == "quit_consideration"){
-              player_item.quitConsideation(this.game_state.tm_quit_consideration);
+              player_item.quitConsideation(this.game_state.tm_quit_consideration, false);
             }
             else if(input.type == "killed"){
 

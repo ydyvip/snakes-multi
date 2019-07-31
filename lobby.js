@@ -351,7 +351,7 @@ Game.prototype.start = function(){
         var input = player_state_item.inputs.shift();
 
         if(input.type == "quit_consideration"){
-          player_state_item.quitConsideation(this.game_state.tm_quit_consideration);
+          player_state_item.quitConsideation(this.game_state.tm_quit_consideration, true);
         }
         else {
           player_state_item.recomputeCurpath( input.tm );
