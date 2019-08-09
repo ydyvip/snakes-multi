@@ -769,6 +769,19 @@ Player.prototype.assignCurpath = function(lvalue, rvalue){
 
 }
 
+Player.prototype.processInput = function(_io, dir){
+
+  var tm = Date.now();
+
+  this.inputs.push({
+    type: "input",
+    dir: dir,
+    tm: tm
+  })
+  _io.emit(dir, tm);
+
+}
+
 var random = require("random-js")();
 
 

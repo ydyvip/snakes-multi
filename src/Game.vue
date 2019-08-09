@@ -155,14 +155,7 @@
       if(player_me.speed==0){
         return;
       }
-
-      var tm = Date.now();
-      player_me.inputs.push({
-        type: "input",
-        dir: "left",
-        tm: tm
-      })
-      io.emit("left", tm);
+      player_me.proccesInput(io, "left");
     }
 
     left.release = function(){
@@ -170,13 +163,7 @@
         if(player_me.speed==0){
           return;
         }
-       var tm = Date.now();
-       player_me.inputs.push({
-         type: "input",
-         dir: "straight",
-         tm: tm
-       })
-       io.emit("straight", tm);
+        player_me.proccesInput(io, "straight");
       }
     }
 
@@ -184,13 +171,7 @@
       if(player_me.speed==0){
         return;
       }
-      var tm = Date.now();
-      player_me.inputs.push({
-        type: "input",
-        dir: "right",
-        tm: tm
-      })
-      io.emit("right", tm);
+      player_me.proccesInput(io, "right");
     }
 
     right.release = function(){
@@ -198,13 +179,7 @@
         if(player_me.speed==0){
           return;
         }
-       var tm = Date.now();
-       player_me.inputs.push({
-         type: "input",
-         dir: "straight",
-         tm: tm
-       })
-       io.emit("straight", tm);
+        player_me.proccesInput(io, "straight");
      }
     }
 
