@@ -32,6 +32,9 @@ var Player = function(initial_state){
   this.collision_participant = null;
   this.id_cnt = 0;
   this.id_cnt_srv = 0;
+  this.id_path_before_qc = null;
+  this.processed_lag_vector = 0;
+  this.unprocessed_lag_vector = 0; //srv
   this.curpath = {
     id: 0,
     after_qc: false,
@@ -177,14 +180,26 @@ Player.prototype.createPath2 = function(path_state){
 // used for reduction
 Player.prototype.overwritePath = function(path_state_new, index){
 
-  var path = this.createPath2(path_state_new);
+  var path = {};
+  if(this.srv!=true){
+    path = this.createPath2(path_state_new);
+  }
   path.body = path_state_new.body;
-
-  //console.log(this.paths[index].body);
-  //console.log(path_state_new.body);
 
   this.paths[index] = path;
 
+}
+
+Player.prototype.splicePath = function(path_state_new, index){
+
+  var path = {};
+  if(this.srv!=true){
+    path = this.createPath2(path_state_new);
+  }
+
+  path.body = path_state_new.body;
+
+  this.paths.splice(index, 0, path);
 }
 
 Player.prototype.savePath = function(path_state, server_side, reconciled_path) {
@@ -379,11 +394,16 @@ Player.prototype.changeDir = function(new_dir, tm){
 
   // All paths are saved in paths history (also these before qc)
   var path = this.getPathBodyFromCurpath(this.curpath);
-  this.id_cnt++;
-  this.curpath.id = this.id_cnt;
 
+  if(tm=="qc"){
+    this.curpath.id = "qc";
+    tm = this.game_state.tm_quit_consideration;
+  }
+  else{
+    this.id_cnt++;
+    this.curpath.id = this.id_cnt;
+  }
   this.setInitPositionForCurpath(new_dir, tm );
-
   return path;
 }
 
@@ -461,6 +481,8 @@ Player.prototype.recomputeCurpath = function(tm_to_timestep, curpath){
     if(!curpath){
       curpath = this.curpath;
     }
+
+    curpath.tm_to = tm_to_timestep;
 
     /*
      set end to start before recomputing
@@ -545,6 +567,7 @@ Player.prototype.getCurpath = function(){
   obj.end_y = this.curpath.end.y;
   obj.angle = this.curpath.angle;
   obj.starting_angle = this.curpath.starting_angle;
+  obj.base_start_angle = this.curpath.base_start_angle;
   obj.arc_point_x = this.curpath.arc_point.x;
   obj.arc_point_y = this.curpath.arc_point.y;
   obj.dir = this.curpath.dir;
@@ -564,6 +587,7 @@ Player.prototype.applyCurpathState = function(state_of_curpath){
   this.curpath.end.y = state_of_curpath.end_y  ;
   this.curpath.angle = state_of_curpath.angle  ;
   this.curpath.starting_angle = state_of_curpath.starting_angle  ;
+  this.curpath.base_start_angle = state_of_curpath.base_start_angle  ;
   this.curpath.arc_point.x = state_of_curpath.arc_point_x  ;
   this.curpath.arc_point.y = state_of_curpath.arc_point_y  ;
   this.curpath.dir = state_of_curpath.dir;
@@ -581,6 +605,7 @@ Player.prototype.applyStartPoitOfCurpathState = function(state_of_curpath){
   this.curpath.end.y = state_of_curpath.start_y  ;
   this.curpath.angle = state_of_curpath.starting_angle  ;
   this.curpath.starting_angle = state_of_curpath.starting_angle  ;
+  this.curpath.base_start_angle = state_of_curpath.base_start_angle  ;
   this.curpath.arc_point.x = state_of_curpath.arc_point_x  ;
   this.curpath.arc_point.y = state_of_curpath.arc_point_y  ;
   this.curpath.dir = state_of_curpath.dir;
@@ -602,18 +627,39 @@ Player.prototype.getPos = function(){
 
 }
 
+Player.prototype.injectPathBeforeQc = function(tm_to, dir){
+
+  var tm_qc = this.game_state.tm_quit_consideration;
+
+  var working_curpath = this.extendPath(this.id_path_before_qc, tm_to);
+
+  this.setInitPositionForCurpath(dir, tm_to, working_curpath, this.id_path_before_qc+1);
+  this.recomputeCurpath(tm_qc, working_curpath );
+  var injected_path = this.getPathBodyFromCurpath(working_curpath);
+  this.splicePath(injected_path, this.id_path_before_qc+1);
+
+  this.id_path_before_qc = this.id_path_before_qc+1;
+  this.path_before_qc = working_curpath;
+
+  this.setInitPositionForCurpath(dir, tm_qc, working_curpath, "qc" );
+  this.recomputeCurpath(Date.now(), working_curpath);
+  this.assignCurpath(this.curpath, working_curpath);
+
+}
+
 Player.prototype.quitConsideation = function(tm, server){
 
   // Save curpath for case when new input that occured before quit consideration arrive.
 
   this.recomputeCurpath(tm);
 
+  this.id_path_before_qc = this.curpath.id;
   this.path_before_qc = this.getCurpath();
+
+  tm = "qc";
 
   var path = this.changeDir(this.curpath.dir, tm);
   this.savePath(path, server, false);
-
-  this.id_cnt_srv++
 
   this.breakout = false;
 
@@ -649,52 +695,85 @@ Player.prototype.clearFurtherPaths = function(tm, include, pop_last){
 
 }
 
-Player.prototype.reduction = function(from, to, id,  player_me){
+Player.prototype.mergePathOnQc = function(){
+
+  //precisely merged are id_path_before_qc and qc path
+
+  //remove qc path
+  this.paths.splice(this.id_path_before_qc+1, 1);
+  //extend path before qc to take place of previously removed path
+  this.extendPath(this.id_path_before_qc, "next");
+
+}
+
+Player.prototype.splitPathForQc = function(ix, working_curpath, to){
+
+  var working_curpath;
+  var tm_qc = this.game_state.tm_quit_consideration;
+  if(!working_curpath){
+
+    //working_curpath = ...
+  }
+
+  this.recomputeCurpath(tm_qc, working_curpath );
+  var path = this.getPathBodyFromCurpath(working_curpath);
+  this.overwritePath(path, ix);
+
+  working_curpath.id = "qc";
+  this.id_path_before_qc = ix;
+
+  this.setInitPositionForCurpath(working_curpath.dir, tm_qc, working_curpath  );
+  this.recomputeCurpath(to, working_curpath );
+  path = this.getPathBodyFromCurpath(working_curpath);
+  this.splicePath(path, ix+1);
+
+}
+
+Player.prototype.extendPath = function(ix, to, vector){
+
+  if(to=="next"){
+    to = this.paths[ix+1].body.tm;
+    if(vector){
+      to+=vector;
+    }
+  }
+
+  var path = this.paths[ix];
+  var curpath_for_extension = this.getCurpathFromPathBody(path);
+  this.recomputeCurpath(to, curpath_for_extension );
+  var new_extended = this.getPathBodyFromCurpath(curpath_for_extension);
+  this.overwritePath(new_extended, ix);
+
+  return curpath_for_extension;
+
+}
+
+// id = id of shortended aka first shifted
+Player.prototype.reduction = function(from, to, id){
 
   console.log("REDUCTION; from: " + from + " to: " + to + " id: " + id );
 
-  /* bad idea
-  var tm_elapsed = Date.now() - this.reduction.last_call;
-  if( tm_elapsed < 250){
+  this.outPathsTmBefore();
 
-    this.reduction.last_call = Date.now() + (250 - tm_elapsed);
-
-    setTimeout(()=>{
-      this.reduction(from, to, id, player_me);
-    }, this.reduction.last_call - Date.now() );
-
-    return;
-
-  }
-  else{
-    this.reduction.last_call = Date.now();
-  }
-  */
-
-
+  var working_curpath;
 
   var lag_vector = to - from;
 
   var path_extended = null;
   var index_of_extended = -1;
 
-  // if(from < this.game_state.tm_quit_consideration ){
-  //
-  // }
-
-
   // search paths, case when path_shortened is curpath
-  if(player_me.curpath.id == id){
-    path_extended = player_me.paths[player_me.paths.length-1];
-    index_of_extended = player_me.paths.length-1;
+  if(this.curpath.id == id){
+    path_extended = this.paths[this.paths.length-1];
+    index_of_extended = this.paths.length-1;
   }
 
   //search paths, case when path_shortened is in paths history
   else{
-    for(var i = player_me.paths.length-1; i>=0; i--){
-      var path = player_me.paths[i];
+    for(var i = this.paths.length-1; i>=0; i--){
+      var path = this.paths[i];
       if(path.body.id == id){
-        path_extended = player_me.paths[i-1];
+        path_extended = this.paths[i-1];
         index_of_extended = i-1;
         break;
       }
@@ -704,50 +783,101 @@ Player.prototype.reduction = function(from, to, id,  player_me){
   if(path_extended == null){
     console.log("pe");
     console.log(id);
-    console.log(player_me.paths);
+    console.log(this.paths);
   }
 
+  var tm_qc = this.game_state.tm_quit_consideration;
+  var new_extended;
   // Extension and swap of path designed to extension
-  var curpath_for_extended = player_me.getCurpathFromPathBody(path_extended);
 
-  player_me.recomputeCurpath(to, curpath_for_extended );
-  var new_extended = player_me.getPathBodyFromCurpath(curpath_for_extended);
-  player_me.overwritePath(new_extended, index_of_extended);
+  if(from<tm_qc && to>tm_qc){
+
+    //merge previous qc path and path before qc
+    if(this.id_path_before_qc != null){
+      this.mergePathOnQc();
+    }
+
+    working_curpath = this.extendPath(index_of_extended, tm_qc);
+
+    working_curpath.id = "qc";
+    this.id_path_before_qc = index_of_extended;
+
+    this.setInitPositionForCurpath(working_curpath.dir, tm_qc, working_curpath  );
+    this.recomputeCurpath(to, working_curpath );
+    new_extended = this.getPathBodyFromCurpath(working_curpath);
+    this.splicePath(new_extended, index_of_extended+1);
+    index_of_extended++;
+  }
+  else{
+    working_curpath = this.extendPath(index_of_extended, to);
+  }
 
   //shift following paths
-  var working_curpath = curpath_for_extended;
   var new_tm = to;
 
-  for(var i = index_of_extended+1; i<player_me.paths.length; i++){
+  var index_before = 0;
+
+  for(var i = index_of_extended+1; i<this.paths.length; i++){
 
     console.log("SHIFTING");
-    console.log("shifting " + i + " to " + (player_me.paths.length-1));
+    console.log("shifting " + i + " to " + (this.paths.length-1));
 
+    if(i>this.id_path_before_qc){
+      index_before = -1;
+    }
 
-    var tm_lenght; // we get tm of following path as lenght
-    if(i+1 == player_me.paths.length){
-      tm_lenght = player_me.curpath.tm + lag_vector;
+    if(i-1 == this.id_path_before_qc){
+      // only extend, this path is qc path
+      working_curpath = this.extendPath(i, "next", lag_vector);
+      new_tm = working_curpath.tm_to;
+      continue;
+    }
+
+    var new_shortended;
+
+    // we get tm of following path as to (tm)
+    if(i+1 == this.paths.length){ // this case is unreachable but test needed
+      to = this.curpath.tm + lag_vector;
     }
     else{
-      var tm_lenght = player_me.paths[i+1].body.tm + lag_vector;
+      to = this.paths[i+1].body.tm + lag_vector;
     }
 
-    var path_body = player_me.paths[i].body;
-    player_me.setInitPositionForCurpath(path_body.dir, new_tm, working_curpath, path_body.id );
-    player_me.recomputeCurpath(tm_lenght, working_curpath );
-    var new_shortended = player_me.getPathBodyFromCurpath(working_curpath);
-    player_me.overwritePath(new_shortended, i);
+    var path_body = this.paths[i].body;
+    from = new_tm;
 
-    new_tm = tm_lenght;
+    if(from<tm_qc && to>tm_qc){
+
+      //merge previous qc path and path before qc
+      if(this.id_path_before_qc != null){
+        this.mergePathOnQc();
+      }
+      this.setInitPositionForCurpath(path_body.dir, new_tm, working_curpath, path_body.id );
+      this.splitPathForQc(i, working_curpath, to);
+      new_tm = to;
+    }
+    else{
+      this.setInitPositionForCurpath(path_body.dir, new_tm, working_curpath, path_body.id );
+      this.recomputeCurpath(to, working_curpath );
+      new_shortended = this.getPathBodyFromCurpath(working_curpath);
+      this.overwritePath(new_shortended, i);
+      new_tm = to;
+  }
 
   }
 
   //shift actual curpath
-  player_me.setInitPositionForCurpath(player_me.curpath.dir, new_tm, working_curpath, player_me.curpath.id );
-  player_me.recomputeCurpath(Date.now(), working_curpath);
-  player_me.assignCurpath(player_me.curpath, working_curpath);
+  this.setInitPositionForCurpath(this.curpath.dir, new_tm, working_curpath, this.curpath.id );
+  this.recomputeCurpath(Date.now(), working_curpath);
+  this.assignCurpath(this.curpath, working_curpath);
 
   console.log("_________________________");
+
+  /* TESTING FUNCTIONS */
+  //this.outPathsTmAfter();
+  //this.compareArrsTm(lag_vector);
+
+  this.processed_lag_vector += lag_vector;
 
 
 }
@@ -778,12 +908,74 @@ Player.prototype.processInput = function(_io, dir){
     dir: dir,
     tm: tm
   })
-  _io.emit(dir, tm);
+  if(this.processed_lag_vector!=0){
+    _io.emit(dir, tm, this.processed_lag_vector);
+    this.processed_lag_vector = 0;
+  }
+  else{
+    _io.emit(dir, tm);
+  }
+
+}
+
+/* TESTING FUNCTIONS */
+
+Player.prototype.outPathsTmBefore = function(){
+
+  this.arr_tm_before = [];
+
+  for(var path of this.paths){
+    var path_body = path.body;
+    this.arr_tm_before.push(path_body.tm);
+  }
+
+}
+
+Player.prototype.outPathsTmAfter = function(){
+
+  this.arr_tm_after = [];
+
+  for(var path of this.paths){
+    var path_body = path.body;
+    this.arr_tm_after.push(path_body.tm);
+  }
+
+}
+
+Player.prototype.compareArrsTm = function(lag_vector){
+
+  var tm_qc = this.game_state.tm_quit_consideration;
+  var ix_for_after = 0;
+  var ix_for_before = 0;
+
+  for(var i = 0; i<this.arr_tm_after.length; i++){
+
+    if(this.arr_tm_after[ix_for_after] == tm_qc){
+      ix_for_after++;
+      continue;
+    }
+    if(this.arr_tm_before[ix_for_before] == tm_qc){
+      ix_for_before++;
+      continue;
+    }
+
+    if(this.arr_tm_before[ix_for_before]+lag_vector == this.arr_tm_after[ix_for_after])
+    {
+      console.log("OK");
+    }
+    else{
+      console.log("BREAK AT " + ix_for_before + " : " + ix_for_after);
+    }
+
+    ix_for_before++;
+    ix_for_after++;
+  }
+
+  console.log(this.arr_tm_after);
 
 }
 
 var random = require("random-js")();
-
 
 
 module.exports = Player;
