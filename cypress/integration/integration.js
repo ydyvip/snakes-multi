@@ -21,7 +21,7 @@ describe("collisions", function(){
 
     cy.window({timeout: 15000}).its("player.speed").should("to.eq", 50);
 
-    cy.wait(3000); // 1 sec before qc
+    cy.wait(3700); // 1 sec before qc
 
     //cy.wait(4100); // for qc + 100ms
 
@@ -59,6 +59,8 @@ describe("collisions", function(){
     cy.wait(tm_wait);
     cy.get("canvas").trigger("keyup", "top", {code: "ArrowLeft", force: true});
     cy.wait(tm_wait);
+
+    cy.wait(60000);
 
   })
 

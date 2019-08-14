@@ -83,25 +83,10 @@
 
           if(player_item.name!=player_me.name){
 
-            // @TODO ... gamestate.player_consideration == false na biezaca date
             // handle input triggered before qc, when qc is already active
             if(gamestate.player_consideration == false && tm<gamestate.tm_quit_consideration){
 
-              //apply first path before qc
-
-              player_item.clearFurtherPaths(gamestate.tm_quit_consideration, true);
-              player_item.applyStartPoitOfCurpathState(player_item.path_before_qc);
-
-              player_item.inputs.push({
-                type: "input",
-                dir: newdir,
-                tm: tm,
-                done_path: done_path,
-                discard_save: true
-              });
-              player_item.inputs.push({
-                type: "quit_consideration"
-              })
+              this.injectPathBeforeQc(input.tm, input.dir);
 
             }
             else {
@@ -155,7 +140,7 @@
       if(player_me.speed==0){
         return;
       }
-      player_me.proccesInput(io, "left");
+      player_me.processInput(io, "left");
     }
 
     left.release = function(){
@@ -163,7 +148,7 @@
         if(player_me.speed==0){
           return;
         }
-        player_me.proccesInput(io, "straight");
+        player_me.processInput(io, "straight");
       }
     }
 
@@ -171,7 +156,7 @@
       if(player_me.speed==0){
         return;
       }
-      player_me.proccesInput(io, "right");
+      player_me.processInput(io, "right");
     }
 
     right.release = function(){
@@ -179,9 +164,10 @@
         if(player_me.speed==0){
           return;
         }
-        player_me.proccesInput(io, "straight");
+        player_me.processInput(io, "straight");
      }
     }
+
 
   }
 
@@ -406,14 +392,12 @@
 
         for(var player of players){
           if(player.name ==  playername){
-
             player.inputs.push({
               type: "killed",
               collision_tm: collision_tm,
               path_at_collision: path_at_collision,
               forced: forced
             });
-
             return;
           }
         }
@@ -481,13 +465,12 @@
             var input = player_item.inputs.shift();
 
             if(input.type == "reduction"){
-              player_item.reduction(input.from, input.to, input.id, player_item);
+              player_item.reduction(input.from, input.to, input.id);
             }
             else if(input.type == "quit_consideration"){
               player_item.quitConsideation(this.game_state.tm_quit_consideration, false);
             }
             else if(input.type == "killed"){
-
               player_item.clearFurtherPaths(input.collision_tm, false, input.forced);
               player_item.applyCurpathState(input.path_at_collision);
               player_item.speed = 0;

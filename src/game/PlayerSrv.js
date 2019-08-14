@@ -2,18 +2,32 @@
 var Player = require("./Player.js");
 var random = require("random-js")();
 
-Player.prototype.changeDirSrv = function(newdir, tm){
+Player.prototype.srv = true;
+
+Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
 
   if(this.killed==true)
     return;
 
+
   this.id_cnt_srv++;
+
+  if(processed_lag_vector>0){
+    this.unprocessed_lag_vector-=processed_lag_vector;
+  }
+
+  if(this.unprocessed_lag_vector>0){
+    tm += this.unprocessed_lag_vector;
+  }
+
+
 
   var input = {
     dir: newdir,
     tm: tm,
     breakout: -1,
   }
+
 
   // Collision test should be performed every 10px (player weight)
   //  1000[1s] / (50[px/s]/10px[weight]) --> 200ms
@@ -26,21 +40,19 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   var tm_to;
   if(lag>lag_tolerance){
 
-    // not good idea
-    // if(lag>lag_tolerance*2){
-    //   tm_to = tm+lag_tolerance;
-    // }
 
     tm_to = tm_now-lag_tolerance;
+    this.unprocessed_lag_vector += parseInt(tm_to-input.tm);
 
-    if(tm_to >= this.game_state.tm_quit_consideration && tm<=this.game_state.tm_quit_consideration ){
-      tm_to = this.game_state.tm_quit_consideration;
-    }
+    // if(tm_to > this.game_state.tm_quit_consideration && tm<this.game_state.tm_quit_consideration ){
+    //   tm_to = this.game_state.tm_quit_consideration;
+    // }
 
     console.log("");
     console.log("LAG REDUCTION");
     console.log("input tm(from): " + input.tm );
     console.log("new tm(to): " + tm_to);
+    console.log("id: " + this.id_cnt_srv);
     console.log("reduced by: " + parseInt(tm_to-input.tm));
     console.log("");
 
@@ -61,18 +73,20 @@ Player.prototype.changeDirSrv = function(newdir, tm){
       this.reduction_timeout = null;
       this.socket.emit("reduction", this.reduction_queue ); // from  -  to
       this.reduction_queue = [];
-    }, 2000);
+    }, 1000);
 
     input.tm = tm_to; // new time,
     tm = tm_to;
 
   }
-
-
-  // new input with tm earlier than collision tm
-
-  if(this.name == "user6"){
-    console.log("tm_input: " + tm);
+  else{
+    if(this.name == "user6"){
+      console.log("");
+      console.log("LAG not reduced");
+      console.log("id: " + this.id_cnt_srv);
+      console.log("tm: " + tm);
+      console.log("");
+    }
   }
 
   // reset collision if input was triggered earlier
@@ -121,28 +135,9 @@ Player.prototype.changeDirSrv = function(newdir, tm){
     clearTimeout(this.collision_timeout);
   }
 
-  if(this.game_state.player_consideration == false && tm<this.game_state.tm_quit_consideration){
+  if(tm<this.game_state.tm_quit_consideration && this.game_state.player_consideration == false ){
 
-    //apply first path before qc
-
-
-    this.clearFurtherPaths(this.game_state.tm_quit_consideration, true);
-    this.applyStartPoitOfCurpathState(this.path_before_qc);
-
-    if(this.name=="user6"){
-      console.log("input triggered before qc arrived after qc");
-      console.log("tm of curpath: " + this.curpath.tm);
-      console.log("tm of input:" + input.tm);
-      console.log("tm of qc: " + this.game_state.tm_quit_consideration );
-    }
-
-    input.discard_save = true;
-
-    this.inputs.push(input);
-    this.inputs.push({
-      type: "quit_consideration"
-    })
-
+    this.injectPathBeforeQc(input.tm, input.dir);
     return;
 
   }
@@ -150,14 +145,6 @@ Player.prototype.changeDirSrv = function(newdir, tm){
   this.inputs.push(input);
 
   return;
-
-  //TODO: handle breakouts. path_id is legacy
-  // if(path_id==-1){ // changed from breakdown
-  //   return done_path;
-  // }
-  //else{
-  //  this.io.to(this.socket.currentRoom).emit("dirchanged", this.socket.playername, newdir, done_path, this.renderBuff  );
-  //}
 
 }
 

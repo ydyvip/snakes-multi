@@ -65,7 +65,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
     player_state.speed = 0;
     player_state.collision_tm = 0;
     player_state.killed = true;
-    this.emitKilled(player_state.name, player_state.collision_before_input.collision_tm, player_state.collision_before_input.path_at_collision, true); //4th arg true due to force
+    this.emitKilled(player_state, player_state.collision_before_input.collision_tm, player_state.collision_before_input.path_at_collision, true); //4th arg true due to force
     if(player_state.name=="user6")
       console.log("collision emmitted(forced): " + collision_tm);
     return;
@@ -82,7 +82,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
       player_state.speed = 0;
       player_state.collision_tm = 0;
       player_state.killed = true;
-      this.emitKilled(player_state.name, collision_tm, player_state.path_at_collision);
+      this.emitKilled(player_state, collision_tm, player_state.path_at_collision);
       if(player_state.name=="user6")
         console.log("collision emmitted: " + collision_tm);
     }
@@ -97,7 +97,9 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
   }, 250);
 }
 
-Game.prototype.emitKilled = function(playername, collision_tm, path_at_collision, forced){
+Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collision, forced){
+
+  var playername = player_state.name;
 
   // forced
   // done path in history of paths covers path_before_input (strictly curpath head).
@@ -357,6 +359,21 @@ Game.prototype.start = function(){
           player_state_item.recomputeCurpath( input.tm );
           var state_of_curpath = player_state_item.getCurpath();
           var done_path = player_state_item.changeDir(input.dir, input.tm);
+          if(player_state_item.name=="user6"){
+            console.log("***");
+            console.log(done_path);
+            if(done_path.body.vertices){
+              console.log(done_path.body.vertices[0])
+              console.log(done_path.body.vertices[1])
+              console.log(done_path.body.vertices[2])
+              console.log(done_path.body.vertices[3])
+            }
+            if(done_path.body.line){
+              console.log(done_path.body.line[0]);
+              console.log(done_path.body.line[1]);
+            }
+            console.log("***")
+          }
           if(!input.discard_save){
             player_state_item.savePath(done_path, true);
           }
@@ -488,26 +505,26 @@ module.exports = function( io_, socket ){
 
   io = io_;
 
-  socket.on("left", function(tm){
+  socket.on("left", function(tm, processed_lag_vector){
 
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("left", tm);
+      socket.player_state.changeDirSrv("left", tm, processed_lag_vector);
     }, 400)
 
   })
 
-  socket.on("right", function(tm){
+  socket.on("right", function(tm, processed_lag_vector){
 
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("right", tm);
+      socket.player_state.changeDirSrv("right", tm, processed_lag_vector);
     }, 400)
 
   })
 
-  socket.on("straight", function(tm){
+  socket.on("straight", function(tm, processed_lag_vector){
 
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("straight", tm);
+      socket.player_state.changeDirSrv("straight", tm, processed_lag_vector);
     }, 400)
 
   })
