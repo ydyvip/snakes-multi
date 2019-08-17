@@ -1,6 +1,6 @@
 {
   "name": "turning-with-satoshi",
-  "main": "index.js",
+  "main": "app.js",
   "description": "turning-with-satoshi",
   "version": "1.0.0",
   "author": "",
