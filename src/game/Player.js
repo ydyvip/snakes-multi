@@ -62,10 +62,8 @@ var Player = function(initial_state){
 
   this.color = initial_state.color;
 
-  this.reckoning_events = [];
   this.collisions = [];
   this.inputs = [];
-  this.events = [];
 
 }
 

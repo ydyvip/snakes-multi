@@ -187,53 +187,5 @@ Player.prototype.clearBreakout = function(){
 
 }
 
-Player.prototype.saveEvent = function(evt){
-
-  this.collisions.push(evt);
-
-}
-
-Player.prototype.clearEvent = function(tm){
-
-  for( let i = 0; i<this.reckoning_events.length; i++){
-    if( evt.tm == tm ){
-      this.reckoning_events.splice(i, 1);
-    }
-  }
-
-}
-
-Player.prototype.clearEvents = function(after_tm){
-
-  if(after_tm == undefined){
-    this.reckoning_events = [];
-  }
-
-  if(this.reckoning_events.length==0)
-    return;
-
-  if(this.name=="kubus6"){
-    console.log("clearing events before " + after_tm);
-  }
-  for(let i = this.reckoning_events.length-1; i>=0; i--){
-
-    if(this.reckoning_events[i].tm>=after_tm){
-      if(this.name=="kubus6")
-        console.log("event deleted");
-      this.reckoning_events.splice(i, 1);
-    }
-
-  }
-
-}
-
-Player.prototype.isEventValid = function(tm){
-
-  for( evt of this.collisions){
-    if( evt.tm == tm )
-      return evt;
-  }
-  return false;
-}
 
 module.exports = Player;
