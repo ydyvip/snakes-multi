@@ -41,8 +41,6 @@ router.post("/", function(req,res){
     })
   }
 
-
-
   if( !req.body.btc_address ){
     response.errs.push({
       for: "btc_address",
