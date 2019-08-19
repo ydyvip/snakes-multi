@@ -2,5 +2,5 @@
 node_modules/
 data/*
 !data/.gitkeep
-dist/build.js
+public/build.js
 mongouri.json

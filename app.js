@@ -32,7 +32,7 @@ db.promise.then( function(){
 	});
 })
 
-app.use(express.static("dist"));
+app.use(express.static("public"));
 app.use(session({
    secret: "TeraXaxzz",
    store: new MongoStore({
