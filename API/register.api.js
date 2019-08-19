@@ -111,7 +111,6 @@ router.post("/", function(req,res){
       })
 
       return response;
-
     }
 
     return Users.emailTaken(req.body.email)
