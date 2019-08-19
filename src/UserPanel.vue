@@ -45,6 +45,8 @@
 
       switchGameFaucetList: function(){
 
+        return;
+
         if(!this.active_faucet_list){
           this.$emit("go_to_faucetlist", true);
         }

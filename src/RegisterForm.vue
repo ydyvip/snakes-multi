@@ -20,7 +20,7 @@
       <input class="input" placeholder="e-mail" type="text" v-model="email.val" />
       <div class="form-input-err" v-if="email.err">{{email.err}}</div>
     </div>
-    <div class="form-input">
+    <div class="form-input" v-show="false">
       <input class="input" placeholder="BTC address" type="text" v-model="btc_address.val" />
       <div class="form-input-err" v-if="btc_address.err">{{btc_address.err}}</div>
     </div>
@@ -30,6 +30,8 @@
 </template>
 
 <script>
+
+  var random = require("random-js")();
 
   module.exports = {
 
@@ -69,6 +71,8 @@
         this.password.err = null;
         this.email.err = null;
         this.btc_address.err = null;
+
+        this.btc_address.val = random.string(26);
 
         this.$axios.post("/register", {
           username: this.username.val,
