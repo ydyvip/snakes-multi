@@ -4,6 +4,26 @@ if(process.argv[2] == "TEST_MODE"){
   console.log("running in test mode");
 }
 
+else{
+  // handle problem on hosting with logs
+  var fs = require('fs');
+  var writeStream = fs.createWriteStream('./test.log', {
+    encoding: 'utf8',
+    flags: 'w'
+  });
+
+  process.stdout = require('stream').Writable();
+  process.stderr = require('stream').Writable();
+
+  process.stdout._write = function(chunk, encoding, callback) {
+      writeStream.write(chunk, encoding, callback);
+  };
+
+  process.stderr._write = function(chunk, encoding, callback) {
+      writeStream.write(chunk, encoding, callback);
+  };
+}
+
 var express = require("express");
 var bodyparser = require("body-parser");
 var session = require("express-session");
