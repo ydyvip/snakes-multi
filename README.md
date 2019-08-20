@@ -9,4 +9,4 @@
 
 
 ## Discord
-[serpentes.win](https://discord.gg/Tq8UJyV "discord")
+[discord](https://discord.gg/Tq8UJyV "discord")
