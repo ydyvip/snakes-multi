@@ -13,6 +13,7 @@
 
 
 ### TODOS
+ - ability to choose the number of players in the room
  - saving the game flow for reproduction of bugs
  - improvement of test architecture
  - repair of found bugs
