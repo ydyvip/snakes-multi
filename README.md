@@ -10,3 +10,11 @@
 
 ## Discord
 [discord](https://discord.gg/Tq8UJyV "discord")
+
+
+### TODOS
+ - saving the game flow for reproduction of bugs
+ - improvement of test architecture
+ - repair of found bugs
+ - game promotion
+ - real betting and withdraws to particular micropayment system
