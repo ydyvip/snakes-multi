@@ -504,25 +504,25 @@ module.exports = function( io_, socket ){
 
   socket.on("left", function(tm, processed_lag_vector){
 
-    setTimeout( ()=>{
+    //setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm, processed_lag_vector);
-    }, 400)
+    //}, 400)
 
   })
 
   socket.on("right", function(tm, processed_lag_vector){
 
-    setTimeout( ()=>{
+    //setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", tm, processed_lag_vector);
-    }, 400)
+  //  }, 400)
 
   })
 
   socket.on("straight", function(tm, processed_lag_vector){
 
-    setTimeout( ()=>{
+  //  setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", tm, processed_lag_vector);
-    }, 400)
+  //  }, 400)
 
   })
 
