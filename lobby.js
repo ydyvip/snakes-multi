@@ -15,16 +15,18 @@ var io = null;
 var games = [];
 var sample_game = null;
 
-function Game(cnt_players, players, name, bet){
+function Game( player_creator, name, bet, max_players){
 
-  this.max_players = 6;
-  this.cnt_players = cnt_players;
-  this.players = players;
+  this.max_players = max_players;
+  this.cnt_players = 1;
+  this.players = [];
   this.name = name;
   this.bet = bet;
   this.round_points = 0;
 
   this.first_to_reach = 50;
+
+  this.players.push(player_creator);
 
   this.gameloop_id = null
 
@@ -476,6 +478,7 @@ games.getGameList = function(){
 
     arr.push({
       cnt_players: game_item.cnt_players,
+      max_players: game_item.max_players,
       bet: game_item.bet,
       name: game_item.name,
       players: p_names
@@ -525,7 +528,6 @@ module.exports = function( io_, socket ){
 
   socket.on("getgamelist", function(){
 
-
     var arr = games.getGameList();
     socket.emit("updategamelist", arr);
 
@@ -537,7 +539,7 @@ module.exports = function( io_, socket ){
 
     // Check if there is space for new player in room
     var room = games.getRoomWithName(newroom);
-    if(!room || room.cnt_players==6){
+    if(!room || room.cnt_players==room.max_players){
       return; // TODO: room is full
     }
 
@@ -574,7 +576,7 @@ module.exports = function( io_, socket ){
 
     })
 
-    if(new_game.cnt_players==6){
+    if(new_game.cnt_players==new_game.max_players){
 
       new_game.start();
 
@@ -582,8 +584,8 @@ module.exports = function( io_, socket ){
 
   })
 
-  socket.on("newgame", (gamename, bet, playername, fn)=>{
-    
+  socket.on("newgame", (gamename, bet, max_players, playername, fn)=>{
+
     if(socket.currentRoom){
       fn({
         for: "confirm",
@@ -607,6 +609,20 @@ module.exports = function( io_, socket ){
       });
       return;
     }
+    if(max_players<2){
+      fn({
+        for: "max_players",
+        err_msg: "Room can be created for at least 2 players"
+      });
+      return;
+    }
+    if(max_players>6){
+      fn({
+        for: "max_players",
+        err_msg: "Room can be created for up to 6 players"
+      });
+      return;
+    }
 
     socket.join(gamename);
     socket.currentRoom = gamename;
@@ -619,7 +635,7 @@ module.exports = function( io_, socket ){
       live: true
     };
 
-    var ng = new Game(1, [p], gamename, bet);
+    var ng = new Game( p, gamename, bet, max_players);
     games.push(ng);
 
 

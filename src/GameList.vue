@@ -8,9 +8,10 @@
       </div>
 
       <div v-else class="game-list-menu" key="m_a2">
-        <span v-tooltip.left.notrigger="{content: new_game_form.gamename.err_msg, class: 'tooltip-custom', visible: new_game_form.gamename.err}"><input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val" /></span>
-        <span v-tooltip.left.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"><input class="input" type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"/></span>
-
+        <span v-tooltip.left.notrigger="{ content: new_game_form.gamename.err_msg, class: 'tooltip-custom', visible: new_game_form.gamename.err}"><input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val" /></span>
+        <span v-tooltip.left.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"><input class="input" type="number" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"/></span>
+        <span v-tooltip.left.notrigger="{ content: new_game_form.max_players.err_msg, class: 'tooltip-custom', visible: new_game_form.max_players.err }"><input class="input" type="number" placeholder="Max Players" v-model="new_game_form.max_players.val"/></span>
+        <span></span>
 
         <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
         <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
@@ -19,7 +20,7 @@
 
     <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
 
-      <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.svg" /><img v-for="n in 6-game.cnt_players" src="img/circle-24-off.svg" />
+      <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.svg" /><img v-for="n in game.max_players-game.cnt_players" src="img/circle-24-off.svg" />
       <span class="game-name">{{game.name}}</span>
       <span class="bet">{{game.bet}} Satoshi</span>
       <button class="btn green" v-if="currentRoom != game.name" v-on:click="joinToGame( game.name )" style="margin-left: 50px;"><b>JOIN</b></button>
@@ -187,7 +188,7 @@
       joinToGame: function( gamename ) {
 
         var room = this.getRoomWithName(gamename);
-        if(!room || room.cnt_players>=6){
+        if(!room || room.cnt_players>=room.max_players){
           return; // TODO: room is full
         }
 
@@ -224,7 +225,7 @@
 
         var room_name = this.new_game_form.gamename.val;
 
-        this.$io.emit("newgame", this.new_game_form.gamename.val, this.new_game_form.bet.val, this.loggedAs,
+        this.$io.emit("newgame", this.new_game_form.gamename.val, this.new_game_form.bet.val, this.new_game_form.max_players.val, this.loggedAs,
           (res)=>{
 
             if(res.for == "confirm"){
@@ -267,8 +268,6 @@
             }
 
             if(res.for == "max_players"){
-
-              console.log(res.err_msg);
 
               clearTimeout(this.new_game_form.max_players.err_timeout);
 
