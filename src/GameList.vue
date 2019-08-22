@@ -8,12 +8,8 @@
       </div>
 
       <div v-else class="game-list-menu" key="m_a2">
-        <input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val"
-          v-tooltip.bottom.notrigger="{content: new_game_form.gamename.err_msg, class: 'tooltip-custom', visible: new_game_form.gamename.err}"
-        />
-        <input class="input" type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"
-          v-tooltip.bottom.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"
-         />
+        <input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val" v-tooltip.bottom.notrigger="{content: new_game_form.gamename.err_msg, class: 'tooltip-custom', visible: new_game_form.gamename.err}"/>
+        <input class="input" type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val" v-tooltip.bottom.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"/>
 
 
         <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
