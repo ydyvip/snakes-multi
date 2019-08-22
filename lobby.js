@@ -449,12 +449,6 @@ Game.prototype.delistPlayer = function(playername){
 
 }
 
-
-sample_game = new Game(0,  [], "Empty", 500 );
-
-
-games.push(sample_game);
-
 games.getRoomWithName = function(gamename){
 
   var room = this.find( function(game){
