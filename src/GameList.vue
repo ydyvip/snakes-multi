@@ -9,19 +9,13 @@
 
       <div v-else class="game-list-menu" key="m_a2">
         <input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val"
-          v-tooltip.bottom.notrigger="{
-            content: new_game_form.gamename.err_msg,
-            class: 'tooltip-custom',
-            visible: new_game_form.gamename.err
-          }"
+          v-tooltip.bottom.notrigger="{content: new_game_form.gamename.err_msg, class: 'tooltip-custom', visible: new_game_form.gamename.err}"
         />
         <input class="input" type="text" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"
-          v-tooltip.bottom.notrigger="{
-            content: new_game_form.bet.err_msg,
-            class: 'tooltip-custom',
-            visible: new_game_form.bet.err
-          }"
+          v-tooltip.bottom.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"
          />
+
+
         <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
         <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
       </div>
@@ -62,6 +56,12 @@
           err_timeout: null
         },
         bet: {
+          val: null,
+          err: false,
+          err_msg: null,
+          err_timeout: null
+        },
+        max_players: {
           val: null,
           err: false,
           err_msg: null,
@@ -210,6 +210,8 @@
         this.new_game_form.gamename.err_msg = "";
         this.new_game_form.bet.err = false;
         this.new_game_form.bet.err_msg = "";
+        this.new_game_form.max_players.err = false;
+        this.new_game_form.max_players.err_msg = "";
 
         if(this.currentRoom){
 
@@ -264,6 +266,21 @@
 
               this.new_game_form.bet.err_timeout = setTimeout(()=>{
                 this.new_game_form.bet.err = false;
+              }, 3000)
+
+            }
+
+            if(res.for == "max_players"){
+
+              console.log(res.err_msg);
+
+              clearTimeout(this.new_game_form.max_players.err_timeout);
+
+              this.new_game_form.max_players.err_msg = res.err_msg;
+              this.new_game_form.max_players.err = true;
+
+              this.new_game_form.max_players.err_timeout = setTimeout(()=>{
+                this.new_game_form.max_players.err = false;
               }, 3000)
 
             }

@@ -583,7 +583,7 @@ module.exports = function( io_, socket ){
   })
 
   socket.on("newgame", (gamename, bet, playername, fn)=>{
-
+    
     if(socket.currentRoom){
       fn({
         for: "confirm",
