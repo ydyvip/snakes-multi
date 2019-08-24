@@ -3,6 +3,7 @@ const gameloop = require('node-gameloop');
 
 var Player = require("./src/game/PlayerSrv.js");
 var GameState = require("./src/game/GameState.js");
+var GameReplay = require("./src/game/GameReplay.js")
 var random = require("random-js")();
 
 var Users = require("./DB/users.db.js")
@@ -24,7 +25,7 @@ function Game( player_creator, name, bet, max_players){
   this.bet = bet;
   this.round_points = 0;
 
-  this.first_to_reach = 50;
+  this.first_to_reach = (max_players-1)*5;
 
   this.players.push(player_creator);
 
@@ -120,7 +121,9 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
   }
   if(this.round_points == this.max_players-1){ // Only one stay alive - end of round condition
 
-    // apply 5 points to winner
+    if(this.game_replay)
+      this.game_replay.finalizeRound();
+
 
     for( var player of this.players){
 
@@ -151,6 +154,12 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
     var game_winner = null;
 
     if(this.players[0].points>=this.first_to_reach){
+      game_winner = this.players[0];
+    }
+
+
+/*
+    if(this.players[0].points>=this.first_to_reach){
       max = this.players[0].points;
     }
 
@@ -170,8 +179,12 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
       this.players[0].tie_break = false;
       game_winner = this.players[0];
     }
+*/
 
     if(game_winner){
+
+      if(this.game_replay)
+        this.game_replay.finalizeGameReplay();
 
       Users.incrementBalanceForWinner(game_winner.playername, Math.floor(this.bet * this.cnt_players * 0.75) )
       Stats.updateFromMatchPlayed( Math.floor(this.bet * this.cnt_players * 0.25) );
@@ -260,8 +273,7 @@ Game.prototype.startNewRound = function(first_round){
         clearTimeout(this.reduction_timeout);
       }
 
-      var new_pos =  this.makeInitPositions(player);
-      new_pos.for = player.name;
+      var new_pos = this.makeInitPositions(player);
 
       new_round_positions.push(new_pos);
 
@@ -284,6 +296,10 @@ Game.prototype.startNewRound = function(first_round){
       }
 
       this.game_state.tm_quit_consideration = tm_round_start + 4000;
+
+      if(this.game_replay){
+        this.game_replay.initNewRound(new_round_positions, tm_round_start, this.game_state.tm_quit_consideration);
+      }
 
       console.log("NEW ROUND STARTED");
       console.log("tm_round_start: " + tm_round_start);
@@ -316,6 +332,8 @@ Game.prototype.makeInitPositions = function(player){
 
   var angle = random.integer(1,360);
 
+  var p_name = null;
+
   if(player){
     player.curpath.start.x = pos.x;
     player.curpath.start.y = pos.y;
@@ -324,11 +342,13 @@ Game.prototype.makeInitPositions = function(player){
     player.curpath.angle = angle;
     player.curpath.base_start_angle = angle;
     player.curpath.dir = "straight";
+    p_name = player.name;
   }
 
   return {
     pos: pos,
-    angle: angle
+    angle: angle,
+    for: p_name
   }
 
 }
@@ -338,6 +358,8 @@ Game.prototype.start = function(){
   Users.reduceBalances( this.getPlayersName(), -this.bet );
 
   this.game_state = new GameState();
+  this.game_replay = new GameReplay(this.getPlayersName());
+  this.game_state.game_replay_ref = this.game_replay;
 
   Player.prototype.io = io;
 

@@ -32,12 +32,11 @@
 
   module.exports = {
 
-    props: ["player_table", "first_to_reach", "may_color"],
+    props: ["player_table", "first_to_reach", "may_color", "max_players"],
 
     data: ()=>({
 
       cnt_killed: 0,
-      cnt_players: 6,
       round_ended: false,
       game_winner: null
 
@@ -77,7 +76,7 @@
 
           if(player_item.live){
             player_item.winner = true;
-            player_item.round_points = this.cnt_players-1;
+            player_item.round_points = this.max_players-1;
           }
 
         }
@@ -114,9 +113,9 @@
           var max = 0;
 
           if(this.player_table[0].points>=this.first_to_reach){
-            max = this.player_table[0].points;
+            this.game_winner = this.player_table[0].points;
           }
-
+          /*
           for(var i = 1; i<this.player_table.length; i++){
             if(this.player_table[i].points+1 >= max){
               this.player_table[i].tie_break = true;
@@ -133,6 +132,7 @@
             this.player_table[0].tie_break = false;
             this.game_winner = this.player_table[0];
           }
+          */
 
         })
       }
@@ -140,6 +140,7 @@
     },
 
     mounted: function(){
+
 
       this.$io.on("killed", (playername)=>{
 
@@ -156,7 +157,7 @@
 
         }
 
-        if(this.cnt_killed == this.cnt_players-1){
+        if(this.cnt_killed == this.max_players-1){
           this.endRound();
         }
 
