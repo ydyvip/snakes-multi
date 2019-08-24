@@ -376,6 +376,10 @@ Game.prototype.start = function(){
 
         var input = player_state_item.inputs.shift();
 
+        if(this.game_replay){
+          this.game_replay.processInput(input, player_state_item.name);
+        }
+
         if(input.type == "quit_consideration"){
           player_state_item.quitConsideation(this.game_state.tm_quit_consideration, true);
         }

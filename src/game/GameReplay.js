@@ -15,13 +15,6 @@
   input.tm_raw
 */
 
-/* TODOS
-  + GameReplay constructor with players names
-  + populate inputs
-  + finalize round
-    - save qc in inputs
-*/
-
 var GameReplayDB = require.main.require("./DB/gamereplays.db.js");
 
 function Round(new_round_positions, tm_round_start, tm_quit_consideration ){

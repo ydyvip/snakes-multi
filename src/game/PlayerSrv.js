@@ -78,10 +78,6 @@ Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
 
   }
 
-  if(this.game_state.game_replay_ref){
-    this.game_state.game_replay_ref.processInput(input, this.name);
-  }
-
 
   // reset collision if input was triggered earlier
   if(this.collision_tm != 0 && tm<this.collision_tm){
