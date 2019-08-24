@@ -4,7 +4,8 @@ if(process.argv[2] == "TEST_MODE"){
   console.log("running in test mode");
 }
 
-else{
+else if(process.argv[2] != "NO_CYPRESS"){
+  // NO_CYPRESS and TEST_MODE args passed so we are on hosting
   // handle problem on hosting with logs
   var fs = require('fs');
   var writeStream = fs.createWriteStream('./test.log', {
