@@ -20,12 +20,9 @@ Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
     tm += this.unprocessed_lag_vector;
   }
 
-
-
   var input = {
     dir: newdir,
-    tm: tm,
-    breakout: -1,
+    tm: tm
   }
 
 
@@ -75,19 +72,16 @@ Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
       this.reduction_queue = [];
     }, 1000);
 
+    input.tm_raw = input.tm;
     input.tm = tm_to; // new time,
     tm = tm_to;
 
   }
-  else{
-    if(this.name == "user6"){
-      console.log("");
-      console.log("LAG not reduced");
-      console.log("id: " + this.id_cnt_srv);
-      console.log("tm: " + tm);
-      console.log("");
-    }
+
+  if(this.game_state.game_replay_ref){
+    this.game_state.game_replay_ref.processInput(input, this.name);
   }
+
 
   // reset collision if input was triggered earlier
   if(this.collision_tm != 0 && tm<this.collision_tm){

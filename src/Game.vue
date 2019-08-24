@@ -20,7 +20,7 @@
   <canvas id="canvas" v-bind:style="{'border-color': may_color}" style="border: 1px solid; margin: 10px 5px;" width="800px" height="800px">
   </canvas>
 
-  <player-table v-bind:player_table="player_table" v-bind:first_to_reach="first_to_reach" v-bind:may_color="may_color" ref="pt"/>
+  <player-table v-bind:player_table="player_table" v-bind:first_to_reach="first_to_reach" v-bind:max_players="max_players" v-bind:may_color="may_color" ref="pt"/>
 
   </div>
 
@@ -417,6 +417,7 @@
 
       })
 
+      this.max_players = this.initialStates.length;
 
       this.initialStates.forEach( (initial_state_item)=> {
 
