@@ -15,6 +15,17 @@
   input.tm_raw
 */
 
+/*
+  How to recover game from game replay?
+   - create game instance
+   - emulate Keyboard from particular player
+   - projection of tm
+      jak wykonać projekcję tm?
+      zapisuj tm inputa jak tm_elapsed
+      jak wykonać pętlę emitującą inputy
+      czytaj tm i jeśli jest wiekszy on curtm to dodaj input do kolejki
+*/
+
 var GameReplayDB = require.main.require("./DB/gamereplays.db.js");
 
 function Round(new_round_positions, tm_round_start, tm_quit_consideration ){
@@ -50,6 +61,12 @@ GameReplay.prototype.initNewRound = function(new_round_positions, tm_round_start
 GameReplay.prototype.processInput = function(input, for_){
 
   input.for = for_;
+  if(input.type!="quit_consideration"){
+    input.tm = input.tm - this.cur_round.tm_round_start;
+    if(input.tm_raw){
+      input.tm_raw = input.tm_raw - this.cur_round.tm_round_start;
+    }
+  }
   this.cur_round.inputs.push(input);
 
 }

@@ -372,10 +372,6 @@ Game.prototype.start = function(){
 
         var input = player_state_item.inputs.shift();
 
-        if(this.game_replay){
-          this.game_replay.processInput(input, player_state_item.name);
-        }
-
         if(input.type == "quit_consideration"){
           player_state_item.quitConsideation(this.game_state.tm_quit_consideration, true);
         }
@@ -407,6 +403,9 @@ Game.prototype.start = function(){
 
           io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
 
+        }
+        if(this.game_replay){
+          this.game_replay.processInput(input, player_state_item.name);
         }
       }
 
