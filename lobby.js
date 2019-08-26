@@ -355,7 +355,6 @@ Game.prototype.start = function(){
 
   this.game_state = new GameState();
   this.game_replay = new GameReplay(this.getPlayersName());
-  this.game_state.game_replay_ref = this.game_replay;
 
   Player.prototype.io = io;
 
@@ -379,27 +378,8 @@ Game.prototype.start = function(){
           player_state_item.recomputeCurpath( input.tm );
           var state_of_curpath = player_state_item.getCurpath();
           var done_path = player_state_item.changeDir(input.dir, input.tm);
-          if(player_state_item.name=="user6"){
-            console.log("***");
-            console.log(done_path);
-            if(done_path.body.vertices){
-              console.log(done_path.body.vertices[0])
-              console.log(done_path.body.vertices[1])
-              console.log(done_path.body.vertices[2])
-              console.log(done_path.body.vertices[3])
-            }
-            if(done_path.body.line){
-              console.log(done_path.body.line[0]);
-              console.log(done_path.body.line[1]);
-            }
-            console.log("***")
-          }
-          if(!input.discard_save){
-            player_state_item.savePath(done_path, true);
-          }
-          if(input.discard_save){
-            done_path = null;
-          }
+
+          player_state_item.savePath(done_path, true);
 
           io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
 

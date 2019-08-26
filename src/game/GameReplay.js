@@ -21,7 +21,7 @@
    - emulate Keyboard from particular player
    - projection of tm
       jak wykonać projekcję tm?
-      zapisuj tm inputa jak tm_elapsed
+    +  zapisuj tm inputa jak tm_elapsed
       jak wykonać pętlę emitującą inputy
       czytaj tm i jeśli jest wiekszy on curtm to dodaj input do kolejki
 */

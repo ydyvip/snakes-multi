@@ -498,13 +498,10 @@
                 continue;
 
               }
-
-
               player_item.recomputeCurpath( input.tm );
               var done_path = player_item.changeDir(input.dir, input.tm);
-              if(!input.discard_save){
-                player_item.savePath(done_path, false, false);
-              }
+              player_item.savePath(done_path, false, false);
+
 
             }
           }
