@@ -54,19 +54,6 @@ GameReplay.prototype.processInput = function(input, for_){
 
 }
 
-GameReplay.prototype.finalizeRound = function() {
-
-  var r = this.cur_round;
-
-  // for(var i = 0; i<r.inputs.length; i++){
-  //   if(r.inputs[i].tm>r.tm_qc){
-  //     r.inputs.splice(i, 0, {
-  //       type: "quit_consideration"
-  //     })
-  //   }
-  // }
-}
-
 GameReplay.prototype.finalizeGameReplay = function(){
 
   GameReplayDB.insertOne({

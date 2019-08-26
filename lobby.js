@@ -121,10 +121,6 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
   }
   if(this.round_points == this.max_players-1){ // Only one stay alive - end of round condition
 
-    if(this.game_replay)
-      this.game_replay.finalizeRound();
-
-
     for( var player of this.players){
 
       if(player.live == true){
@@ -430,6 +426,7 @@ Game.prototype.start = function(){
 
     if(this.game_state.end_of_game){
       this.game_state = null;
+      this.game_replay = null;
       gameloop.clearGameLoop(this.gameloop_id);
       for(var player of this.players){
         player.socket.currentRoom = null;
