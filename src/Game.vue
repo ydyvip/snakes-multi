@@ -52,36 +52,14 @@
 
 
 
-  function setupAuthorativeServer(io, gamestate){
-
-    //TODO: Legacy path_id, patch when reneabling breakdowns
-    io.on("breakdown", (playername, done_path, path_id)=>{
-
-      for( let player_item of players){
-        if( player_item.name == playername){
-
-          player_item.changeDir(player_item.curpath.dir);
-          player_item.savePath(done_path, path_id);
-
-          player_item.breakout = true;
-
-          setTimeout( ()=>{
-            player_item.breakout = false;
-
-          }, 250 );
-
-        }
-      }
-
-    })
-
+  function setupAuthorativeServer(io, gamestate, gamereplay){
 
     io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
 
       for( let player_item of players){
         if( player_item.name == playername){
 
-          if(player_item.name!=player_me.name){
+          if(player_item.name!=player_me.name || gamereplay ){
 
             // handle input triggered before qc, when qc is already active
             if(gamestate.player_consideration == false && tm<gamestate.tm_quit_consideration){
@@ -100,14 +78,7 @@
 
           }
           else{
-
-            // TODO: reconciling to remove
-            player_item.inputs.push({
-              type: "reconciling",
-              dir: newdir,
-              tm: tm,
-              done_path: done_path
-            })
+            // Dirchanged for current player
          }
         }
       }
@@ -132,6 +103,7 @@
   };
 
   function setupKeyboard(io){
+
 
     var left = new Keyboard("ArrowLeft");
     var right = new Keyboard("ArrowRight");
@@ -320,14 +292,15 @@
 
       ctx = canvas.getContext("2d");
 
+
       setupKeyboard(this.$io);
-      setupAuthorativeServer(this.$io, this.game_state);
+      setupAuthorativeServer(this.$io, this.game_state, this.gamereplay);
 
 
       window.ctx = ctx;
 
 
-      this.$io.on("newround_countdown", (countdown_counter, initial_states)=>{
+      this.$io.on("newround_countdown", (countdown_counter)=>{
 
         this.countdown_counter = countdown_counter;
         this.countdown_active = true;
@@ -359,6 +332,8 @@
         // quit_consideration + 4sec
 
       this.$io.on("round_start", (tm_round_start)=>{
+
+        console.log("round start")
 
         for(var player of players){
           player.curpath.tm = tm_round_start;
@@ -482,9 +457,6 @@
               }
               return;
             }
-            else if(input.type == "reconciling"){
-              //player_item.savePath(input.done_path, false, true);
-            }
             else if(input.type == "input"){
 
               //handle case when input has tm greater than tm of qc
@@ -522,7 +494,7 @@
 
     },
 
-    props: ["initial-states", "loggedAs", "first_to_reach"],
+    props: ["initial-states", "loggedAs", "first_to_reach", "gamereplay" ],
 
     components: {
       PlayerTable

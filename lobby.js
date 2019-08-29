@@ -4,10 +4,12 @@ const gameloop = require('node-gameloop');
 var Player = require("./src/game/PlayerSrv.js");
 var GameState = require("./src/game/GameState.js");
 var GameReplay = require("./src/game/GameReplay.js")
+var GameReplayPlayer = require("./src/game/GameReplayPlayer.js")
 var random = require("random-js")();
 
 var Users = require("./DB/users.db.js")
 var Stats = require("./DB/stats.db.js")
+var GameReplayDB = require("./DB/stats.db.js")
 
 var stubber = require("./cypress/stubber.js");
 
@@ -16,7 +18,7 @@ var io = null;
 var games = [];
 var sample_game = null;
 
-function Game( player_creator, name, bet, max_players){
+function Game( player_creator, name, bet, max_players, replay_mode = false){
 
   this.max_players = max_players;
   this.cnt_players = 1;
@@ -24,6 +26,14 @@ function Game( player_creator, name, bet, max_players){
   this.name = name;
   this.bet = bet;
   this.round_points = 0;
+
+  this.game_replay = null; //GameReplay
+  this.game_replay_player = null; //GameReplayPlayer
+  this.replay_mode = replay_mode;
+  // if game is runned in replay_mode replay_id will be set
+  this.replay_id = null;
+  this.cur_round_ix = -1;
+
 
   this.first_to_reach = (max_players-1)*5;
 
@@ -115,7 +125,7 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
     if(player.playername == playername && player.live){
       player.points += this.round_points++;
       player.live = false;
-      player.socket.player_state.clearBreakout();
+      //player.socket.player_state.clearBreakout();
     }
 
   }
@@ -126,7 +136,7 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
       if(player.live == true){
         player.points += this.round_points;
         player.live = false;
-        player.socket.player_state.clearBreakout();
+        //player.socket.player_state.clearBreakout();
         player.inputs = [];
         this.round_points = 0;
       }
@@ -199,11 +209,13 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
 
 Game.prototype.startNewRound = function(first_round){
 
+  this.cur_round_ix++;
+
   var initial_states = [];
 
   if(first_round){
 
-    this.player_states = [];
+    this.player_states = []; //Player
 
     var colors = ["orange", "cyan", "blue", "red", "pink", "yellow"];
     random.shuffle(colors);
@@ -234,9 +246,10 @@ Game.prototype.startNewRound = function(first_round){
 
   } // first round
 
+  if(this.replay_mode)
+    this.game_replay_player.populateInputsForRound(this.player_states, this.replay_id, this.cur_round_ix);
+
   var new_round_awaiting = 2;
-
-
   io.to(this.name).emit("newround_countdown", new_round_awaiting);
 
   // (new_round_awaiting+2)*1000 -- 12 sec await
@@ -269,13 +282,22 @@ Game.prototype.startNewRound = function(first_round){
         clearTimeout(this.reduction_timeout);
       }
 
-      var new_pos = this.makeInitPositions(player);
-
-      new_round_positions.push(new_pos);
-
+      var p_arr = [];
+      var p = this.makeInitPositions(player)
+      .then((round_pos)=>{
+        new_round_positions.push(round_pos);
+      });
+      p_arr.push(p);
     }
+    Promise.all(p_arr)
+    .then(()=>{
+      io.to(this.name).emit("new_positions_generated", new_round_positions);
 
-    io.to(this.name).emit("new_positions_generated", new_round_positions);
+      console.log("npg");
+      console.log(new_round_positions);
+
+    })
+
     setTimeout(()=>{ // 3sec
 
       if(!this.game_state)
@@ -283,6 +305,10 @@ Game.prototype.startNewRound = function(first_round){
 
       var tm_round_start = Date.now();
       io.to(this.name).emit("round_start", tm_round_start);
+
+      if(this.replay_mode)
+        this.game_replay_player.setTmBase(tm_round_start);
+
       for(var player of this.player_states){
         player.curpath.tm = tm_round_start;
         this.game_state.player_consideration = true;
@@ -303,6 +329,10 @@ Game.prototype.startNewRound = function(first_round){
 
       setTimeout(()=>{ // 4sec
 
+        //prevent emitting qc because it is read from replay inputs
+        if(this.replay_mode)
+          return;
+
         for(var player of this.player_states){
           player.inputs.push({
            type: "quit_consideration"
@@ -321,40 +351,64 @@ Game.prototype.startNewRound = function(first_round){
 
 Game.prototype.makeInitPositions = function(player){
 
-  var pos = {
-    x: random.integer(100,700),
-    y: random.integer(100,700)
-  }
+  var pos = {};
+  var angle = 0;
+  var p_name = player.name;
 
-  var angle = random.integer(1,360);
+  return Promise.resolve(true)
+  .then(()=>{
 
-  var p_name = null;
+    if(!this.replay_mode){
+      pos = {
+        x: random.integer(100,700),
+        y: random.integer(100,700)
+      }
+      angle = random.integer(1,360);
+      var round_pos = {
+        pos: pos,
+        angle: angle,
+        for: p_name
+      };
+      return round_pos;
+    }
 
-  if(player){
-    player.curpath.start.x = pos.x;
-    player.curpath.start.y = pos.y;
-    player.curpath.end.x = pos.x;
-    player.curpath.end.y = pos.y;
-    player.curpath.angle = angle;
-    player.curpath.base_start_angle = angle;
-    player.curpath.dir = "straight";
-    p_name = player.name;
-  }
+  })
+  .then((round_pos)=>{
+    if(this.replay_mode){
+      return GameReplayDB.getNewRoundPositions(this.replay_id, this.cur_round_ix, player.name)
+    }
+    return round_pos;
+  })
+  .then((round_pos)=>{
 
-  return {
-    pos: pos,
-    angle: angle,
-    for: p_name
-  }
+    if(player){
+      player.curpath.start.x = pos.x;
+      player.curpath.start.y = pos.y;
+      player.curpath.end.x = pos.x;
+      player.curpath.end.y = pos.y;
+      player.curpath.angle = angle;
+      player.curpath.base_start_angle = angle;
+      player.curpath.dir = "straight";
+    }
 
+    return round_pos;
+
+  })
 }
 
 Game.prototype.start = function(){
 
-  Users.reduceBalances( this.getPlayersName(), -this.bet );
+  if(!this.replay_mode)
+    Users.reduceBalances( this.getPlayersName(), -this.bet );
 
   this.game_state = new GameState();
-  this.game_replay = new GameReplay(this.getPlayersName());
+
+  if(!this.replay_mode)
+    this.game_replay = new GameReplay(this.getPlayersName(), this.cnt_players, this.name, this.bet  );
+
+  if(this.replay_mode){
+    this.game_replay_player = new GameReplayPlayer();
+  }
 
   Player.prototype.io = io;
 
@@ -365,8 +419,12 @@ Game.prototype.start = function(){
 
     let tm = Date.now();
 
+    if(this.replay_mode)
+      this.game_replay_player.shiftInput(tm);
+
     this.player_states.forEach( (player_state_item)=>{
       //INPUT QUEUE
+
       while(player_state_item.inputs.length>0){
 
         var input = player_state_item.inputs.shift();
@@ -381,7 +439,7 @@ Game.prototype.start = function(){
 
           player_state_item.savePath(done_path, true);
 
-          io.to(this.name).emit("dirchanged", player_state_item.socket.playername, input.dir, input.tm, state_of_curpath, done_path  );
+          io.to(this.name).emit("dirchanged", player_state_item.name, input.dir, input.tm, state_of_curpath, done_path  );
 
         }
         if(this.game_replay){
@@ -406,8 +464,11 @@ Game.prototype.start = function(){
     if(this.game_state.end_of_game){
       this.game_state = null;
       this.game_replay = null;
+      this.game_replay_player = null;
       gameloop.clearGameLoop(this.gameloop_id);
       for(var player of this.players){
+        if(!player.socket) // replay
+          continue;
         player.socket.currentRoom = null;
         player.socket.leave(this.name);
       }
@@ -578,6 +639,10 @@ module.exports = function( io_, socket ){
 
     })
 
+    if(!new_game){
+      return;
+    }
+
     if(new_game.cnt_players==new_game.max_players){
 
       new_game.start();
@@ -665,6 +730,38 @@ module.exports = function( io_, socket ){
     socket.leave(socket.currentRoom);
     socket.currentRoom = null;
 
+  })
+
+  socket.on("playreplay", (replay_id, fn)=>{
+
+    GameReplayDB.getReplayMeta(replay_id)
+    .then((replay_meta)=>{
+
+      var p = {
+        playername: playername,
+        socket: socket,
+        points: 0,
+        live: true
+      };
+
+      socket.currentRoom = "replay";
+      socket.playername = replay_meta.players[0];
+
+      var game_replay = new Game( p, socket.id, replay_meta.bet, replay_meta.cnt_players, true);
+      game_replay.replay_id = replay_id;
+
+      for(var i = i; i<replay_meta.cnt_players; i++){
+        game_replay.players.push({
+          playername: replay_meta[i],
+          socket: null,
+          points: 0,
+          live: true
+        });
+      }
+      fn(replay_meta.players[0]);
+      game_replay.start();
+
+    })
   })
 
 }

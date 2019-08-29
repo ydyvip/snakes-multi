@@ -11,6 +11,10 @@
       </component>
     </template>
 
+    <game-replay v-if="!loggedAs">
+
+    </game-replay>
+
   </div>
 
 </template>
@@ -22,6 +26,7 @@
   var Game = require("./Game.vue");
   var GameList = require("./GameList.vue");
   var FaucetList = require("./FaucetList.vue");
+  var GameReplay = require("./GameReplay.vue");
 
   module.exports = {
     name: 'app',
@@ -75,7 +80,7 @@
       }
     },
     components: {
-      FormSwitcher, UserPanel, Game, GameList, FaucetList
+      FormSwitcher, UserPanel, Game, GameList, FaucetList, GameReplay
     }
   }
 </script>

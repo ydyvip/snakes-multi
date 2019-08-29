@@ -9,6 +9,10 @@ Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
   if(this.killed==true)
     return;
 
+  if(newdir=="quit_consideration"){
+    this.inputs.push({type:"quit_consideration"});
+    return;
+  }
 
   this.id_cnt_srv++;
 
@@ -36,7 +40,6 @@ Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
   var lag = tm_now - tm;
   var tm_to;
   if(lag>lag_tolerance){
-
 
     tm_to = tm_now-lag_tolerance;
     this.unprocessed_lag_vector += parseInt(tm_to-input.tm);

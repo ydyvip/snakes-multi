@@ -45,6 +45,7 @@ io.on("connection", function(socket){
 var login = require("./API/login.api.js");
 var register = require("./API/register.api.js");
 var faucet = require("./API/faucet.api.js");
+var gamereplays = require("./API/gamereplays.api.js");
 
 var db = require("./db.js");
 db.promise.then( function(){
@@ -74,3 +75,4 @@ app.use(passport.session());
 app.use("/login", login);
 app.use("/register", register);
 app.use("/faucet", faucet);
+app.use("/gamereplays", gamereplays);

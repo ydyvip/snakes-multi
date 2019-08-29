@@ -37,15 +37,20 @@ function Round(new_round_positions, tm_round_start, tm_quit_consideration ){
 
 }
 
-function GameReplay(player_names){
+function GameReplay(player_names, cnt_players, name, bet){
 
   this.players = player_names;
+  this.cnt_players = cnt_players;
+  this.name = name;
+  this.bet = bet;
 
   this.cnt_rounds = 0;
   this.rounds = [];
   this.cur_round = null;
 
 }
+
+// Recording methods
 
 GameReplay.prototype.initNewRound = function(new_round_positions, tm_round_start, tm_quit_consideration ){
 
@@ -76,9 +81,13 @@ GameReplay.prototype.finalizeGameReplay = function(){
   GameReplayDB.insertOne({
     players: this.players,
     cnt_rounds: this.cnt_rounds,
+    cnt_players: this.cnt_players,
+    name: this.name,
+    bet: this.bet,
     rounds: this.rounds
   })
 
 }
+
 
 module.exports = GameReplay;
