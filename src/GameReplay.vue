@@ -1,9 +1,18 @@
 <template>
 
   <div>
-    <ul v-if="!replayActive">
-      <li v-for="replay_id of replaylist"><a href="" v-on:click="playReplay(replay_id)"> {{replay_id}}</a></li>
-    </ul>
+
+    <table v-if="!replayActive">
+      <tr>
+        <th>Name</th><th>Winner</th><th>Reward</th><th></th>
+      </tr>
+      <tr v-for="replay_item of replaylist">
+        <td>{{replay_item.name}}</td>
+        <td>{{replay_item.winner}}</td>
+        <td>{{replay_item.reward}}</td>
+        <td><button v-on:click="playReplay(replay_item._id)">PLAY</button></td>
+      </tr>
+    </table>
 
     <game v-if="replayActive" v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:loggedAs="loggedAs" v-bind:gamereplay="true"></game>
 

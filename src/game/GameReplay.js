@@ -15,16 +15,6 @@
   input.tm_raw
 */
 
-/*
-  How to recover game from game replay?
-   - create game instance
-   - emulate Keyboard from particular player
-   - projection of tm
-      jak wykonać projekcję tm?
-    +  zapisuj tm inputa jak tm_elapsed
-      jak wykonać pętlę emitującą inputy
-      czytaj tm i jeśli jest wiekszy on curtm to dodaj input do kolejki
-*/
 
 var GameReplayDB = require.main.require("./DB/gamereplays.db.js");
 

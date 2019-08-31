@@ -20,11 +20,12 @@ gamereplays.getList = function(){
 
   var replaylist = [];
 
-  return this.coll.find({}, {_id: 1}).toArray()
+  return this.coll.find({}, {_id: 1, name: 1, winner: 1, reward: 1}).toArray()
   .then((res_replaylist)=>{
 
     for(var replay_item of res_replaylist){
-      replaylist.push(replay_item._id.toHexString());
+      replay_item._id = replay_item._id.toHexString()
+      replaylist.push(replay_item);
     }
     console.log(replaylist);
     return replaylist;
@@ -50,7 +51,7 @@ gamereplays.getReplayMeta = function(replay_id){
 
 gamereplays.getNewRoundPositions = function(replay_id, round_ix, player_name){
 
-  return findOne({ _id: ObjectId(replay_id)}, {rounds: { $slice: [round_ix, 1]}, "rounds.new_round_positions": 1})
+  return this.coll.findOne({ _id: ObjectId(replay_id)}, {rounds: { $slice: [round_ix, 1]}, "rounds.new_round_positions": 1})
   .then((res)=>{
     for(var round_pos of res.rounds[0].new_round_positions){
       if(round_pos.for == player_name){
@@ -62,9 +63,9 @@ gamereplays.getNewRoundPositions = function(replay_id, round_ix, player_name){
 
 gamereplays.getInputsForRound = function(replay_id, round_ix){
 
-  return findOne({ _id: ObjectId(replay_id)}, {rounds: {$slice:[round_ix,1]}, "rounds.inputs": 1} )
+  return this.coll.findOne({ _id: ObjectId(replay_id)}, {rounds: {$slice:[round_ix,1]}, "rounds.inputs": 1} )
   .then((res)=>{
-    return res.rounds.inputs;
+    return res.rounds[0].inputs;
   })
 
 }

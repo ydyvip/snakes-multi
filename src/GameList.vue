@@ -18,7 +18,6 @@
     </transition>
 
     <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
-
       <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.svg" /><img v-for="n in game.max_players-game.cnt_players" src="img/circle-24-off.svg" />
       <span class="game-name">{{game.name}}</span>
       <span class="bet">{{game.bet}} Satoshi</span>

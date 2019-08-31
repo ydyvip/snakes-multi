@@ -9,7 +9,7 @@ var random = require("random-js")();
 
 var Users = require("./DB/users.db.js")
 var Stats = require("./DB/stats.db.js")
-var GameReplayDB = require("./DB/gamereplaydb.db.js")
+var GameReplayDB = require("./DB/gamereplays.db.js")
 
 var stubber = require("./cypress/stubber.js");
 
@@ -35,7 +35,8 @@ function Game( player_creator, name, bet, max_players, replay_mode = false){
   this.cur_round_ix = -1;
 
 
-  this.first_to_reach = (max_players-1)*5;
+  //this.first_to_reach = (max_players-1)*5;
+  this.first_to_reach = 2;
 
   this.players.push(player_creator);
 
@@ -244,9 +245,12 @@ Game.prototype.startNewRound = function(first_round){
 
     }
 
+    console.log(initial_states);
+
     io.to(this.name).emit("gamestart", initial_states, this.first_to_reach, this.bet);
 
   } // first round
+
 
   if(this.replay_mode)
     this.game_replay_player.populateInputsForRound(this.player_states, this.replay_id, this.cur_round_ix);
@@ -294,10 +298,6 @@ Game.prototype.startNewRound = function(first_round){
     Promise.all(p_arr)
     .then(()=>{
       io.to(this.name).emit("new_positions_generated", new_round_positions);
-
-      console.log("npg");
-      console.log(new_round_positions);
-
     })
 
     setTimeout(()=>{ // 3sec
@@ -469,7 +469,7 @@ Game.prototype.start = function(){
       this.game_replay_player = null;
       gameloop.clearGameLoop(this.gameloop_id);
       for(var player of this.players){
-        if(!player.socket) // replay
+        if(!player.socket.id) // replay
           continue;
         player.socket.currentRoom = null;
         player.socket.leave(this.name);
@@ -739,8 +739,15 @@ module.exports = function( io_, socket ){
     GameReplayDB.getReplayMeta(replay_id)
     .then((replay_meta)=>{
 
+      if(!replay_meta){
+        return;
+      }
+
+      console.log("REPLAY_META");
+      console.log(replay_meta);
+
       var p = {
-        playername: playername,
+        playername: replay_meta.players[0],
         socket: socket,
         points: 0,
         live: true
@@ -752,10 +759,10 @@ module.exports = function( io_, socket ){
       var game_replay = new Game( p, socket.id, replay_meta.bet, replay_meta.cnt_players, true);
       game_replay.replay_id = replay_id;
 
-      for(var i = i; i<replay_meta.cnt_players; i++){
+      for(var i = 1; i<replay_meta.cnt_players; i++){
         game_replay.players.push({
-          playername: replay_meta[i],
-          socket: null,
+          playername: replay_meta.players[i],
+          socket: {},
           points: 0,
           live: true
         });
@@ -765,5 +772,4 @@ module.exports = function( io_, socket ){
 
     })
   })
-
 }

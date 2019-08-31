@@ -68,6 +68,11 @@
 
             }
             else {
+
+              console.log(newdir)
+              console.log(tm);
+              console.log(tm - player_item.game_state.tm_round_start);
+
               player_item.inputs.push({
                 type: "input",
                 dir: newdir,
@@ -346,6 +351,7 @@
         var tm_quit_consideration = tm_round_start + 4000;
 
         this.game_state.tm_quit_consideration = tm_quit_consideration;
+        this.game_state.tm_round_start = tm_round_start;
 
         setTimeout(()=>{
 
