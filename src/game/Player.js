@@ -15,6 +15,10 @@ function getRad(degree){
 
 var Player = function(initial_state){
 
+  console.log("PLAYER");
+
+  console.log(initial_state);
+
   this.name = initial_state.player_name;
   this.speed = 0;
   this.default_speed = 50;

@@ -60,8 +60,7 @@ Game.prototype.getPlayersName = function(){
 
 Game.prototype.collisionDetected = function(player_state, collision_tm, type, participant){
 
-  if(player_state.name=="user6")
-    console.log("collision detected: " + collision_tm);
+  console.log("collision detected: " + collision_tm);
 
   player_state.collision_tm = collision_tm;
 
@@ -192,11 +191,13 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
 
       var reward = Math.floor(this.bet * this.cnt_players * 0.75);
 
-      if(this.game_replay)
+      if(!this.replay_mode)
         this.game_replay.finalizeGameReplay( game_winner.playername, reward);
 
-      Users.incrementBalanceForWinner(game_winner.playername, reward )
-      Stats.updateFromMatchPlayed( Math.floor(this.bet * this.cnt_players * 0.25) );
+      if(!this.replay_mode){
+        Users.incrementBalanceForWinner(game_winner.playername, reward )
+        Stats.updateFromMatchPlayed( Math.floor(this.bet * this.cnt_players * 0.25) );
+      }
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
       this.detachMyselfFromList();
@@ -384,12 +385,12 @@ Game.prototype.makeInitPositions = function(player){
   .then((round_pos)=>{
 
     if(player){
-      player.curpath.start.x = pos.x;
-      player.curpath.start.y = pos.y;
-      player.curpath.end.x = pos.x;
-      player.curpath.end.y = pos.y;
-      player.curpath.angle = angle;
-      player.curpath.base_start_angle = angle;
+      player.curpath.start.x = round_pos.pos.x;
+      player.curpath.start.y = round_pos.pos.y;
+      player.curpath.end.x = round_pos.pos.x;
+      player.curpath.end.y = round_pos.pos.y;
+      player.curpath.angle = round_pos.angle;
+      player.curpath.base_start_angle = round_pos.angle;
       player.curpath.dir = "straight";
     }
 

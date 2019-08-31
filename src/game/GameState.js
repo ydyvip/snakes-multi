@@ -30,6 +30,10 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
       // test for boundaries
 
+      if(player.name == "userrr"){
+        //console.log([player.curpath.end.x, player.curpath.end.y])
+      }
+
       var c = (
         lineCircleCollision([0,0], [0,800], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
         lineCircleCollision([0,800], [800,800], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
