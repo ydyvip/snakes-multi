@@ -9,7 +9,7 @@ var random = require("random-js")();
 
 var Users = require("./DB/users.db.js")
 var Stats = require("./DB/stats.db.js")
-var GameReplayDB = require("./DB/stats.db.js")
+var GameReplayDB = require("./DB/gamereplaydb.db.js")
 
 var stubber = require("./cypress/stubber.js");
 
@@ -189,10 +189,12 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
 
     if(game_winner){
 
-      if(this.game_replay)
-        this.game_replay.finalizeGameReplay();
+      var reward = Math.floor(this.bet * this.cnt_players * 0.75);
 
-      Users.incrementBalanceForWinner(game_winner.playername, Math.floor(this.bet * this.cnt_players * 0.75) )
+      if(this.game_replay)
+        this.game_replay.finalizeGameReplay( game_winner.playername, reward);
+
+      Users.incrementBalanceForWinner(game_winner.playername, reward )
       Stats.updateFromMatchPlayed( Math.floor(this.bet * this.cnt_players * 0.25) );
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));

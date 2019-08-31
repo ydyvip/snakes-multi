@@ -76,7 +76,7 @@ GameReplay.prototype.processInput = function(input, for_){
 
 }
 
-GameReplay.prototype.finalizeGameReplay = function(){
+GameReplay.prototype.finalizeGameReplay = function(winner, reward){
 
   GameReplayDB.insertOne({
     players: this.players,
@@ -84,6 +84,8 @@ GameReplay.prototype.finalizeGameReplay = function(){
     cnt_players: this.cnt_players,
     name: this.name,
     bet: this.bet,
+    winner: winner,
+    reward: reward,
     rounds: this.rounds
   })
 
