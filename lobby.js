@@ -34,9 +34,7 @@ function Game( player_creator, name, bet, max_players, replay_mode = false){
   this.replay_id = null;
   this.cur_round_ix = -1;
 
-
-  //this.first_to_reach = (max_players-1)*5;
-  this.first_to_reach = 2;
+  this.first_to_reach = (max_players-1)*5;
 
   this.players.push(player_creator);
 

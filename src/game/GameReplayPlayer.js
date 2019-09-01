@@ -53,8 +53,6 @@ GameReplayPlayer.prototype.shiftInput = function(tm_cur){
 
     for(var i = 0; i<this.player_states.length; i++){
       if(this.player_states[i].name == input.for){
-        console.log("...");
-        console.log(input);
         if(input.type == "quit_consideration"){
           this.player_states[i].changeDirSrv("quit_consideration");
         }
