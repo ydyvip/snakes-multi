@@ -393,7 +393,9 @@
         this.winner = winner;
         this.satoshi_reward = reward;
 
-        player_me.speed = 0;
+        for(var player of players){
+          player.speed = 0;
+        }
 
         if(winner == player_me.name){
           this.$bus.$emit("balance_update", reward)
