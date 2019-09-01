@@ -137,12 +137,14 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
         player.points += this.round_points;
         player.live = false;
         //player.socket.player_state.clearBreakout();
-        player.inputs = [];
         this.round_points = 0;
       }
 
     }
 
+    for(var player of this.player_states){
+      player.speed = 0;
+    }
 
     // sort players
 
@@ -246,8 +248,6 @@ Game.prototype.startNewRound = function(first_round){
 
     }
 
-    console.log(initial_states);
-
     io.to(this.name).emit("gamestart", initial_states, this.first_to_reach, this.bet);
 
   } // first round
@@ -264,8 +264,6 @@ Game.prototype.startNewRound = function(first_round){
   // quit_consideration emmitted after 19 sec (12+3+4)
 
   setTimeout( ()=> { // 12sec
-
-    var new_round_positions = [];
 
     this.round_points = 0;
 
@@ -289,7 +287,8 @@ Game.prototype.startNewRound = function(first_round){
         clearTimeout(this.reduction_timeout);
       }
 
-      var p_arr = [];
+      var new_round_positions = [];
+      var p_arr = []; // promises array for Promise.all
       var p = this.makeInitPositions(player)
       .then((round_pos)=>{
         new_round_positions.push(round_pos);
@@ -300,53 +299,53 @@ Game.prototype.startNewRound = function(first_round){
     .then(()=>{
       io.to(this.name).emit("new_positions_generated", new_round_positions);
     })
+    .then(()=>{
+      setTimeout(()=>{ // 3sec
 
-    setTimeout(()=>{ // 3sec
-
-      if(!this.game_state)
-        return;
-
-      var tm_round_start = Date.now();
-      io.to(this.name).emit("round_start", tm_round_start);
-
-      if(this.replay_mode)
-        this.game_replay_player.setTmBase(tm_round_start);
-
-      for(var player of this.player_states){
-        player.curpath.tm = tm_round_start;
-        this.game_state.player_consideration = true;
-        player.speed = player.default_speed;
-        player.killed = false;
-        player.breakout = true;
-      }
-
-      this.game_state.tm_quit_consideration = tm_round_start + 4000;
-
-      if(this.game_replay){
-        this.game_replay.initNewRound(new_round_positions, tm_round_start, this.game_state.tm_quit_consideration);
-      }
-
-      console.log("NEW ROUND STARTED");
-      console.log("tm_round_start: " + tm_round_start);
-      console.log("tm_quit_consideration: " + parseInt(tm_round_start + 4000));
-
-      setTimeout(()=>{ // 4sec
-
-        //prevent emitting qc because it is read from replay inputs
-        if(this.replay_mode)
+        if(!this.game_state)
           return;
 
+        var tm_round_start = Date.now();
+        io.to(this.name).emit("round_start", tm_round_start);
+
+        if(this.replay_mode)
+          this.game_replay_player.setTmBase(tm_round_start);
+
         for(var player of this.player_states){
-          player.inputs.push({
-           type: "quit_consideration"
-          })
-          // player.setupBreakout();
+          player.curpath.tm = tm_round_start;
+          this.game_state.player_consideration = true;
+          player.speed = player.default_speed;
+          player.killed = false;
+          player.breakout = true;
         }
 
-      }, 4000);
+        this.game_state.tm_quit_consideration = tm_round_start + 4000;
 
-    }, 3000);
+        if(this.game_replay){
+          this.game_replay.initNewRound(new_round_positions, tm_round_start, this.game_state.tm_quit_consideration);
+        }
 
+        console.log("NEW ROUND STARTED");
+        console.log("tm_round_start: " + tm_round_start);
+        console.log("tm_quit_consideration: " + parseInt(tm_round_start + 4000));
+
+        setTimeout(()=>{ // 4sec
+
+          //prevent emitting qc because it is read from replay inputs
+          if(this.replay_mode)
+            return;
+
+          for(var player of this.player_states){
+            player.inputs.push({
+             type: "quit_consideration"
+            })
+            // player.setupBreakout();
+          }
+
+        }, 4000);
+
+      }, 3000);
+    })
   }, (new_round_awaiting+2)*1000 );
 
 }

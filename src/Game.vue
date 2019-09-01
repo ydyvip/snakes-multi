@@ -309,6 +309,9 @@
 
         this.countdown_counter = countdown_counter;
         this.countdown_active = true;
+        for(var player of players){
+          player.speed = 0;
+        }
 
       })
 
@@ -458,9 +461,6 @@
               player_item.speed = 0;
               player_item.collision_tm = 0;
               player_item.id_cnt = 0;
-              if(player_item.name=="user6"){
-                console.log("killed from server");
-              }
               return;
             }
             else if(input.type == "input"){
