@@ -2,7 +2,7 @@
 
   <div>
 
-    <form-switcher  v-if="!loggedAs" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
+    <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
     <template v-if="loggedAs">
       <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" v-on:go_to_faucetlist="gotoFaucetlist" />
@@ -11,9 +11,7 @@
       </component>
     </template>
 
-    <game-replay v-if="!loggedAs">
-
-    </game-replay>
+    <game-replay v-if="!loggedAs" v-on:play_replay="playReplay" ></game-replay>
 
   </div>
 
@@ -35,7 +33,8 @@
       balance: null,
       CompSwitcher: GameList, // Game ; GameList ; FaucetList
       initial_states: null,
-      first_to_reach: null
+      first_to_reach: null,
+      replayActive: false
     }),
     mounted:  function(){
 
@@ -76,6 +75,14 @@
         }
         else{ // back to GameList
           this.CompSwitcher = GameList;
+        }
+      },
+      playReplay: function(play){
+        if(play){
+          this.replayActive = true;
+        }
+        else{
+          this.replayActive = false;
         }
       }
     },

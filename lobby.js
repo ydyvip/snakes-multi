@@ -741,9 +741,6 @@ module.exports = function( io_, socket ){
         return;
       }
 
-      console.log("REPLAY_META");
-      console.log(replay_meta);
-
       var p = {
         playername: replay_meta.players[0],
         socket: socket,

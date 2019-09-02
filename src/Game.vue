@@ -14,7 +14,8 @@
       <span style="color: white;">
         wins {{satoshi_reward}} satoshi
       </span><br/>
-      <button v-on:click="eog" class="btn-back">Return to game list</button>
+      <button v-if="!gamereplay" v-on:click="eog" class="btn-back">Return to game list</button>
+      <button v-else v-on:click="eog" class="btn-back">Return to replay list</button>
     </div>
   </transition>
   <canvas id="canvas" v-bind:style="{'border-color': may_color}" style="border: 1px solid; margin: 10px 5px;" width="800px" height="800px">
@@ -68,10 +69,6 @@
 
             }
             else {
-
-              console.log(newdir)
-              console.log(tm);
-              console.log(tm - player_item.game_state.tm_round_start);
 
               player_item.inputs.push({
                 type: "input",
@@ -396,13 +393,6 @@
         for(var player of players){
           player.speed = 0;
         }
-
-        this.$io.removeAllListeners("end_of_game");
-        this.$io.removeAllListeners("killed");
-        this.$io.removeAllListeners("round_start");
-        this.$io.removeAllListeners("new_positions_generated");
-        this.$io.removeAllListeners("newround_countdown");
-        this.$io.removeAllListeners("reduction");
 
         if(winner == player_me.name){
           this.$bus.$emit("balance_update", reward)

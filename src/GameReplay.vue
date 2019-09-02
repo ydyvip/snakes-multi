@@ -14,7 +14,7 @@
       </tr>
     </table>
 
-    <game v-if="replayActive" v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:loggedAs="loggedAs" v-bind:gamereplay="true"></game>
+    <game v-if="replayActive" v-on:eog="endOfReplay" v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:loggedAs="loggedAs" v-bind:gamereplay="true"></game>
 
   </div>
 
@@ -45,7 +45,15 @@
             this.loggedAs = loggedAs;
           } );
 
+        },
+
+        endOfReplay: function(){
+
+          this.replayActive = false;
+          this.$emit("play_replay", false);
+
         }
+
     },
 
     mounted: function(){
@@ -62,8 +70,10 @@
         this.initial_states = initial_states;
         this.first_to_reach = first_to_reach;
         this.replayActive = true;
+        this.$emit("play_replay", true);
 
       })
+
 
     }
 
