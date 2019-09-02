@@ -473,7 +473,8 @@ Game.prototype.start = function(){
         if(!player.socket.id) // replay
           continue;
         player.socket.currentRoom = null;
-        player.socket.leave(this.name);
+        if(!this.replay_mode)
+          player.socket.leave(this.name);
       }
     }
 
