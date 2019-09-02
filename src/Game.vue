@@ -397,11 +397,19 @@
           player.speed = 0;
         }
 
+        this.$io.removeAllListeners("end_of_game");
+        this.$io.removeAllListeners("killed");
+        this.$io.removeAllListeners("round_start");
+        this.$io.removeAllListeners("new_positions_generated");
+        this.$io.removeAllListeners("newround_countdown");
+        this.$io.removeAllListeners("reduction");
+
         if(winner == player_me.name){
           this.$bus.$emit("balance_update", reward)
         }
 
       })
+
 
       this.max_players = this.initialStates.length;
 
