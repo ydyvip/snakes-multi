@@ -200,7 +200,10 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
       }
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
-      this.detachMyselfFromList();
+
+      if(!this.replay_mode)
+        this.detachMyselfFromList();
+
       this.game_state.end_of_game = true;
 
     }
