@@ -86,6 +86,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 
     // collision detected but player can move in last time, we should wait for input beacuse of lag
     // dead reckoning phase may be wrong, we will wait some time for new input
+    // TODO: some time must be assigned to lag_tolerance: ie 250 specified directly below
 
     if(player_state.collision_tm != 0){
       player_state.collision_timeout = null;
@@ -278,15 +279,13 @@ Game.prototype.startNewRound = function(first_round){
 
       player.speed = 0;
       player.paths = [];
+      player.inputs_history = [];
       player.curpath.dir = "straight";
       player.collision_tm = 0;
       player.id_cnt = 0;
       player.id_cnt_srv = 0;
       player.curpath.id = 0;
       player.curpath.after_qc = false;
-      if(this.reduction_timeout){
-        clearTimeout(this.reduction_timeout);
-      }
 
       var new_round_positions = [];
       var p_arr = []; // promises array for Promise.all
@@ -569,27 +568,24 @@ module.exports = function( io_, socket ){
 
   io = io_;
 
-  socket.on("left", function(tm, processed_lag_vector){
-
-    //setTimeout( ()=>{
-      socket.player_state.changeDirSrv("left", tm, processed_lag_vector);
-    //}, 400)
-
-  })
-
-  socket.on("right", function(tm, processed_lag_vector){
-
-    //setTimeout( ()=>{
-      socket.player_state.changeDirSrv("right", tm, processed_lag_vector);
-  //  }, 400)
+  socket.on("left", function(tm, reduction_sync_complete){
+    setTimeout( ()=>{
+      socket.player_state.changeDirSrv("left", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
+    }, 500)
 
   })
 
-  socket.on("straight", function(tm, processed_lag_vector){
+  socket.on("right", function(tm, reduction_sync_complete){
+    setTimeout( ()=>{
+      socket.player_state.changeDirSrv("right", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
+   }, 500)
 
-  //  setTimeout( ()=>{
-      socket.player_state.changeDirSrv("straight", tm, processed_lag_vector);
-  //  }, 400)
+  })
+
+  socket.on("straight", function(tm, reduction_sync_complete){
+   setTimeout( ()=>{
+      socket.player_state.changeDirSrv("straight", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
+   }, 500)
 
   })
 

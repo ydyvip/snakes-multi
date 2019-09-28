@@ -37,8 +37,6 @@ var Player = function(initial_state){
   this.id_cnt = 0;
   this.id_cnt_srv = 0;
   this.id_path_before_qc = null;
-  this.processed_lag_vector = 0;
-  this.unprocessed_lag_vector = 0; //srv
   this.curpath = {
     id: 0,
     after_qc: false,
@@ -61,13 +59,11 @@ var Player = function(initial_state){
 
   };
 
-  this.reduction_queue = [];
-  this.reduction_timeout = null;
-
   this.color = initial_state.color;
 
   this.collisions = [];
   this.inputs = [];
+  this.inputs_history = [];
 
 }
 
@@ -79,7 +75,8 @@ Player.prototype.draw = function(self){
   if(this.restart){
     this.speed = 0;
     this.paths = [];
-    this.curpath.dir = null;
+    this.inputs = [];
+    this.inputs_history = [];
     this.restart = false;
   }
 
@@ -204,7 +201,7 @@ Player.prototype.splicePath = function(path_state_new, index){
   this.paths.splice(index, 0, path);
 }
 
-Player.prototype.savePath = function(path_state, server_side, reconciled_path) {
+Player.prototype.savePath = function(path_state, server_side, path_collection) {
 
   // path_state is path with body
 
@@ -222,22 +219,8 @@ Player.prototype.savePath = function(path_state, server_side, reconciled_path) {
   path.body = path_state.body;
 
   // Path is reconciled for self
-  if(reconciled_path){
-
-    var saved = false;
-
-    for(var i = this.paths.length-1; i>=0; i--){
-      if(this.paths[i].body.tm == path_state.body.tm){
-        console.log("path reconciled");
-        saved = true;
-        this.paths[i] = path;
-      }
-    }
-    // if(!saved){
-    //   console.log("path not reconciled");
-    //   this.paths.push(path);
-    // }
-
+  if(path_collection && Array.isArray(path_collection)){
+    path_collection.push(path);
   }
   else {
     this.paths.push(path);
@@ -343,10 +326,10 @@ Player.prototype.setInitPositionForCurpath = function(new_dir, tm, working_curpa
   working_curpath.tm = tm;
 
   if(tm>=this.game_state.tm_quit_consideration){
-    working_curpath.after_qc = true
+    working_curpath.after_qc = true;
   }
   else{
-    working_curpath.after_qc = false
+    working_curpath.after_qc = false;
   }
 
   if(new_dir == "straight"){
@@ -392,20 +375,33 @@ Player.prototype.setInitPositionForCurpath = function(new_dir, tm, working_curpa
 
 }
 
-Player.prototype.changeDir = function(new_dir, tm){
+Player.prototype.changeDir = function(new_dir, tm, id){
 
   // All paths are saved in paths history (also these before qc)
   var path = this.getPathBodyFromCurpath(this.curpath);
 
-  if(tm=="qc"){
-    this.curpath.id = "qc";
-    tm = this.game_state.tm_quit_consideration;
-  }
-  else{
-    this.id_cnt++;
+  if(!id){ //changeDir from called from processInput/changeDirSrv
+    this.id_cnt++; //changeDir first invoked before 2th curpath
     this.curpath.id = this.id_cnt;
+    id = this.curpath.id;
   }
+  if(id=="qc")
+    this.curpath.id = "qc";
+
+  let type = id=="qc" ? "qc" : "input";
+
+  console.log("NEW_DIR: " + new_dir);
+  console.log("TM: " + tm);
+
+  this.saveInputInHistory({
+        type: type,
+        dir: new_dir,
+        tm: tm,
+        id: id
+    });
+
   this.setInitPositionForCurpath(new_dir, tm );
+
   return path;
 }
 
@@ -464,15 +460,22 @@ Player.prototype.goRight = function(delta, curpath){
 
 }
 
-Player.prototype.setupPos = function(pos){
+Player.prototype.setupPos = function(pos, curpath){
 
-  this.curpath.start.x = pos.pos.x;
-  this.curpath.start.y = pos.pos.y;
-  this.curpath.end.x = pos.pos.x;
-  this.curpath.end.y = pos.pos.y;
-  this.curpath.angle = pos.angle;
-  this.curpath.base_start_angle = pos.angle;
-  this.curpath.dir = "straight";
+  if(!curpath)
+    curpath = this.curpath;
+
+  curpath.start.x = pos.pos.x;
+  curpath.start.y = pos.pos.y;
+  curpath.end.x = pos.pos.x;
+  curpath.end.y = pos.pos.y;
+  curpath.angle = pos.angle;
+  curpath.base_start_angle = pos.angle;
+  curpath.dir = "straight";
+  curpath.id = 0;
+  if(pos.tm){
+    curpath.tm = pos.tm;
+  }
 }
 
 Player.prototype.recomputeCurpath = function(tm_to_timestep, curpath){
@@ -658,10 +661,8 @@ Player.prototype.quitConsideation = function(tm, server){
   this.id_path_before_qc = this.curpath.id;
   this.path_before_qc = this.getCurpath();
 
-  tm = "qc";
-
-  var path = this.changeDir(this.curpath.dir, tm);
-  this.savePath(path, server, false);
+  var path = this.changeDir(this.curpath.dir, tm, "qc");
+  this.savePath(path, server);
 
   this.breakout = false;
 
@@ -748,6 +749,156 @@ Player.prototype.extendPath = function(ix, to, vector){
 
   return curpath_for_extension;
 
+}
+
+Player.prototype.logArr = function(arr, msg){
+
+  if(this.name!="kuba1"){
+    return;
+  }
+
+  console.log(" vvvvvvvvvvvvvvvvvvvv BEGIN " + msg + " vvvvvvvvvvvvvvvvvvvv ");
+  for( let item of arr)
+  {
+    console.log(item);
+  }
+  console.log(" ^^^^^^^^^^^^^^^^^^^ END " + msg + " ^^^^^^^^^^^^^^^^^^^");
+
+}
+
+Player.prototype.reduction2 = function(id, tm_to){
+
+  this.clearInputHistoryAfter( id, tm_to);
+  this.rebuildPaths();
+
+  this.reduction_sync_complete = true;
+
+}
+
+Player.prototype.clearInputHistoryAfter = function( id, tm_to){
+
+  var idx = -1;
+  var reinsertQc = false;
+  var dirBeforeQc = null;
+
+  for(var i = 0; i<this.inputs_history.length; i++){
+    if(this.inputs_history[i].id == id)
+      idx = i;
+      dirBeforeQc = this.inputs_history[i].dir;
+  }
+
+  for(var i = idx+1; i<this.inputs_history.length; i++){
+    if(this.inputs_history[i].type == "qc")
+      reinsertQc = true;
+  }
+
+  this.logArr(this.inputs_history, "before splice; idx: " + idx);
+
+  //this.inputs_history.splice(idx+1);
+  this.inputs_history.splice(idx); // igore lagged input
+
+  this.logArr(this.inputs_history, "after splice splice");
+
+  // this.updateTm( id, tm_to, idx); igore lagged input - no update
+
+  this.logArr(this.inputs_history, "after updateTm");
+
+  if(reinsertQc){
+    this.saveInputInHistory({
+          type: "qc",
+          dir: dirBeforeQc,
+          tm: this.game_state.tm_quit_consideration
+      } , true); // true -> skip_paths_rebuild
+  }
+
+}
+
+Player.prototype.updateTm = function( id, tm_to, idx){
+  this.inputs_history[idx].tm = tm_to;
+
+}
+
+Player.prototype.rebuildPaths = function(){
+
+  var working_curpath = {
+      id: 0,
+      after_qc: false,
+      dir: "straight",
+      tm: 0,
+      angle: undefined,
+      base_start_angle: undefined,
+      start: {
+        x: undefined,
+        y: undefined
+      },
+      end: {
+        x: undefined,
+        y: undefined
+      },
+      arc_point: {
+        x: 0,
+        y: 0
+      }
+    };
+
+  this.setupPos(this.init_pos, working_curpath);
+
+  var new_path_collection = [];
+
+  this.logArr(this.inputs_history, "inputs_history");
+
+  for(var i = 0; i<this.inputs_history.length; i++){
+
+    var input = this.inputs_history[i];
+
+    this.recomputeCurpath(input.tm, working_curpath);
+    var done_path = this.getPathBodyFromCurpath(working_curpath);
+    this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, input.id);
+    this.savePath(done_path, false, new_path_collection);
+
+    console.log(done_path);
+
+    this.logArr(new_path_collection, "new_path_collection");
+
+  }
+
+  this.logArr(new_path_collection, "new_path_collection ...");
+
+  this.recomputeCurpath(Date.now(), working_curpath);
+  this.curpath = working_curpath;
+  this.paths = new_path_collection;
+
+}
+
+Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false){
+
+  var rebuild_path_history = false;
+
+  /*
+    Empty inputs_history
+    we can return since no change of order
+  */
+  if(this.inputs_history.length == 0){
+    this.inputs_history.push(input);
+    return;
+  }
+
+  for(var i = this.inputs_history.length-1; i>=0; i--){
+
+    var input_item = this.inputs_history[i];
+
+    if(input_item.tm<input.tm){
+      this.inputs_history.splice(i+1,0,input);
+      break;
+    }
+
+    rebuild_path_history = true;
+
+  }
+
+  if(rebuild_path_history && !skip_paths_rebuild){
+    this.rebuildPaths();
+  }
 }
 
 // id = id of shortended aka first shifted
@@ -879,8 +1030,6 @@ Player.prototype.reduction = function(from, to, id){
   //this.outPathsTmAfter();
   //this.compareArrsTm(lag_vector);
 
-  this.processed_lag_vector += lag_vector;
-
 
 }
 
@@ -901,21 +1050,30 @@ Player.prototype.assignCurpath = function(lvalue, rvalue){
 
 }
 
-Player.prototype.processInput = function(_io, dir){
+Player.prototype.processInput = function(io, dir ){
+
+  if(this.speed==0){
+    return;
+  }
+
+  console.log("INPUT: " + dir);
 
   var tm = Date.now();
-
   this.inputs.push({
     type: "input",
     dir: dir,
     tm: tm
-  })
-  if(this.processed_lag_vector!=0){
-    _io.emit(dir, tm, this.processed_lag_vector);
-    this.processed_lag_vector = 0;
+  });
+
+  if(this.reduction_sync_complete){
+    io.emit(dir, tm, true);
   }
   else{
-    _io.emit(dir, tm);
+    io.emit(dir, tm, null);
+  }
+
+  if(this.reduction_sync_complete){
+    this.reduction_sync_complete = false;
   }
 
 }

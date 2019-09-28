@@ -4,25 +4,17 @@ var random = require("random-js")();
 
 Player.prototype.srv = true;
 
-Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
+Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
   if(this.killed==true)
     return;
 
-  if(newdir=="quit_consideration"){
-    this.inputs.push({type:"quit_consideration"});
+  if(reduction_sync_complete){
+    this.igore_input = false;
+  }
+
+  if(this.igore_input)
     return;
-  }
-
-  this.id_cnt_srv++;
-
-  if(processed_lag_vector>0){
-    this.unprocessed_lag_vector-=processed_lag_vector;
-  }
-
-  if(this.unprocessed_lag_vector>0){
-    tm += this.unprocessed_lag_vector;
-  }
 
   var input = {
     dir: newdir,
@@ -41,43 +33,21 @@ Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
   var tm_to;
   if(lag>lag_tolerance){
 
+    this.igore_input = true;
+
     tm_to = tm_now-lag_tolerance;
-    this.unprocessed_lag_vector += parseInt(tm_to-input.tm);
 
-    // if(tm_to > this.game_state.tm_quit_consideration && tm<this.game_state.tm_quit_consideration ){
-    //   tm_to = this.game_state.tm_quit_consideration;
-    // }
+    console.log("Reduction");
+    console.log(tm + "  -->  " + tm_to);
 
-    console.log("");
-    console.log("LAG REDUCTION");
-    console.log("input tm(from): " + input.tm );
-    console.log("new tm(to): " + tm_to);
-    console.log("id: " + this.id_cnt_srv);
-    console.log("reduced by: " + parseInt(tm_to-input.tm));
-    console.log("");
+    this.socket.emit("reduction", this.id_cnt_srv, tm_to);
+    this.socket.emit("slow_connection_warrning");
 
-    // input.tm -- from
-    // tm_to
-
-    this.reduction_queue.push({
-      input_tm: input.tm,
-      tm_to: tm_to,
-      id: this.id_cnt_srv // id of next path(shortended)
-    });
-
-    if(this.reduction_timeout){
-      clearTimeout(this.reduction_timeout);
-    }
-
-    this.reduction_timeout = setTimeout(()=>{
-      this.reduction_timeout = null;
-      this.socket.emit("reduction", this.reduction_queue ); // from  -  to
-      this.reduction_queue = [];
-    }, 1000);
-
-    input.tm_raw = input.tm;
     input.tm = tm_to; // new time,
+    input.tm_raw = input.tm;
     tm = tm_to;
+
+    return; //igore lagged input
 
   }
 
@@ -126,13 +96,6 @@ Player.prototype.changeDirSrv = function(newdir, tm, processed_lag_vector){
 
     //server should emit kill event once so previous timeout must be cleared. otherwise if another collision will be detected two timeouts will be active
     clearTimeout(this.collision_timeout);
-  }
-
-  if(tm<this.game_state.tm_quit_consideration && this.game_state.player_consideration == false ){
-
-    this.injectPathBeforeQc(input.tm, input.dir);
-    return;
-
   }
 
   this.inputs.push(input);

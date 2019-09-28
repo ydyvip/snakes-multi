@@ -20,6 +20,7 @@ Vue.prototype.$io = io;
 Vue.prototype.$anime = anime;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = new Vue({});
+window.lag = 0;
 
 var app = new Vue({
   el: '#app',

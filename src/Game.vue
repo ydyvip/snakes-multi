@@ -3,6 +3,7 @@
 
   <div style="width: 1250px; margin: 0 auto; position: relative;">
 
+
   <transition v-on:enter="enter_countdown_active" v-on:leave="leave_countdown_active">
     <div class="countdown" v-if="countdown_active">New round will start in {{countdown_counter}} seconds</div>
   </transition>
@@ -18,8 +19,18 @@
       <button v-else v-on:click="eog" class="btn-back">Return to replay list</button>
     </div>
   </transition>
-  <canvas id="canvas" v-bind:style="{'border-color': may_color}" style="border: 1px solid; margin: 10px 5px;" width="800px" height="800px">
-  </canvas>
+  <div class="canvas-wrapper">
+    <canvas id="canvas" v-bind:style="{'border-color': may_color}" style="border: 1px solid; margin: 10px 5px;" width="800px" height="800px">
+    </canvas>
+    <transition name="slow_connection_warrning">
+      <div v-if="slow_connection_warrning" class="slow-connection-box">
+        <div>SLOW CONNECTION</div>
+        <div>We can not process your actions !</br>
+        Your internet is too slow</div>
+      </div>
+    </transition>
+  </div>
+
 
   <player-table v-bind:player_table="player_table" v-bind:first_to_reach="first_to_reach" v-bind:max_players="max_players" v-bind:may_color="may_color" ref="pt"/>
 
@@ -58,47 +69,28 @@
     io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
 
       for( let player_item of players){
-        if( player_item.name == playername){
 
-          if(player_item.name!=player_me.name || gamereplay ){
-
-            // handle input triggered before qc, when qc is already active
-            if(gamestate.player_consideration == false && tm<gamestate.tm_quit_consideration){
-
-              this.injectPathBeforeQc(input.tm, input.dir);
-
-            }
-            else {
-
-              player_item.inputs.push({
-                type: "input",
-                dir: newdir,
-                tm: tm,
-                state_of_curpath: state_of_curpath
-              })
-            }
-
+          if( (player_item.name == playername && player_item.name!=player_me.name) || gamereplay )
+          {
+            player_item.inputs.push({
+              type: "input",
+              dir: newdir,
+              tm: tm,
+              state_of_curpath: state_of_curpath
+            })
           }
-          else{
-            // Dirchanged for current player
-         }
-        }
       }
 
     })
 
-    io.on("reduction", (reduction_queue)=>{
-
-      for(var reduction_item of reduction_queue){
+    io.on("reduction", (id, new_tm)=>{
 
         player_me.inputs.push({
           type: "reduction",
-          from: reduction_item.input_tm,
-          to: reduction_item.tm_to,
-          id: reduction_item.id
+          id: id,
+          tm_to: new_tm
         });
 
-      }
     });
 
 
@@ -141,8 +133,6 @@
         player_me.processInput(io, "straight");
      }
     }
-
-
   }
 
   module.exports = {
@@ -320,8 +310,10 @@
 
             if(player.name == pos.for){
               player.setupPos(pos);
+              player.init_pos = pos;
               player.show_dir_indicator = true;
               player.inputs = [];
+              player.inputs_history = [];
               player.id_cnt = 0;
               player.curpath.id = 0;
               player.curpath.after_qc = false;
@@ -338,10 +330,9 @@
 
       this.$io.on("round_start", (tm_round_start)=>{
 
-        console.log("round start")
-
         for(var player of players){
           player.curpath.tm = tm_round_start;
+          player.init_pos.tm = tm_round_start;
           this.game_state.player_consideration = true;
           player.breakout = true;
           player.speed = player.default_speed;
@@ -400,6 +391,16 @@
 
       })
 
+      this.$io.on("slow_connection_warrning", ()=>{
+
+          this.slow_connection_warrning = true;
+
+          setTimeout(()=>{
+            this.slow_connection_warrning = false;
+          }, 1000);
+
+      });
+
 
       this.max_players = this.initialStates.length;
 
@@ -450,7 +451,7 @@
             var input = player_item.inputs.shift();
 
             if(input.type == "reduction"){
-              player_item.reduction(input.from, input.to, input.id);
+              player_item.reduction2(input.id, input.tm_to);
             }
             else if(input.type == "quit_consideration"){
               player_item.quitConsideation(this.game_state.tm_quit_consideration, false);
@@ -465,21 +466,9 @@
             }
             else if(input.type == "input"){
 
-              //handle case when input has tm greater than tm of qc
-              //but due to latency of timeot of qc - qc input was pushed to queue later
-              if(input.tm>this.game_state.tm_quit_consideration && this.game_state.player_consideration == true){
-
-                setTimeout(()=>{
-                  player_item.inputs.unshift(input);
-                }, 100);
-
-                continue;
-
-              }
               player_item.recomputeCurpath( input.tm );
               var done_path = player_item.changeDir(input.dir, input.tm);
-              player_item.savePath(done_path, false, false);
-
+              player_item.savePath(done_path, false);
 
             }
           }
@@ -512,6 +501,7 @@
         player_table: [],
         countdown_active: false,
         countdown_counter: null,
+        slow_connection_warrning: false,
         winner: null,
         satoshi_reward: 0,
 
@@ -571,4 +561,42 @@
     line-height: 50px;
   }
 
+  .slow_connection_warrning-enter-active, .slow_connection_warrning-leave-active{
+    transition: opacity 1s;
+  }
+
+  .slow_connection_warrning-enter, .slow_connection_warrning-leave-to{
+    opacity: 0;
+  }
+
+  .canvas-wrapper {
+    display: inline-grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+
+  .canvas-wrapper canvas {
+    grid-column: 1/2;
+    grid-row: 1/2;
+  }
+
+  .slow-connection-box {
+    grid-column: 1/2;
+    grid-row: 1/2;
+    justify-self: center;
+    align-self: start;
+    margin-top: 150px;
+    background-color: #f26e6e;
+    width: 650px;
+    padding: 25px;
+    color: white;
+  }
+  .slow-connection-box div:nth-child(1) {
+    text-align: center;
+    font-size: 28px;
+  }
+  .slow-connection-box div:nth-child(2) {
+    text-align: center;
+    font-size: 22px;
+  }
 </style>
