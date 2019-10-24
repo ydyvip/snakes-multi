@@ -30,10 +30,6 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
       // test for boundaries
 
-      if(player.name == "userrr"){
-        //console.log([player.curpath.end.x, player.curpath.end.y])
-      }
-
       var c = (
         lineCircleCollision([0,0], [0,800], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
         lineCircleCollision([0,800], [800,800], [player.curpath.end.x, player.curpath.end.y], player.weight/2) ||
@@ -45,7 +41,8 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           game_serv.collisionDetected(player, tm);
       }
 
-      if(this.player_consideration)
+      // no collision for player in gap (breakout);
+      if(this.player_consideration || player.inGap(tm))
         continue;
 
       // TODO: apply for .. of
@@ -94,24 +91,14 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           var c = false;
 
+          var vertices = player_against.getVerticesFromLinePath();
+           c = (
+            lineCircleCollision( vertices[0], vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+            lineCircleCollision( vertices[2], vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+            lineCircleCollision( vertices[3], vertices[0], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+            lineCircleCollision( vertices[1], vertices[2], [player.curpath.end.x, player.curpath.end.y], player.weight/2 )
+          );
 
-          if(player_against.breakout == true){ // TODO: How??? legacy???
-
-            c = circlesCollision(
-              player.curpath.end.x, player.curpath.end.y, player.weight/2,
-              player_against.curpath.end.x, player_against.curpath.end.y, player.weight/2
-            )
-
-          }
-          else {
-            var vertices = player_against.getVerticesFromLinePath();
-             c = (
-              lineCircleCollision( vertices[0], vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-              lineCircleCollision( vertices[2], vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-              lineCircleCollision( vertices[3], vertices[0], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-              lineCircleCollision( vertices[1], vertices[2], [player.curpath.end.x, player.curpath.end.y], player.weight/2 )
-            );
-          }
 
           if(c){
             if(game_serv)

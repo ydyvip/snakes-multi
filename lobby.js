@@ -5,11 +5,13 @@ var Player = require("./src/game/PlayerSrv.js");
 var GameState = require("./src/game/GameState.js");
 var GameReplay = require("./src/game/GameReplay.js")
 var GameReplayPlayer = require("./src/game/GameReplayPlayer.js")
+var GapController = require("./src/game/breakdown.js");
+
 var random = require("random-js")();
 
 var Users = require("./DB/users.db.js")
 var Stats = require("./DB/stats.db.js")
-var GameReplayDB = require("./DB/gamereplays.db.js")
+var GameReplayDB = require("./DB/gamereplays.db.js");
 
 var stubber = require("./cypress/stubber.js");
 
@@ -39,6 +41,8 @@ function Game( player_creator, name, bet, max_players, replay_mode = false){
   this.players.push(player_creator);
 
   this.gameloop_id = null
+
+  this.gap_controller_ref = null;
 
 }
 
@@ -124,18 +128,19 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
     if(player.playername == playername && player.live){
       player.points += this.round_points++;
       player.live = false;
-      //player.socket.player_state.clearBreakout();
+      player_state.gap_ref.clearTimeouts();
     }
 
   }
   if(this.round_points == this.max_players-1){ // Only one stay alive - end of round condition
+
+    clearTimeout(this.tmout_qc);
 
     for( var player of this.players){
 
       if(player.live == true){
         player.points += this.round_points;
         player.live = false;
-        //player.socket.player_state.clearBreakout();
         this.round_points = 0;
       }
 
@@ -143,6 +148,7 @@ Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collisi
 
     for(var player of this.player_states){
       player.speed = 0;
+      player.gap_ref.clearTimeouts();
     }
 
     // sort players
@@ -243,6 +249,7 @@ Game.prototype.startNewRound = function(first_round){
       p.gamename = this.name;
       p.socket = player_socket.socket;
       p.game_state = this.game_state;
+      p.server_side = true;
 
       player_socket.socket.player_state = p;
 
@@ -251,6 +258,9 @@ Game.prototype.startNewRound = function(first_round){
     }
 
     io.to(this.name).emit("gamestart", initial_states, this.first_to_reach, this.bet);
+
+    this.gap_controller_ref = new GapController(this.player_states, true, io, this.name);
+
 
   } // first round
 
@@ -265,7 +275,7 @@ Game.prototype.startNewRound = function(first_round){
   // round_start emitted after 15 sec (12+3)
   // quit_consideration emmitted after 19 sec (12+3+4)
 
-  setTimeout( ()=> { // 12sec
+  setTimeout( ()=> {
 
     this.round_points = 0;
 
@@ -300,6 +310,7 @@ Game.prototype.startNewRound = function(first_round){
       io.to(this.name).emit("new_positions_generated", new_round_positions);
     })
     .then(()=>{
+      // RUN
       setTimeout(()=>{ // 3sec
 
         if(!this.game_state)
@@ -329,7 +340,8 @@ Game.prototype.startNewRound = function(first_round){
         console.log("tm_round_start: " + tm_round_start);
         console.log("tm_quit_consideration: " + parseInt(tm_round_start + 4000));
 
-        setTimeout(()=>{ // 4sec
+        // QUIT CONSIDERATION
+        this.tmout_qc = setTimeout(()=>{ // 4sec
 
           //prevent emitting qc because it is read from replay inputs
           if(this.replay_mode)
@@ -339,12 +351,13 @@ Game.prototype.startNewRound = function(first_round){
             player.inputs.push({
              type: "quit_consideration"
             })
-            // player.setupBreakout();
           }
 
-        }, 4000);
+          this.gap_controller_ref.renewGaps();
 
-      }, 3000);
+        }, 4000); // QUIT CONSIDERATION
+
+      }, 3000); // RUN
     })
   }, (new_round_awaiting+2)*1000 );
 
@@ -384,6 +397,7 @@ Game.prototype.makeInitPositions = function(player){
   .then((round_pos)=>{
 
     if(player){
+      player.init_pos = round_pos;
       player.curpath.start.x = round_pos.pos.x;
       player.curpath.start.y = round_pos.pos.y;
       player.curpath.end.x = round_pos.pos.x;
@@ -412,6 +426,8 @@ Game.prototype.start = function(){
     this.game_replay_player = new GameReplayPlayer();
   }
 
+
+
   Player.prototype.io = io;
 
   // Start first round
@@ -431,8 +447,17 @@ Game.prototype.start = function(){
 
         var input = player_state_item.inputs.shift();
 
+        if(player_state_item.speed == 0)
+          continue;
+
         if(input.type == "quit_consideration"){
           player_state_item.quitConsideation(this.game_state.tm_quit_consideration, true);
+        }
+        else if(input.type == "gap_start"){
+          player_state_item.gap_ref.startGap();
+        }
+        else if(input.type == "gap_end"){
+          player_state_item.gap_ref.endGap();
         }
         else {
           player_state_item.recomputeCurpath( input.tm );
@@ -474,7 +499,11 @@ Game.prototype.start = function(){
         player.socket.currentRoom = null;
         if(!this.replay_mode)
           player.socket.leave(this.name);
+        player = null;
       }
+
+      this.players = null;
+
     }
 
   }, 1000/66); // update gamestate every 33ms
@@ -571,21 +600,21 @@ module.exports = function( io_, socket ){
   socket.on("left", function(tm, reduction_sync_complete){
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
-    }, 500)
+    }, 1)
 
   })
 
   socket.on("right", function(tm, reduction_sync_complete){
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("right", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
-   }, 500)
+   }, 1)
 
   })
 
   socket.on("straight", function(tm, reduction_sync_complete){
    setTimeout( ()=>{
       socket.player_state.changeDirSrv("straight", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
-   }, 500)
+   }, 1)
 
   })
 

@@ -104,44 +104,5 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
 }
 
-Player.prototype.timeout_breakdown = undefined;
-
-Player.prototype.setupBreakout = function(){
-
-  var time = random.integer(1000, 2000);
-
-  this.timeout_breakdown = setTimeout( ()=>{
-
-    //TODO: handle breakouts. path_id is legacy (2nd arg)
-    var done_path = this.changeDirSrv(this.curpath.dir, -1, Date.now());
-
-    this.breakout = true;
-
-    if(done_path){
-      this.io.to(this.gamename).emit("breakdown", this.name, done_path, done_path.body.id );
-    }
-
-    setTimeout( ()=>{
-
-      this.breakout = false;
-
-      if(this.timeout_breakdown!=undefined)
-        this.timeout_breakdown = this.setupBreakout();
-
-    }, 250 );
-
-  }, time );
-
-
-}
-
-Player.prototype.clearBreakout = function(){
-
-
-  clearTimeout(this.timeout_breakdown);
-  this.timeout_breakdown = undefined;
-
-}
-
 
 module.exports = Player;

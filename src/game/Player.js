@@ -1,5 +1,4 @@
 
-
 var circleArcCollision = require("./circle-arc-collision.js");
 var Arc = require("./arc.js");
 
@@ -14,10 +13,6 @@ function getRad(degree){
 
 
 var Player = function(initial_state){
-
-  console.log("PLAYER");
-
-  console.log(initial_state);
 
   this.name = initial_state.player_name;
   this.speed = 0;
@@ -65,6 +60,10 @@ var Player = function(initial_state){
   this.inputs = [];
   this.inputs_history = [];
 
+  this.gap_ref = null;
+
+  this.server_side = null;
+
 }
 
 Player.prototype.draw = function(self){
@@ -111,7 +110,7 @@ Player.prototype.draw = function(self){
 
   }
 
-  // drawing current path
+
   this.ctx.lineCap = "butt";
 
   this.ctx.lineWidth = this.weight;
@@ -120,6 +119,8 @@ Player.prototype.draw = function(self){
   this.ctx.beginPath();
   this.ctx.arc(this.curpath.end.x, this.curpath.end.y, this.weight/2, 0, 2*Math.PI);
   this.ctx.fill();
+
+  // drawing current path - on breakout only head will be drawed
 
   if(this.curpath.dir == "straight" && !this.breakout){
     this.ctx.beginPath();
@@ -132,10 +133,7 @@ Player.prototype.draw = function(self){
 
   if(this.curpath.dir == "left" && !this.breakout){
 
-    if(this.breakout)
-      starting_angle = this.curpath.angle + 90;
-    else
-      starting_angle = this.curpath.starting_angle;
+    starting_angle = this.curpath.starting_angle;
 
     this.ctx.beginPath();
     this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(starting_angle), getRad( this.curpath.angle + 90), true);
@@ -144,10 +142,7 @@ Player.prototype.draw = function(self){
 
   if(this.curpath.dir == "right" && !this.breakout){
 
-    if(this.breakout)
-      starting_angle = this.curpath.angle - 90;
-    else
-      starting_angle = this.curpath.starting_angle;
+    starting_angle = this.curpath.starting_angle;
 
     this.ctx.beginPath();
     this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(starting_angle), getRad( this.curpath.angle - 90));
@@ -209,6 +204,8 @@ Player.prototype.savePath = function(path_state, server_side, path_collection) {
     return;
 
   var path = {}; // Path2D
+
+  server_side = this.server_side;
 
   if(!server_side){
 
@@ -378,20 +375,24 @@ Player.prototype.setInitPositionForCurpath = function(new_dir, tm, working_curpa
 Player.prototype.changeDir = function(new_dir, tm, id){
 
   // All paths are saved in paths history (also these before qc)
-  var path = this.getPathBodyFromCurpath(this.curpath);
+  // This was needed to path SHIFTING for reduction
+  // In reduction2 there is no shifiting so we can skip saving of paths on breakout
+
+  var path;
+  var type;
+
+  path = this.getPathBodyFromCurpath(this.curpath);
 
   if(!id){ //changeDir from called from processInput/changeDirSrv
     this.id_cnt++; //changeDir first invoked before 2th curpath
     this.curpath.id = this.id_cnt;
     id = this.curpath.id;
+    type = "input";
   }
-  if(id=="qc")
-    this.curpath.id = "qc";
-
-  let type = id=="qc" ? "qc" : "input";
-
-  console.log("NEW_DIR: " + new_dir);
-  console.log("TM: " + tm);
+  if(id=="qc" || id=="gap_start" || id=="gap_end"){
+    this.curpath.id = id;
+    type = id;
+  }
 
   this.saveInputInHistory({
         type: type,
@@ -792,17 +793,11 @@ Player.prototype.clearInputHistoryAfter = function( id, tm_to){
       reinsertQc = true;
   }
 
-  this.logArr(this.inputs_history, "before splice; idx: " + idx);
-
   //this.inputs_history.splice(idx+1);
   this.inputs_history.splice(idx); // igore lagged input
 
-  this.logArr(this.inputs_history, "after splice splice");
 
   // this.updateTm( id, tm_to, idx); igore lagged input - no update
-
-  this.logArr(this.inputs_history, "after updateTm");
-
   if(reinsertQc){
     this.saveInputInHistory({
           type: "qc",
@@ -841,11 +836,11 @@ Player.prototype.rebuildPaths = function(){
       }
     };
 
+
   this.setupPos(this.init_pos, working_curpath);
 
   var new_path_collection = [];
 
-  this.logArr(this.inputs_history, "inputs_history");
 
   for(var i = 0; i<this.inputs_history.length; i++){
 
@@ -856,13 +851,7 @@ Player.prototype.rebuildPaths = function(){
     this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, input.id);
     this.savePath(done_path, false, new_path_collection);
 
-    console.log(done_path);
-
-    this.logArr(new_path_collection, "new_path_collection");
-
   }
-
-  this.logArr(new_path_collection, "new_path_collection ...");
 
   this.recomputeCurpath(Date.now(), working_curpath);
   this.curpath = working_curpath;
@@ -1056,8 +1045,6 @@ Player.prototype.processInput = function(io, dir ){
     return;
   }
 
-  console.log("INPUT: " + dir);
-
   var tm = Date.now();
   this.inputs.push({
     type: "input",
@@ -1075,6 +1062,19 @@ Player.prototype.processInput = function(io, dir ){
   if(this.reduction_sync_complete){
     this.reduction_sync_complete = false;
   }
+
+}
+
+Player.prototype.inGap = function(tm){
+
+  return false;
+  if(!this.gap_ref)
+    return;
+
+  if(tm>this.gap_ref.tm_gapstart && tm<=this.gap_ref.tm_gapend)
+    return true;
+
+  return false;
 
 }
 

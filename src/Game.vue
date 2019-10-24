@@ -57,6 +57,7 @@
   var Keyboard = require("./game/Keyboard.js");
   var Player = require("./game/Player.js");
   var GameState = require("./game/GameState.js");
+  var GapController = require("./game/breakdown.js");
   var circleArcCollision = require("./game/circle-arc-collision.js");
 
   var arc = require("./game/arc.js");
@@ -294,10 +295,16 @@
 
       this.$io.on("newround_countdown", (countdown_counter)=>{
 
+        console.log("newround_countdown " + countdown_counter);
+
         this.countdown_counter = countdown_counter;
         this.countdown_active = true;
+
+        clearTimeout(this.tmout_qc);
+
         for(var player of players){
           player.speed = 0;
+          player.gap_ref.clearTimeouts();
         }
 
       })
@@ -344,7 +351,7 @@
         this.game_state.tm_quit_consideration = tm_quit_consideration;
         this.game_state.tm_round_start = tm_round_start;
 
-        setTimeout(()=>{
+        this.tmout_qc = setTimeout(()=>{
 
           if(player_me.speed == 0){
             return;
@@ -378,16 +385,22 @@
 
       this.$io.on("end_of_game", (winner, reward)=>{
 
+        clearTimeout(this.tmout_qc);
+
         this.winner = winner;
         this.satoshi_reward = reward;
 
         for(var player of players){
           player.speed = 0;
+          player.gap_ref.clearTimeouts();
         }
 
         if(winner == player_me.name){
           this.$bus.$emit("balance_update", reward)
         }
+
+        this.gap_controller.demountClientSideHandlers();
+
 
       })
 
@@ -407,6 +420,7 @@
       this.initialStates.forEach( (initial_state_item)=> {
 
         var player_item = new Player(initial_state_item);
+        player_item.server_side = false;
 
         window.player = player_item;
 
@@ -416,7 +430,6 @@
         player_item.ctx = ctx;
 
         players.push(player_item);
-
 
         //Setup player_table data
         this.player_table.push({
@@ -436,6 +449,8 @@
 
       })
 
+      this.gap_controller = new GapController(players, false, this.$io);
+
       // Mount gameloop
 
       this.gameloop_id = gameloop.setGameLoop( (delta)=>{
@@ -450,7 +465,16 @@
 
             var input = player_item.inputs.shift();
 
-            if(input.type == "reduction"){
+            if(player.speed == 0)
+              continue;
+
+            if(input.type == "gap_start"){
+              player_item.gap_ref.startGap();
+            }
+            else if(input.type == "gap_end"){
+              player_item.gap_ref.endGap();
+            }
+            else if(input.type == "reduction"){
               player_item.reduction2(input.id, input.tm_to);
             }
             else if(input.type == "quit_consideration"){
@@ -459,6 +483,7 @@
             else if(input.type == "killed"){
               player_item.clearFurtherPaths(input.collision_tm, false, input.forced);
               player_item.applyCurpathState(input.path_at_collision);
+              player_item.gap_ref.clearTimeouts();
               player_item.speed = 0;
               player_item.collision_tm = 0;
               player_item.id_cnt = 0;
