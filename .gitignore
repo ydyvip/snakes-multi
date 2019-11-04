@@ -4,3 +4,4 @@ data/*
 !data/.gitkeep
 public/build.js
 mongouri.json
+todos/

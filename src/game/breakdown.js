@@ -96,6 +96,8 @@ function Gap(player_ref, server_side, controller) {
   this.tm_gapstart = null;
   this.tm_gapend = null;
 
+  this.promise_sync = Promise.resolve(true); // First invocation of setupTimeouts not require sync
+  this.resolve_promise = null;
 
 }
 
@@ -104,7 +106,18 @@ Gap.prototype.renewGap = function(tm_gapstart){
   if(this.server_side)
     tm_gapstart = Date.now() + random.integer(1500, 3000);
 
-  this.setupTimeouts(tm_gapstart);
+
+  this.promise_sync.then( ()=>{
+
+    this.promise_sync = new Promise((resolve,reject)=>{
+
+      this.resolve_promise = resolve;
+
+    })
+
+    this.setupTimeouts(tm_gapstart);
+
+  } );
 
   if(this.server_side)
     this.controller.emitBreakdown(this.player_ref.name, tm_gapstart);
@@ -113,18 +126,20 @@ Gap.prototype.renewGap = function(tm_gapstart){
 
 Gap.prototype.setupTimeouts = function(tm_gapstart){
 
+
+
   this.tm_gapstart = tm_gapstart;
   this.tm_gapend = tm_gapstart + tm_gapdistane;
 
   var tmwait_gap_start = this.tm_gapstart - Date.now()
   var tmwait_gap_end = this.tm_gapend - Date.now()
 
-  console.log("setupTimeouts");
-  console.log("FOR: " + this.player_ref.name);
-  console.log("tm_gapstart: " + this.tm_gapstart)
-  console.log("tm_gapend: " + this.tm_gapend)
-  console.log("tmwait_gap_start: " + tmwait_gap_start)
-  console.log("tmwait_gap_end: " + tmwait_gap_end)
+  // console.log("setupTimeouts");
+  // console.log("FOR: " + this.player_ref.name);
+  // console.log("tm_gapstart: " + this.tm_gapstart)
+  // console.log("tm_gapend: " + this.tm_gapend)
+  // console.log("tmwait_gap_start: " + tmwait_gap_start)
+  // console.log("tmwait_gap_end: " + tmwait_gap_end)
 
   if(this.tmout_gapstart){
     console.log("err1")
@@ -154,35 +169,31 @@ Gap.prototype.setupTimeouts = function(tm_gapstart){
 
   }, tmwait_gap_end)
 
-  console.log("id timeout start: ")
-  console.log(this.tmout_gapstart);
-  console.log("id timeout end: ");
-  console.log(this.tmout_gapend);
+  // console.log("id timeout start: ")
+  // console.log(this.tmout_gapstart);
+  // console.log("id timeout end: ");
+  // console.log(this.tmout_gapend);
 
 }
 
 Gap.prototype.clearTimeouts = function(){
 
-  console.log("clearTimeouts for " + this.player_ref.name)
-
   if(this.tmout_gapstart){
     clearTimeout(this.tmout_gapstart);
-    console.log("id timeout start(clear): " + this.tmout_gapstart);
     this.tmout_gapstart = null;
   }
   if(this.tmout_gapend){
     clearTimeout(this.tmout_gapend);
-    console.log("id timeout end(clear): " + this.tmout_gapend);
     this.tmout_gapend = null;
   }
+
+  this.promise_sync = Promise.resolve(true);
 
 }
 
 Gap.prototype.startGap = function(){
 
   this.player_ref.recomputeCurpath(this.tm_gapstart);
-
-  console.log("START GAP " + this.tm_gapstart);
 
   var path = this.player_ref.changeDir(this.player_ref.curpath.dir, this.tm_gapstart, "gap_start");
   this.player_ref.savePath(path);
@@ -199,12 +210,12 @@ Gap.prototype.endGap = function(){
 
   this.player_ref.breakout = false;
 
-  console.log("END GAP " + this.tm_gapend);
-
   if(this.server_side){
     this.renewGap();
-    console.log("GAP RENEWED !!!");
   }
+
+  this.resolve_promise();
+
 
 }
 

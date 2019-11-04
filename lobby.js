@@ -295,7 +295,7 @@ Game.prototype.startNewRound = function(first_round){
       player.id_cnt = 0;
       player.id_cnt_srv = 0;
       player.curpath.id = 0;
-      player.curpath.after_qc = false;
+      player.curpath.on_breakout = true;
 
       var new_round_positions = [];
       var p_arr = []; // promises array for Promise.all

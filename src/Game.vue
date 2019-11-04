@@ -67,32 +67,7 @@
 
   function setupAuthorativeServer(io, gamestate, gamereplay){
 
-    io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
 
-      for( let player_item of players){
-
-          if( (player_item.name == playername && player_item.name!=player_me.name) || gamereplay )
-          {
-            player_item.inputs.push({
-              type: "input",
-              dir: newdir,
-              tm: tm,
-              state_of_curpath: state_of_curpath
-            })
-          }
-      }
-
-    })
-
-    io.on("reduction", (id, new_tm)=>{
-
-        player_me.inputs.push({
-          type: "reduction",
-          id: id,
-          tm_to: new_tm
-        });
-
-    });
 
 
   };
@@ -265,6 +240,172 @@
 
         this.$emit('eog')
 
+      },
+
+      mountClientSideHandlers: function(gamereplay){
+
+        this.$io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
+
+          for( let player_item of players){
+
+              if( (player_item.name == playername && player_item.name!=player_me.name) || gamereplay )
+              {
+                player_item.inputs.push({
+                  type: "input",
+                  dir: newdir,
+                  tm: tm,
+                  state_of_curpath: state_of_curpath
+                })
+              }
+          }
+
+        })
+
+        this.$io.on("reduction", (id, new_tm)=>{
+
+            player_me.inputs.push({
+              type: "reduction",
+              id: id,
+              tm_to: new_tm
+            });
+
+        });
+
+        this.$io.on("newround_countdown", (countdown_counter)=>{
+
+          console.log("newround_countdown " + countdown_counter);
+
+          this.countdown_counter = countdown_counter;
+          this.countdown_active = true;
+
+          clearTimeout(this.tmout_qc);
+
+          for(var player of players){
+            player.speed = 0;
+            player.gap_ref.clearTimeouts();
+          }
+
+        })
+
+        this.$io.on("new_positions_generated", (positions)=>{
+
+          for(var pos of positions){
+
+            for(var player of players){
+
+              if(player.name == pos.for){
+                player.setupPos(pos);
+                player.init_pos = pos;
+                player.show_dir_indicator = true;
+                player.inputs = [];
+                player.inputs_history = [];
+                player.id_cnt = 0;
+                player.curpath.id = 0;
+                player.curpath.on_breakout = true;
+              }
+
+            }
+
+          }
+
+        })
+
+        // round start
+          // quit_consideration + 4sec
+
+        this.$io.on("round_start", (tm_round_start)=>{
+
+          for(var player of players){
+            player.curpath.tm = tm_round_start;
+            player.init_pos.tm = tm_round_start;
+            this.game_state.player_consideration = true;
+            player.breakout = true;
+            player.speed = player.default_speed;
+            player.show_dir_indicator = false;
+          }
+
+          var tm_quit_consideration = tm_round_start + 4000;
+
+          this.game_state.tm_quit_consideration = tm_quit_consideration;
+          this.game_state.tm_round_start = tm_round_start;
+
+          this.tmout_qc = setTimeout(()=>{
+
+            if(player_me.speed == 0){
+              return;
+            }
+
+            for(var player_ of players){
+              player_.inputs.push({
+                type: "quit_consideration"
+              });
+            }
+
+          }, 4000);
+
+        })
+
+        this.$io.on("killed", (playername, collision_tm, path_at_collision, forced)=>{
+
+          for(var player of players){
+            if(player.name ==  playername){
+              player.inputs.push({
+                type: "killed",
+                collision_tm: collision_tm,
+                path_at_collision: path_at_collision,
+                forced: forced
+              });
+              return;
+            }
+          }
+
+        })
+
+        this.$io.on("end_of_game", (winner, reward)=>{
+
+          clearTimeout(this.tmout_qc);
+
+          this.winner = winner;
+          this.satoshi_reward = reward;
+
+          for(var player of players){
+            player.speed = 0;
+            player.gap_ref.clearTimeouts();
+          }
+
+          if(winner == player_me.name){
+            this.$bus.$emit("balance_update", reward)
+          }
+
+          this.gap_controller.demountClientSideHandlers();
+          this.demountClientSideHandlers();
+
+
+        })
+
+        this.$io.on("slow_connection_warrning", ()=>{
+
+            this.slow_connection_warrning = true;
+
+            setTimeout(()=>{
+              this.slow_connection_warrning = false;
+            }, 1000);
+
+        });
+
+      },
+
+      demountClientSideHandlers: function(){
+
+        this.$io.off("dirchanged");
+        this.$io.off("reduction");
+        this.$io.off("newround_countdown");
+        this.$io.off("new_positions_generated");
+        this.$io.off("round_start");
+        this.$io.off("killed");
+        this.$io.off("end_of_game");
+        this.$io.off("slow_connection_warrning");
+
       }
 
     },
@@ -287,133 +428,9 @@
 
 
       setupKeyboard(this.$io);
-      setupAuthorativeServer(this.$io, this.game_state, this.gamereplay);
-
+      this.mountClientSideHandlers(this.gamereplay);
 
       window.ctx = ctx;
-
-
-      this.$io.on("newround_countdown", (countdown_counter)=>{
-
-        console.log("newround_countdown " + countdown_counter);
-
-        this.countdown_counter = countdown_counter;
-        this.countdown_active = true;
-
-        clearTimeout(this.tmout_qc);
-
-        for(var player of players){
-          player.speed = 0;
-          player.gap_ref.clearTimeouts();
-        }
-
-      })
-
-      this.$io.on("new_positions_generated", (positions)=>{
-
-        for(var pos of positions){
-
-          for(var player of players){
-
-            if(player.name == pos.for){
-              player.setupPos(pos);
-              player.init_pos = pos;
-              player.show_dir_indicator = true;
-              player.inputs = [];
-              player.inputs_history = [];
-              player.id_cnt = 0;
-              player.curpath.id = 0;
-              player.curpath.after_qc = false;
-            }
-
-          }
-
-        }
-
-      })
-
-      // round start
-        // quit_consideration + 4sec
-
-      this.$io.on("round_start", (tm_round_start)=>{
-
-        for(var player of players){
-          player.curpath.tm = tm_round_start;
-          player.init_pos.tm = tm_round_start;
-          this.game_state.player_consideration = true;
-          player.breakout = true;
-          player.speed = player.default_speed;
-          player.show_dir_indicator = false;
-        }
-
-        var tm_quit_consideration = tm_round_start + 4000;
-
-        this.game_state.tm_quit_consideration = tm_quit_consideration;
-        this.game_state.tm_round_start = tm_round_start;
-
-        this.tmout_qc = setTimeout(()=>{
-
-          if(player_me.speed == 0){
-            return;
-          }
-
-          for(var player_ of players){
-            player_.inputs.push({
-              type: "quit_consideration"
-            });
-          }
-
-        }, 4000);
-
-      })
-
-      this.$io.on("killed", (playername, collision_tm, path_at_collision, forced)=>{
-
-        for(var player of players){
-          if(player.name ==  playername){
-            player.inputs.push({
-              type: "killed",
-              collision_tm: collision_tm,
-              path_at_collision: path_at_collision,
-              forced: forced
-            });
-            return;
-          }
-        }
-
-      })
-
-      this.$io.on("end_of_game", (winner, reward)=>{
-
-        clearTimeout(this.tmout_qc);
-
-        this.winner = winner;
-        this.satoshi_reward = reward;
-
-        for(var player of players){
-          player.speed = 0;
-          player.gap_ref.clearTimeouts();
-        }
-
-        if(winner == player_me.name){
-          this.$bus.$emit("balance_update", reward)
-        }
-
-        this.gap_controller.demountClientSideHandlers();
-
-
-      })
-
-      this.$io.on("slow_connection_warrning", ()=>{
-
-          this.slow_connection_warrning = true;
-
-          setTimeout(()=>{
-            this.slow_connection_warrning = false;
-          }, 1000);
-
-      });
-
 
       this.max_players = this.initialStates.length;
 

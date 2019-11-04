@@ -42,7 +42,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
       }
 
       // no collision for player in gap (breakout);
-      if(this.player_consideration || player.inGap(tm))
+      if(this.player_consideration || player.curpath.on_breakout)
         continue;
 
       // TODO: apply for .. of
@@ -64,47 +64,50 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           }
         }
 
-        if((player_against.curpath.dir == "left" || player_against.curpath.dir == "right") && !self){
+        if(player_against.curpath.on_breakout == false && !self){
 
-          var angle_90 = 0;
-          var counterclockwise = false;
+          if(player_against.curpath.dir == "left" || player_against.curpath.dir == "right"){
 
-          if(player_against.curpath.dir == "left"){
-            counterclockwise = true;
-            angle_90 = 90;
-          }
-          if(player_against.curpath.dir =="right"){
-            angle_90 = -90;
-          }
+            var angle_90 = 0;
+            var counterclockwise = false;
 
-          var c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2},
-            new Arc( player_against.curpath.arc_point.x, player_against.curpath.arc_point.y, player_against.r, getRad(player_against.curpath.starting_angle), getRad(player_against.curpath.angle + angle_90), player_against.weight, counterclockwise  )
-          );
-          if(c){
-            if(game_serv)
-              game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
-          }
+            if(player_against.curpath.dir == "left"){
+              counterclockwise = true;
+              angle_90 = 90;
+            }
+            if(player_against.curpath.dir =="right"){
+              angle_90 = -90;
+            }
 
-        }
+            var c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2},
+              new Arc( player_against.curpath.arc_point.x, player_against.curpath.arc_point.y, player_against.r, getRad(player_against.curpath.starting_angle), getRad(player_against.curpath.angle + angle_90), player_against.weight, counterclockwise  )
+            );
+            if(c){
+              if(game_serv)
+                game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
+            }
 
-        if(player_against.curpath.dir == "straight" && !self){
-
-          var c = false;
-
-          var vertices = player_against.getVerticesFromLinePath();
-           c = (
-            lineCircleCollision( vertices[0], vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-            lineCircleCollision( vertices[2], vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-            lineCircleCollision( vertices[3], vertices[0], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
-            lineCircleCollision( vertices[1], vertices[2], [player.curpath.end.x, player.curpath.end.y], player.weight/2 )
-          );
-
-
-          if(c){
-            if(game_serv)
-              game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
           }
 
+          if(player_against.curpath.dir == "straight"){
+
+            var c = false;
+
+            var vertices = player_against.getVerticesFromLinePath();
+             c = (
+              lineCircleCollision( vertices[0], vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+              lineCircleCollision( vertices[2], vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+              lineCircleCollision( vertices[3], vertices[0], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
+              lineCircleCollision( vertices[1], vertices[2], [player.curpath.end.x, player.curpath.end.y], player.weight/2 )
+            );
+
+
+            if(c){
+              if(game_serv)
+                game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
+            }
+
+          }
         }
 
         // test for done paths
@@ -124,8 +127,8 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
             continue;
           }
 
-          if(path.body.after_qc==false){
-            break;
+          if(path.body.on_breakout==true){
+            continue;
           }
 
           if(path.body.type=="arc")

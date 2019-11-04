@@ -34,7 +34,7 @@ var Player = function(initial_state){
   this.id_path_before_qc = null;
   this.curpath = {
     id: 0,
-    after_qc: false,
+    on_breakout: true,
     dir: "straight",
     tm: 0,
     angle: undefined,
@@ -100,8 +100,8 @@ Player.prototype.draw = function(self){
 
   for(var i = 0; i<this.paths.length; i++){
 
-    //Paths from consideration phase are not drawed
-    if(this.paths[i].body.after_qc == false){
+    //Paths from consideration phase are not drawed and these from gap_start
+    if(this.paths[i].body.on_breakout == true){
       continue;
     }
     this.ctx.strokeStyle = this.paths[i].body.color;
@@ -264,6 +264,10 @@ Player.prototype.getVerticesFromLinePath = function(curpath){
 
 Player.prototype.getPathBodyFromCurpath = function(curpath){
 
+  if(curpath.on_breakout == true){
+    return null;
+  }
+
   var path = {};
 
   path.body = {};
@@ -274,7 +278,7 @@ Player.prototype.getPathBodyFromCurpath = function(curpath){
   path.body.angle = curpath.angle;
   path.body.base_start_angle = curpath.base_start_angle;
 
-  path.body.after_qc = curpath.after_qc;
+  path.body.on_breakout = curpath.on_breakout;
 
   if(curpath.dir == "straight"){
     path.body.dir = "straight";
@@ -322,11 +326,12 @@ Player.prototype.setInitPositionForCurpath = function(new_dir, tm, working_curpa
 
   working_curpath.tm = tm;
 
-  if(tm>=this.game_state.tm_quit_consideration){
-    working_curpath.after_qc = true;
+
+  if(id=="gap_start" || tm<this.game_state.tm_quit_consideration){
+    working_curpath.on_breakout = true;
   }
   else{
-    working_curpath.after_qc = false;
+    working_curpath.on_breakout = false;
   }
 
   if(new_dir == "straight"){
@@ -383,8 +388,8 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 
   path = this.getPathBodyFromCurpath(this.curpath);
 
-  if(!id){ //changeDir from called from processInput/changeDirSrv
-    this.id_cnt++; //changeDir first invoked before 2th curpath
+  if(!id){ //changeDir from called from processInput/changeDirSrv -- change dir from user action - no events
+    this.id_cnt++; // 1. first curpath id = 0; 2. increment id_cnt and assign it to id of next curpath
     this.curpath.id = this.id_cnt;
     id = this.curpath.id;
     type = "input";
@@ -394,6 +399,10 @@ Player.prototype.changeDir = function(new_dir, tm, id){
     type = id;
   }
 
+  if(id=="gap_start"){
+    this.curpath.on_breakout = true;
+  }
+
   this.saveInputInHistory({
         type: type,
         dir: new_dir,
@@ -401,7 +410,7 @@ Player.prototype.changeDir = function(new_dir, tm, id){
         id: id
     });
 
-  this.setInitPositionForCurpath(new_dir, tm );
+  this.setInitPositionForCurpath(new_dir, tm, null, id );
 
   return path;
 }
@@ -524,7 +533,7 @@ Player.prototype.getCurpathFromPathBody = function(path){
     id: path_body.id,
     angle: path_body.angle,
     base_start_angle: path_body.base_start_angle,
-    after_qc: path.body.after_qc,
+    on_breakout: path.body.on_breakout,
     start: {
       x: undefined,
       y: undefined
@@ -579,7 +588,7 @@ Player.prototype.getCurpath = function(){
   obj.dir = this.curpath.dir;
   obj.tm = this.curpath.tm;
   obj.id = this.curpath.id;
-  obj.after_qc = this.curpath.after_qc;
+  obj.on_breakout = this.curpath.on_breakout;
   return obj;
 
 
@@ -599,7 +608,7 @@ Player.prototype.applyCurpathState = function(state_of_curpath){
   this.curpath.dir = state_of_curpath.dir;
   this.curpath.tm = state_of_curpath.tm;
   this.curpath.id = state_of_curpath.id;
-  this.curpath.after_qc = state_of_curpath.after_qc;
+  this.curpath.on_breakout = state_of_curpath.on_breakout;
 
 }
 
@@ -617,7 +626,7 @@ Player.prototype.applyStartPoitOfCurpathState = function(state_of_curpath){
   this.curpath.dir = state_of_curpath.dir;
   this.curpath.tm = state_of_curpath.tm;
   this.curpath.id = state_of_curpath.id;
-  this.curpath.after_qc = state_of_curpath.after_qc;
+  this.curpath.on_breakout = state_of_curpath.on_breakout;
 
 }
 
@@ -815,9 +824,11 @@ Player.prototype.updateTm = function( id, tm_to, idx){
 
 Player.prototype.rebuildPaths = function(){
 
+  console.log("REBUILD PATHS");
+
   var working_curpath = {
       id: 0,
-      after_qc: false,
+      on_breakout: true,
       dir: "straight",
       tm: 0,
       angle: undefined,
@@ -840,7 +851,6 @@ Player.prototype.rebuildPaths = function(){
   this.setupPos(this.init_pos, working_curpath);
 
   var new_path_collection = [];
-
 
   for(var i = 0; i<this.inputs_history.length; i++){
 
@@ -867,6 +877,12 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
     Empty inputs_history
     we can return since no change of order
   */
+
+  if(this.name=="kuba1"){
+    console.log("New input")
+    console.log(input);
+  }
+
   if(this.inputs_history.length == 0){
     this.inputs_history.push(input);
     return;
@@ -887,6 +903,10 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 
   if(rebuild_path_history && !skip_paths_rebuild){
     this.rebuildPaths();
+  }
+
+  if(this.name=="kuba1"){
+    this.logArr(this.inputs_history, "New input history" )
   }
 }
 
@@ -1026,7 +1046,7 @@ Player.prototype.assignCurpath = function(lvalue, rvalue){
 
   lvalue.dir = rvalue.dir;
   lvalue.tm = rvalue.tm;
-  lvalue.after_qc = rvalue.after_qc;
+  lvalue.on_breakout = rvalue.on_breakout;
   lvalue.id = rvalue.id;
   lvalue.angle = rvalue.angle;
   lvalue.base_start_angle = rvalue.base_start_angle;
