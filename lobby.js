@@ -503,7 +503,7 @@ Game.prototype.start = function(){
       }
 
       this.players = null;
-
+      
     }
 
   }, 1000/66); // update gamestate every 33ms

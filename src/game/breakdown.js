@@ -50,7 +50,6 @@ GapController.prototype.mountClientSideHandlers = function(){
 
     for( var player_item of this.players){
       if(player_item.name == breakdown.for){
-        console.log("gap_renewed");
         player_item.gap_ref.renewGap(breakdown.tm);
       }
     }
@@ -99,6 +98,8 @@ function Gap(player_ref, server_side, controller) {
   this.promise_sync = Promise.resolve(true); // First invocation of setupTimeouts not require sync
   this.resolve_promise = null;
 
+  this.tmstamp_history = [];
+
 }
 
 Gap.prototype.renewGap = function(tm_gapstart){
@@ -127,9 +128,10 @@ Gap.prototype.renewGap = function(tm_gapstart){
 Gap.prototype.setupTimeouts = function(tm_gapstart){
 
 
-
   this.tm_gapstart = tm_gapstart;
   this.tm_gapend = tm_gapstart + tm_gapdistane;
+
+  this.saveTmStamps(tm_gapstart, this.tm_gapend);
 
   var tmwait_gap_start = this.tm_gapstart - Date.now()
   var tmwait_gap_end = this.tm_gapend - Date.now()
@@ -141,9 +143,6 @@ Gap.prototype.setupTimeouts = function(tm_gapstart){
   // console.log("tmwait_gap_start: " + tmwait_gap_start)
   // console.log("tmwait_gap_end: " + tmwait_gap_end)
 
-  if(this.tmout_gapstart){
-    console.log("err1")
-  }
   this.tmout_gapstart = setTimeout( ()=>{
 
     this.player_ref.inputs.push({
@@ -155,9 +154,6 @@ Gap.prototype.setupTimeouts = function(tm_gapstart){
 
   }, tmwait_gap_start );
 
-  if(this.tmout_gapend){
-    console.log("err2")
-  }
   this.tmout_gapend = setTimeout( ()=>{
 
     this.player_ref.inputs.push({
@@ -176,6 +172,12 @@ Gap.prototype.setupTimeouts = function(tm_gapstart){
 
 }
 
+Gap.prototype.saveTmStamps = function(tm_gapstart, tm_gapend){
+
+  this.tmstamp_history.push([tm_gapstart, tm_gapend]);
+
+}
+
 Gap.prototype.clearTimeouts = function(){
 
   if(this.tmout_gapstart){
@@ -188,6 +190,8 @@ Gap.prototype.clearTimeouts = function(){
   }
 
   this.promise_sync = Promise.resolve(true);
+
+  this.tmstamp_history = [];
 
 }
 
@@ -216,6 +220,19 @@ Gap.prototype.endGap = function(){
 
   this.resolve_promise();
 
+}
+
+Gap.prototype.isInGap = function(tm_stamp){
+
+  for( var tm_stamp_item of this.tmstamp_history){
+
+    if(tm_stamp >= tm_stamp_item[0] && tm_stamp < tm_stamp_item[1]){
+      return true;
+    }
+
+  }
+
+  return false;
 
 }
 

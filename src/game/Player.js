@@ -327,7 +327,7 @@ Player.prototype.setInitPositionForCurpath = function(new_dir, tm, working_curpa
   working_curpath.tm = tm;
 
 
-  if(id=="gap_start" || tm<this.game_state.tm_quit_consideration){
+  if(tm<this.game_state.tm_quit_consideration || this.gap_ref.isInGap(tm) ){
     working_curpath.on_breakout = true;
   }
   else{
@@ -878,11 +878,6 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
     we can return since no change of order
   */
 
-  if(this.name=="kuba1"){
-    console.log("New input")
-    console.log(input);
-  }
-
   if(this.inputs_history.length == 0){
     this.inputs_history.push(input);
     return;
@@ -906,7 +901,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
   }
 
   if(this.name=="kuba1"){
-    this.logArr(this.inputs_history, "New input history" )
+    //this.logArr(this.inputs_history, "New input history" )
   }
 }
 
