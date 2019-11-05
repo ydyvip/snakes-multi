@@ -399,10 +399,6 @@ Player.prototype.changeDir = function(new_dir, tm, id){
     type = id;
   }
 
-  if(id=="gap_start"){
-    this.curpath.on_breakout = true;
-  }
-
   this.saveInputInHistory({
         type: type,
         dir: new_dir,
@@ -852,6 +848,9 @@ Player.prototype.rebuildPaths = function(){
 
   var new_path_collection = [];
 
+  console.log("INPUT HISTORY: ");
+  this.logArr(this.inputs_history);
+
   for(var i = 0; i<this.inputs_history.length; i++){
 
     var input = this.inputs_history[i];
@@ -887,7 +886,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 
     var input_item = this.inputs_history[i];
 
-    if(input_item.tm<input.tm){
+    if(input_item.tm<=input.tm){
       this.inputs_history.splice(i+1,0,input);
       break;
     }
