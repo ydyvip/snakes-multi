@@ -75,14 +75,11 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 
   if(player_state.collision_force){
     player_state.collision_timeout = null;
-    player_state.clearFurtherPaths(collision_tm, false, true);
-    player_state.applyCurpathState(player_state.collision_before_input.path_at_collision);
+    player_state.rebuildPathsAfterKilled(collision_tm);
     player_state.speed = 0;
     player_state.collision_tm = 0;
     player_state.killed = true;
     this.emitKilled(player_state, player_state.collision_before_input.collision_tm, player_state.collision_before_input.path_at_collision, true); //4th arg true due to force
-    if(player_state.name=="user6")
-      console.log("collision emmitted(forced): " + collision_tm);
     return;
   }
 
@@ -99,8 +96,6 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
       player_state.collision_tm = 0;
       player_state.killed = true;
       this.emitKilled(player_state, collision_tm, player_state.path_at_collision);
-      if(player_state.name=="user6")
-        console.log("collision emmitted: " + collision_tm);
     }
     else{
       player_state.collision_timeout = null;
@@ -116,10 +111,6 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collision, forced){
 
   var playername = player_state.name;
-
-  // forced
-  // done path in history of paths covers path_before_input (strictly curpath head).
-  // when input caused reseting, and then collision was detected again, input caused also save of path. path before input is actually equivalent path.
 
   io.to(this.name).emit("killed", playername, collision_tm, path_at_collision, forced);
 
@@ -374,11 +365,27 @@ Game.prototype.makeInitPositions = function(player){
   .then(()=>{
 
     if(!this.replay_mode){
-      pos = {
-        x: random.integer(100,700),
-        y: random.integer(100,700)
+
+      if(p_name == "kuba1"){
+        pos = {
+          x: 199 ,
+          y: 200
+        }
+        angle = 180;
       }
-      angle = random.integer(1,360);
+      if(p_name == "kuba2"){
+        pos = {
+          x: 210,
+          y: 400
+        }
+        angle = 180;
+      }
+
+      // pos = {
+      //   x: random.integer(100,700),
+      //   y: random.integer(100,700)
+      // }
+      // angle = random.integer(1,360);
       var round_pos = {
         pos: pos,
         angle: angle,
@@ -503,7 +510,7 @@ Game.prototype.start = function(){
       }
 
       this.players = null;
-      
+
     }
 
   }, 1000/66); // update gamestate every 33ms

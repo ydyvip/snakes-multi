@@ -498,8 +498,7 @@
               player_item.quitConsideation(this.game_state.tm_quit_consideration, false);
             }
             else if(input.type == "killed"){
-              player_item.clearFurtherPaths(input.collision_tm, false, input.forced);
-              player_item.applyCurpathState(input.path_at_collision);
+              player_item.rebuildPathsAfterKilled(input.collision_tm);
               player_item.gap_ref.clearTimeouts();
               player_item.speed = 0;
               player_item.collision_tm = 0;

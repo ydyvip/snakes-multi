@@ -110,7 +110,6 @@ Player.prototype.draw = function(self){
 
   }
 
-
   this.ctx.lineCap = "butt";
 
   this.ctx.lineWidth = this.weight;
@@ -122,7 +121,7 @@ Player.prototype.draw = function(self){
 
   // drawing current path - on breakout only head will be drawed
 
-  if(this.curpath.dir == "straight" && !this.breakout){
+  if(this.curpath.dir == "straight" && !this.curpath.on_breakout){
     this.ctx.beginPath();
     this.ctx.moveTo(this.curpath.start.x, this.curpath.start.y);
     this.ctx.lineTo(this.curpath.end.x, this.curpath.end.y);
@@ -131,7 +130,7 @@ Player.prototype.draw = function(self){
 
   var starting_angle;
 
-  if(this.curpath.dir == "left" && !this.breakout){
+  if(this.curpath.dir == "left" && !this.curpath.on_breakout){
 
     starting_angle = this.curpath.starting_angle;
 
@@ -140,7 +139,7 @@ Player.prototype.draw = function(self){
     this.ctx.stroke();
   }
 
-  if(this.curpath.dir == "right" && !this.breakout){
+  if(this.curpath.dir == "right" && !this.curpath.on_breakout){
 
     starting_angle = this.curpath.starting_angle;
 
@@ -818,9 +817,11 @@ Player.prototype.updateTm = function( id, tm_to, idx){
 
 }
 
-Player.prototype.rebuildPaths = function(){
+Player.prototype.rebuildPaths = function(tm_to_curpath){
 
   console.log("REBUILD PATHS");
+  console.log(tm_to_curpath);
+  this.logArr(this.inputs_history, "inputs history");
 
   var working_curpath = {
       id: 0,
@@ -848,9 +849,6 @@ Player.prototype.rebuildPaths = function(){
 
   var new_path_collection = [];
 
-  console.log("INPUT HISTORY: ");
-  this.logArr(this.inputs_history);
-
   for(var i = 0; i<this.inputs_history.length; i++){
 
     var input = this.inputs_history[i];
@@ -862,9 +860,36 @@ Player.prototype.rebuildPaths = function(){
 
   }
 
-  this.recomputeCurpath(Date.now(), working_curpath);
+  if(!tm_to_curpath){
+    tm_to_curpath = Date.now();
+  }
+
+  this.recomputeCurpath(tm_to_curpath, working_curpath);
   this.curpath = working_curpath;
   this.paths = new_path_collection;
+
+}
+
+Player.prototype.rebuildPathsAfterKilled = function(tm_killed){
+
+  //search last input
+  var idx = 0;
+
+  for(var i = this.inputs_history.length-1; i>=0; i--){
+
+    var input_item = this.inputs_history[i];
+
+    if(input_item.tm<tm_killed){
+      idx = i+1;
+      break;
+    }
+
+  }
+
+  this.inputs_history.splice(idx);
+
+  this.rebuildPaths(tm_killed);
+
 
 }
 
