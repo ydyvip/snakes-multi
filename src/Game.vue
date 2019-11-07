@@ -345,15 +345,13 @@
 
         })
 
-        this.$io.on("killed", (playername, collision_tm, path_at_collision, forced)=>{
+        this.$io.on("killed", (playername, collision_tm)=>{
 
           for(var player of players){
             if(player.name ==  playername){
               player.inputs.push({
                 type: "killed",
-                collision_tm: collision_tm,
-                path_at_collision: path_at_collision,
-                forced: forced
+                collision_tm: collision_tm
               });
               return;
             }

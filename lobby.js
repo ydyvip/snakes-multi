@@ -79,7 +79,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
     player_state.speed = 0;
     player_state.collision_tm = 0;
     player_state.killed = true;
-    this.emitKilled(player_state, player_state.collision_before_input.collision_tm, player_state.collision_before_input.path_at_collision, true); //4th arg true due to force
+    this.emitKilled(player_state, player_state.collision_before_input.collision_tm);
     return;
   }
 
@@ -95,7 +95,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
       player_state.speed = 0;
       player_state.collision_tm = 0;
       player_state.killed = true;
-      this.emitKilled(player_state, collision_tm, player_state.path_at_collision);
+      this.emitKilled(player_state, collision_tm);
     }
     else{
       player_state.collision_timeout = null;
@@ -108,11 +108,11 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
   }, 250);
 }
 
-Game.prototype.emitKilled = function(player_state, collision_tm, path_at_collision, forced){
+Game.prototype.emitKilled = function(player_state, collision_tm){
 
   var playername = player_state.name;
 
-  io.to(this.name).emit("killed", playername, collision_tm, path_at_collision, forced);
+  io.to(this.name).emit("killed", playername, collision_tm);
 
   for( var player of this.players){
 
