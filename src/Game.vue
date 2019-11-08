@@ -280,10 +280,6 @@
 
           clearTimeout(this.tmout_qc);
 
-          for(var player of players){
-            player.speed = 0;
-            player.gap_ref.clearTimeouts();
-          }
 
         })
 
@@ -345,13 +341,14 @@
 
         })
 
-        this.$io.on("killed", (playername, collision_tm)=>{
+        this.$io.on("killed", (playername, collision_tm, end_of_round)=>{
 
           for(var player of players){
             if(player.name ==  playername){
               player.inputs.push({
                 type: "killed",
-                collision_tm: collision_tm
+                collision_tm: collision_tm,
+                end_of_round: end_of_round
               });
               return;
             }
@@ -480,7 +477,7 @@
 
             var input = player_item.inputs.shift();
 
-            if(player.speed == 0)
+            if(player_item.speed == 0)
               continue;
 
             if(input.type == "gap_start"){
@@ -497,6 +494,12 @@
             }
             else if(input.type == "killed"){
               player_item.rebuildPathsAfterKilled(input.collision_tm);
+              if(input.end_of_round){
+                for(var player of players){
+                  player.speed = 0;
+                  player.gap_ref.clearTimeouts();
+                }
+              }
               player_item.gap_ref.clearTimeouts();
               player_item.speed = 0;
               player_item.collision_tm = 0;

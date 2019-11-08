@@ -60,6 +60,7 @@ Game.prototype.getPlayersName = function(){
   return arr;
 }
 
+
 Game.prototype.collisionDetected = function(player_state, collision_tm, type, participant){
 
   console.log("collision detected: " + collision_tm);
@@ -75,7 +76,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 
   if(player_state.collision_force){
     player_state.collision_timeout = null;
-    player_state.rebuildPathsAfterKilled(collision_tm);
+    player_state.rebuildPathsAfterKilled(player_state.collision_before_input.collision_tm);
     player_state.speed = 0;
     player_state.collision_tm = 0;
     player_state.killed = true;
@@ -112,8 +113,6 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
 
   var playername = player_state.name;
 
-  io.to(this.name).emit("killed", playername, collision_tm);
-
   for( var player of this.players){
 
     if(player.playername == playername && player.live){
@@ -123,7 +122,17 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
     }
 
   }
+  
+  var end_of_round = false;
   if(this.round_points == this.max_players-1){ // Only one stay alive - end of round condition
+    end_of_round = true;
+    io.to(this.name).emit("killed", playername, collision_tm, end_of_round);
+  }
+  else{
+    io.to(this.name).emit("killed", playername, collision_tm);
+  }
+
+  if(end_of_round){
 
     clearTimeout(this.tmout_qc);
 

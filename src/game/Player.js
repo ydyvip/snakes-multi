@@ -661,6 +661,10 @@ Player.prototype.quitConsideation = function(tm, server){
 
   // Save curpath for case when new input that occured before quit consideration arrive.
 
+  if(this.speed == 0){
+    return;
+  }
+
   this.recomputeCurpath(tm);
 
   this.id_path_before_qc = this.curpath.id;
