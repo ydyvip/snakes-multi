@@ -122,7 +122,7 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
     }
 
   }
-  
+
   var end_of_round = false;
   if(this.round_points == this.max_players-1){ // Only one stay alive - end of round condition
     end_of_round = true;
@@ -207,9 +207,6 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
       }
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
-
-      if(!this.replay_mode)
-        this.detachMyselfFromList();
 
       this.game_state.end_of_game = true;
 
@@ -505,10 +502,19 @@ Game.prototype.start = function(){
     }
 
     if(this.game_state.end_of_game){
-      this.game_state = null;
-      this.game_replay = null;
-      this.game_replay_player = null;
+
       gameloop.clearGameLoop(this.gameloop_id);
+
+      clearTimeout(this.tmout_qc);
+
+      // clear kill timeouts
+
+      for(var player_state_item of this.player_states ){
+
+        clearTimeout(player_state_item.collision_timeout);
+
+      }
+
       for(var player of this.players){
         if(!player.socket.id) // replay
           continue;
@@ -518,7 +524,21 @@ Game.prototype.start = function(){
         player = null;
       }
 
+      for(var player_state_item of this.player_states ){
+
+        player_state_item = null;
+
+      }
+
+      if(!this.replay_mode)
+        this.detachMyselfFromList();
+
+      this.player_states = null;
       this.players = null;
+
+      this.game_state = null;
+      this.game_replay = null;
+      this.game_replay_player = null;
 
     }
 
