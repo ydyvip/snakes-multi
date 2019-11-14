@@ -654,6 +654,22 @@ module.exports = function( io_, socket ){
 
  })
 
+ socket.on("disconnect", ()=>{
+
+   if(!socket.currentRoom){
+     return;
+   }
+
+   var prev_game = games.getRoomWithName(socket.currentRoom);
+   prev_game.delistPlayer(socket.playername);
+
+   socket.broadcast.emit("roomchanged", socket.playername, socket.currentRoom, null);
+
+   socket.leave(socket.currentRoom);
+   socket.currentRoom = null;
+
+ })
+
   socket.on("getgamelist", function(){
 
     var arr = games.getGameList();
