@@ -44,6 +44,8 @@ function Game( player_creator, name, bet, max_players, replay_mode = false){
 
   this.gap_controller_ref = null;
 
+  this.started = false;
+
 }
 
 if(process.TEST_MODE == true){
@@ -683,7 +685,7 @@ module.exports = function( io_, socket ){
 
     // Check if there is space for new player in room
     var room = games.getRoomWithName(newroom);
-    if(!room || room.cnt_players==room.max_players){
+    if(!room || room.cnt_players==room.max_players || room.started){
       return; // TODO: room is full
     }
 
@@ -727,6 +729,7 @@ module.exports = function( io_, socket ){
     if(new_game.cnt_players==new_game.max_players){
 
       new_game.start();
+      new_game.started = true;
 
     }
 
