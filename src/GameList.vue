@@ -190,10 +190,17 @@
           return; // TODO: room is full
         }
 
-        this.updateGamelist(this.loggedAs, this.currentRoom, gamename);
-        this.currentRoom = gamename;
+        this.$io.emit("join", this.loggedAs, gamename, (success)=>{
 
-        this.$io.emit("join", this.loggedAs, gamename);
+          if(success){
+            this.updateGamelist(this.loggedAs, this.currentRoom, gamename);
+            this.currentRoom = gamename;
+          }
+          else{
+            return; // TODO: room is full
+          }
+
+        });
 
       },
 

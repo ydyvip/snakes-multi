@@ -679,13 +679,14 @@ module.exports = function( io_, socket ){
 
   })
 
-  socket.on("join", function(playername, newroom){
+  socket.on("join", function(playername, newroom, cb_confirmation){
 
     var previousroom = socket.currentRoom;
 
     // Check if there is space for new player in room
     var room = games.getRoomWithName(newroom);
     if(!room || room.cnt_players==room.max_players || room.started){
+      cb_confirmation(false); //failure
       return; // TODO: room is full
     }
 
@@ -716,6 +717,8 @@ module.exports = function( io_, socket ){
         socket.playername = playername;
 
         socket.broadcast.emit("roomchanged", playername, previousroom, newroom);
+
+        cb_confirmation(true); //success
 
         return true;
       }
