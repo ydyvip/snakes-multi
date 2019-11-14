@@ -72,6 +72,8 @@
 
           if(response.data.success == true){
             this.$emit("successfull-login", response.data.username, response.data.balance);
+            this.$estabilishSocketConnection();
+
           }
 
         })

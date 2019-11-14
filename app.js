@@ -32,15 +32,13 @@ const MongoStore = require('connect-mongo')(session);
 var passport = require("passport");
 require("./API/passport_conf.js");
 
+var passportSocketIo = require("passport.socketio");
+
 var app = express();
 
 var http = require("http").Server(app);
 
-// Mount io server
-var io = require("socket.io")(http);
-io.on("connection", function(socket){
-    var lobby = require("./lobby.js")(io, socket);
-})
+
 
 var login = require("./API/login.api.js");
 var register = require("./API/register.api.js");
@@ -54,25 +52,65 @@ db.promise.then( function(){
 	});
 })
 
-app.use(express.static("public"));
-app.use(session({
-   secret: "TeraXaxzz",
-   store: new MongoStore({
-     dbPromise: db.promise
-   }),
+var secret = "u7ga782";
+var session_store = new MongoStore(
+  {
+    dbPromise: db.promise
+  }
+);
+
+var session_middleware = session({
+   secret: secret,
+   store: session_store,
    cookie: {
      maxAge: 1000 * 60 * 60 * 24 * 30 // one month
    },
    resave: false,
    saveUninitialized: false
-}));
+});
+
+app.use(express.static("public"));
+app.use(session_middleware);
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded());
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.use("/login", login);
 app.use("/register", register);
 app.use("/faucet", faucet);
 app.use("/gamereplays", gamereplays);
+
+// Mount io server
+var io = require("socket.io")(http);
+
+io.use(passportSocketIo.authorize({
+  key:          'connect.sid',       // the name of the cookie where express/connect stores its session_id
+  secret:       secret,    // the session_secret to parse the cookie
+  store:        session_store,        // we NEED to use a sessionstore. no memorystore please
+  success:      onAuthorizeSuccess,  // *optional* callback on success - read more below
+  fail:         onAuthorizeFail,     // *optional* callback on fail/error - read more below
+}));
+
+function onAuthorizeSuccess(data, accept){
+
+  //console.log("Authorized socket io connection");
+  accept();
+
+}
+
+function onAuthorizeFail(data, message, error, accept){
+
+  //console.log("Non-Authorized socket io connection");
+  //console.log(message);
+
+  // error indicates whether the fail is due to an error or just a unauthorized client
+  if(error)  throw new Error(message);
+  // send the (not-fatal) error-message to the client and deny the connection
+  return accept(new Error(message));
+}
+
+
+io.on("connection", function(socket){
+    var lobby = require("./lobby.js")(io, socket);
+})

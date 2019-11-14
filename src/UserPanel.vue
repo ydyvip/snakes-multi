@@ -63,6 +63,7 @@
         this.$axios.get("/login/logout")
         .then( ()=>{
           this.$emit("logout");
+          this.$io.close();
         } )
 
       },

@@ -652,7 +652,7 @@ module.exports = function( io_, socket ){
       socket.player_state.changeDirSrv("straight", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
    }, 1)
 
-  })
+ })
 
   socket.on("getgamelist", function(){
 

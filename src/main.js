@@ -14,9 +14,15 @@ var axios = require("axios");
 Vue.use(CheckboxRadio);
 Vue.use(Tooltip);
 
-var io = require("socket.io-client")();
 
-Vue.prototype.$io = io;
+Vue.prototype.$estabilishSocketConnection = function(){
+
+  Vue.prototype.$io = require("socket.io-client")();
+
+}
+
+Vue.prototype.$estabilishSocketConnection();
+
 Vue.prototype.$anime = anime;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = new Vue({});
