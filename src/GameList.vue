@@ -190,7 +190,7 @@
           return; // TODO: room is full
         }
 
-        this.$io.emit("join", this.loggedAs, gamename, (success)=>{
+        this.$io.emit("join", gamename, (success)=>{
 
           if(success){
             this.updateGamelist(this.loggedAs, this.currentRoom, gamename);
@@ -230,7 +230,7 @@
 
         var room_name = this.new_game_form.gamename.val;
 
-        this.$io.emit("newgame", this.new_game_form.gamename.val, this.new_game_form.bet.val, this.new_game_form.max_players.val, this.loggedAs,
+        this.$io.emit("newgame", this.new_game_form.gamename.val, this.new_game_form.bet.val, this.new_game_form.max_players.val,
           (res)=>{
 
             if(res.for == "confirm"){

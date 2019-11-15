@@ -679,8 +679,9 @@ module.exports = function( io_, socket ){
 
   })
 
-  socket.on("join", function(playername, newroom, cb_confirmation){
+  socket.on("join", function( newroom, cb_confirmation){
 
+    var playername = socket.playername;
     var previousroom = socket.currentRoom;
 
     // Check if there is space for new player in room
@@ -714,7 +715,6 @@ module.exports = function( io_, socket ){
 
         socket.join(newroom);
         socket.currentRoom = newroom;
-        socket.playername = playername;
 
         socket.broadcast.emit("roomchanged", playername, previousroom, newroom);
 
@@ -738,7 +738,9 @@ module.exports = function( io_, socket ){
 
   })
 
-  socket.on("newgame", (gamename, bet, max_players, playername, fn)=>{
+  socket.on("newgame", (gamename, bet, max_players, fn)=>{
+
+    var playername = socket.playername;
 
     if(socket.currentRoom){
       fn({
@@ -780,7 +782,6 @@ module.exports = function( io_, socket ){
 
     socket.join(gamename);
     socket.currentRoom = gamename;
-    socket.playername = playername;
 
     var p = {
       playername: playername,

@@ -112,5 +112,8 @@ function onAuthorizeFail(data, message, error, accept){
 
 
 io.on("connection", function(socket){
+
+    socket.playername = socket.request.user.username;
+    
     var lobby = require("./lobby.js")(io, socket);
 })
