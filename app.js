@@ -94,26 +94,59 @@ io.use(passportSocketIo.authorize({
 
 function onAuthorizeSuccess(data, accept){
 
-  //console.log("Authorized socket io connection");
+  // console.log("Authorized socket io connection");
   accept();
 
 }
 
 function onAuthorizeFail(data, message, error, accept){
 
-  //console.log("Non-Authorized socket io connection");
-  //console.log(message);
+  // console.log("Non-Authorized socket io connection");
+  // console.log(message);
 
   // error indicates whether the fail is due to an error or just a unauthorized client
   if(error)  throw new Error(message);
   // send the (not-fatal) error-message to the client and deny the connection
   return accept(new Error(message));
+
 }
+
+var games = require("./games.js");
+
+io.use( (socket, next)=>{
+
+  socket.playername = socket.request.user.username;
+
+  for(var key in io.sockets.connected){
+    if(socket.playername == io.sockets.connected[key].playername){
+      next(new Error("already connected"));
+      return;
+    }
+  }
+
+  next();
+
+})
+
+io.use( (socket,next)=>{
+
+  var isPlayerInGame = games.isPlayerInGame(socket.playername);
+  if(isPlayerInGame){
+    var game_name = isPlayerInGame;
+    next( new Error("already in game") );
+  }
+  else{
+    next();
+  }
+
+})
 
 
 io.on("connection", function(socket){
 
-    socket.playername = socket.request.user.username;
-    
+  for(var key in io.sockets.connected){
+    console.log(io.sockets.connected[key].playername);
+  }
+
     var lobby = require("./lobby.js")(io, socket);
 })

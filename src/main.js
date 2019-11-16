@@ -23,6 +23,20 @@ Vue.prototype.$estabilishSocketConnection = function(){
 
 Vue.prototype.$estabilishSocketConnection();
 
+Vue.prototype.$io.on("connect", ()=>{
+  console.log("connect socket");
+})
+
+Vue.prototype.$io.on("disconnect", (reason)=>{
+  console.log("disconnect socket");
+  console.log("reason: " + reason);
+})
+
+Vue.prototype.$io.on("error", (err)=>{
+  console.log("error: " + err);
+})
+
+
 Vue.prototype.$anime = anime;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = new Vue({});

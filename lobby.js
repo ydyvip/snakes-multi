@@ -17,7 +17,7 @@ var stubber = require("./cypress/stubber.js");
 
 var io = null;
 
-var games = [];
+var games = require("./games.js");
 var sample_game = null;
 
 function Game( player_creator, name, bet, max_players, replay_mode = false){
@@ -584,47 +584,9 @@ Game.prototype.delistPlayer = function(playername){
 
 }
 
-games.getRoomWithName = function(gamename){
-
-  var room = this.find( function(game){
-
-    if(game.name == gamename)
-      return true;
-
-  });
-
-  return room;
-
-}
-
-games.getGameList = function(){
-
-  var arr = [];
-
-  games.forEach( (game_item)=>{
-
-    var p_names = [];
-
-    game_item.players.forEach( (player_item)=>{
-      p_names.push(player_item.playername);
-    })
-
-    arr.push({
-      cnt_players: game_item.cnt_players,
-      max_players: game_item.max_players,
-      bet: game_item.bet,
-      name: game_item.name,
-      players: p_names
-    });
-
-
-  });
 
 
 
-  return arr;
-
-}
 
 
 /*
@@ -638,7 +600,7 @@ module.exports = function( io_, socket ){
   socket.on("left", function(tm, reduction_sync_complete){
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
-    }, 1)
+    }, 1);
 
   })
 
@@ -662,13 +624,13 @@ module.exports = function( io_, socket ){
      return;
    }
 
-   var prev_game = games.getRoomWithName(socket.currentRoom);
-   prev_game.delistPlayer(socket.playername);
-
-   socket.broadcast.emit("roomchanged", socket.playername, socket.currentRoom, null);
-
-   socket.leave(socket.currentRoom);
-   socket.currentRoom = null;
+   // var prev_game = games.getRoomWithName(socket.currentRoom);
+   // prev_game.delistPlayer(socket.playername);
+   //
+   // socket.broadcast.emit("roomchanged", socket.playername, socket.currentRoom, null);
+   //
+   // socket.leave(socket.currentRoom);
+   // socket.currentRoom = null;
 
  })
 
