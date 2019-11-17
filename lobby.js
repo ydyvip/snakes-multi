@@ -624,13 +624,20 @@ module.exports = function( io_, socket ){
      return;
    }
 
-   // var prev_game = games.getRoomWithName(socket.currentRoom);
-   // prev_game.delistPlayer(socket.playername);
-   //
-   // socket.broadcast.emit("roomchanged", socket.playername, socket.currentRoom, null);
-   //
-   // socket.leave(socket.currentRoom);
-   // socket.currentRoom = null;
+   var prev_game = games.getRoomWithName(socket.currentRoom);
+
+   if(prev_game.started){
+     return; // prevent delisting, user can not be in two games simultaneously;
+   }
+
+   //delist only when game has not been started
+
+   prev_game.delistPlayer(socket.playername);
+
+   socket.broadcast.emit("roomchanged", socket.playername, socket.currentRoom, null);
+
+   socket.leave(socket.currentRoom);
+   socket.currentRoom = null;
 
  })
 
