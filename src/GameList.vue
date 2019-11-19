@@ -13,8 +13,8 @@
           <span v-tooltip.left.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"><input min="100" class="input" type="number" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"/></span>
           <span v-tooltip.left.notrigger="{ content: new_game_form.max_players.err_msg, class: 'tooltip-custom', visible: new_game_form.max_players.err }"><input min="2" max="6" class="input" type="number" placeholder="Max Players" v-model="new_game_form.max_players.val"/></span>
 
-          <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
-          <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
+          <button class="btn-small btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
+          <button class="btn-small btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
         </div>
       </transition>
 
@@ -399,6 +399,11 @@ img {
 </style>
 
 <style>
+
+.btn-small {
+  font-size: 11px;
+}
+
 .vue-tooltip{
    background-color:#000;
    box-sizing:border-box;
