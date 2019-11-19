@@ -2,27 +2,37 @@
 
   <div class="main-box">
 
-    <transition mode="out-in" v-on:enter="enterRoomCreationForm" v-on:leave="leaveRoomCreationForm">
-      <div v-if="menu_active" class="game-list-menu" key="m_a1" >
-        <a  v-on:click.prevent="menu_active = false" class="href" href=""><b>New >></b></a>
+    <div v-if="socket_connected">
+      <transition mode="out-in" v-on:enter="enterRoomCreationForm" v-on:leave="leaveRoomCreationForm">
+        <div v-if="menu_active" class="game-list-menu" key="m_a1" >
+          <a  v-on:click.prevent="menu_active = false" class="href" href=""><b>New >></b></a>
+        </div>
+
+        <div v-else class="game-list-menu" key="m_a2">
+          <span v-tooltip.left.notrigger="{ content: new_game_form.gamename.err_msg, class: 'tooltip-custom', visible: new_game_form.gamename.err}"><input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val" /></span>
+          <span v-tooltip.left.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"><input min="100" class="input" type="number" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"/></span>
+          <span v-tooltip.left.notrigger="{ content: new_game_form.max_players.err_msg, class: 'tooltip-custom', visible: new_game_form.max_players.err }"><input min="2" max="6" class="input" type="number" placeholder="Max Players" v-model="new_game_form.max_players.val"/></span>
+
+          <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
+          <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
+        </div>
+      </transition>
+
+      <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
+        <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.svg" /><img v-for="n in game.max_players-game.cnt_players" src="img/circle-24-off.svg" />
+        <span class="game-name">{{game.name}}</span>
+        <span class="bet">{{game.bet}} Satoshi</span>
+        <button class="btn green" v-if="currentRoom != game.name" v-on:click="joinToGame( game.name )" style="margin-left: 50px;"><b>JOIN</b></button>
+        <button v-else class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;"><b>LEAVE</b></button>
       </div>
-
-      <div v-else class="game-list-menu" key="m_a2">
-        <span v-tooltip.left.notrigger="{ content: new_game_form.gamename.err_msg, class: 'tooltip-custom', visible: new_game_form.gamename.err}"><input class="input" type="text" placeholder="Game name" v-model="new_game_form.gamename.val" /></span>
-        <span v-tooltip.left.notrigger="{ content: new_game_form.bet.err_msg, class: 'tooltip-custom', visible: new_game_form.bet.err }"><input min="100" class="input" type="number" placeholder="Bet (Satoshi)" v-model="new_game_form.bet.val"/></span>
-        <span v-tooltip.left.notrigger="{ content: new_game_form.max_players.err_msg, class: 'tooltip-custom', visible: new_game_form.max_players.err }"><input min="2" max="6" class="input" type="number" placeholder="Max Players" v-model="new_game_form.max_players.val"/></span>
-
-        <button class="btn" v-on:click="roomCreation" v-tooltip.left.notrigger="{ content: new_game_form.confirm.err_msg, class:'tooltip-custom', visible: new_game_form.confirm.err}" style="margin-right: 20px; background-color: #00afec"><b>CONFIRM</b></button>
-        <button class="btn" v-on:click="menu_active = true" style="background-color: #b22222"><b>NEVERMIND</b></button>
+    </div>
+    <div v-else>
+      <div v-if="socket_connection_err=='already connected'">
+        Already connected
       </div>
-    </transition>
-
-    <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
-      <img v-bind:title="game.players.join()" v-for="n in game.cnt_players" src="img/circle-24-on.svg" /><img v-for="n in game.max_players-game.cnt_players" src="img/circle-24-off.svg" />
-      <span class="game-name">{{game.name}}</span>
-      <span class="bet">{{game.bet}} Satoshi</span>
-      <button class="btn green" v-if="currentRoom != game.name" v-on:click="joinToGame( game.name )" style="margin-left: 50px;"><b>JOIN</b></button>
-      <button v-else class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;"><b>LEAVE</b></button>
+      <div v-if="socket_connection_err=='already in game'">
+        Already in game
+      </div>
     </div>
 
   </div>
@@ -36,6 +46,8 @@
     data: ()=>({
 
       games: [],
+      socket_connected: false,
+      socket_connection_err: null,
       currentRoom: null,
       menu_active: true,
       new_game_form: {
@@ -69,6 +81,8 @@
     mounted: function(){
 
       this.refreshGameList();
+
+      console.log("GameList mounted");
 
       this.$io.on("updategamelist", this.recreateGameList );
 
@@ -123,7 +137,23 @@
 
       refreshGameList: function(){
 
-        this.$io.emit("getgamelist");
+        this.$bus.connection_promise.then((res)=>{
+
+          if(res=="already connected"){
+            this.socket_connected = false;
+            this.socket_connection_err = "already connected";
+          }
+          if(res=="already in game"){
+            this.socket_connected = false;
+            this.socket_connection_err = "already in game";
+          }
+          if(res=="connected"){
+            this.socket_connected = true;
+            this.socket_connection_err = null;;
+            this.$io.emit("getgamelist");
+          }
+
+        })
 
       },
 
@@ -296,7 +326,7 @@
 
       leaveRoom: function(){
 
-        this.$io.emit("leave", this.loggedAs)
+        this.$io.emit("leave")
         this.updateGamelist(this.loggedAs, this.currentRoom, null);
         this.currentRoom = "";
       }
