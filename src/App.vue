@@ -11,7 +11,7 @@
       </component>
     </template>
 
-    <game-replay v-if="!loggedAs" v-on:play_replay="playReplay" ></game-replay>
+    <game-replay v-if="!loggedAs && false" v-on:play_replay="playReplay" ></game-replay>
 
   </div>
 

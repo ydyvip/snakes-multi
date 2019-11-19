@@ -791,6 +791,8 @@ module.exports = function( io_, socket ){
 
   socket.on("playreplay", (replay_id, fn)=>{
 
+    return;
+
     GameReplayDB.getReplayMeta(replay_id)
     .then((replay_meta)=>{
 
