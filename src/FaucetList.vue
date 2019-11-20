@@ -23,7 +23,7 @@
         </table>
 
         <div class="box">
-          Are you faucet owner and wanna add your faucet on above list? <br/>
+          Are you faucet owner and want add your faucet on above list? <br/>
           <a class="href" v-on:click.prevent="go_to_newfaucetform" href="">Create a New Faucet >></a>
           <br/>
           <br/>

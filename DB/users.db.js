@@ -120,7 +120,7 @@ var users = {
       },
       {
         $inc: {
-          balance: amount
+          balance: parseInt(amount)
         }
       }
     );

@@ -53,7 +53,7 @@ var faucets = {
 
     },
 
-    withdraw: function(api_key){
+    withdraw: function(api_key, to){
 
       // Reduce balance by reward
 
@@ -62,10 +62,52 @@ var faucets = {
           api_key: api_key
         },
         {
-          reward: 1
+          reward: 1,
+          last_visited: 1,
+          withdraw_history: 1,
+          timer: 1, // minutes: * 60 * 1000 to ms
+          balance: 1
         }
       )
       .then((doc)=>{
+
+        if(!doc){
+          return {
+            success: false,
+            err_code: 600,
+            err_msg: "Invalid api key"
+          }
+        }
+
+        // check withdraw_history
+
+        for(var i = doc.withdraw_history.length-1; i>=0; i--){
+
+          var withdraw_item = doc.withdraw_history[i];
+          if(withdraw_item.to == to){
+            var minutes_elapsed = Math.floor((Date.now() - withdraw_item.when)/1000/60);
+            var minutes_await = doc.timer - minutes_elapsed;
+            if(Date.now() - withdraw_item.when < doc.timer*60*1000)
+            {
+              return {
+                success: false,
+                err_code: 601,
+                err_msg: "You can withdraw from faucet again in " + minutes_await + " minutes"
+              }
+            }
+          }
+
+        }
+
+        // check faucet balance ...
+
+        if(doc.balance < doc.reward){
+          return {
+            success: false,
+            err_code: 602,
+            err_msg: ""
+          }
+        }
 
         return this.coll.updateOne(
           {
@@ -75,13 +117,19 @@ var faucets = {
             $inc: {
               balance: -doc.reward
             },
-            $currentDate: {
-              last_visited: true
+            $push: {
+              withdraw_history: {
+                to: to,
+                when: Date.now()
+              }
             }
           }
         )
         .then(()=>{
-          return doc.reward;
+          return {
+            success: true,
+            reward: doc.reward
+          }
         });
 
       });
@@ -116,6 +164,7 @@ var faucets = {
         timer: timer,
         owner: username,
         balance: 0,
+        withdraw_history: [],
         api_key: api_key,
         approved: false,
         btc_deposit: btc_deposit,

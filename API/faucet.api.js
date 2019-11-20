@@ -149,16 +149,36 @@ router.post("/register", function(req,res){
 
 })
 
+
 router.post("/send", function(req,res){
 
   // Handling withdraws
+  // req.body.api_key
+  // req.body.to
 
-  Faucets.withdraw(req.body.api_key)
-  .then((reward)=>{
+  /*
+    {
+      success: false,
+      err_code:
+      err_msg:
+    }
+    {
+      success: true,
+      reward: xxx
+    }
+  */
 
-    Users.incrementBalanceForAdressOwner(req.body.to, reward );
+  Faucets.withdraw(req.body.api_key, req.body.to)
+  .then((result)=>{
 
-    res.end();
+    if(result.success == false){
+      res.json(result);
+      return;
+    }
+
+    Users.incrementBalanceForAdressOwner(req.body.to, result.reward );
+
+    res.json(result);
 
   })
 

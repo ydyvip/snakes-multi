@@ -39,8 +39,8 @@
         <input class="input" placeholder="Timer (minutes)" type="number" v-model="timer.val" />
         <div class="form-input-err" v-if="timer.err">{{timer.err}}</div>
       </div>
-      <button class="btn" style="margin-right: 20px; background-color: #00afec" v-on:click="sendForm">CONFIRM</button>
-      <button class="btn" v-on:click="$emit('back')" style="background-color: #b22222"><b>NEVERMIND</b></button>
+      <button class="btn-small btn" style="margin-right: 20px; background-color: #00afec" v-on:click="sendForm">CONFIRM</button>
+      <button class="btn-small btn" v-on:click="$emit('back')" style="background-color: #b22222"><b>NEVERMIND</b></button>
     </div>
   </div>
 </template>
