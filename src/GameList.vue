@@ -95,6 +95,8 @@
 
     beforeDestroy: function(){
 
+      console.log("before destroy");
+
       this.$io.removeListener("updategamelist", this.recreateGameList );
 
       this.$io.removeListener("roomchanged", this.updateGamelist );
@@ -159,11 +161,15 @@
 
       recreateGameList: function(games){
 
+        console.log("recrete")
+
         this.games = games;
 
       },
 
       updateGamelist: function(player, previousroom, nextroom){
+
+        console.log("updateGameList");
 
         // update previous game
         this.games.findIndex( (game)=>{
