@@ -6,6 +6,10 @@ Player.prototype.srv = true;
 
 Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
+  if(newdir != "left" || newdir != "right" || newdir != "straight" || /[^0-9]/.test(tm)){
+    return;
+  }
+
   if(this.killed==true)
     return;
 

@@ -658,6 +658,11 @@ module.exports = function( io_, socket ){
     var playername = socket.playername;
     var previousroom = socket.currentRoom;
 
+    if(/[^a-zA-Z0-9 ]/.test(newroom)){
+      cb_confirmation(false);//failure
+      return;
+    }
+
     if(previousroom && previousroom == socket.currentRoom){
       cb_confirmation(false);//failure
       return;
@@ -721,11 +726,29 @@ module.exports = function( io_, socket ){
 
     var playername = socket.playername;
 
+    // validation of inputs
+
     if(socket.currentRoom){
       fn({
         for: "confirm",
         err_msg: "Please leave current room before creating another one"
       });
+      return;
+    }
+
+    if(!gamename){
+      fn({
+        for: "gamename",
+        err_msg: "Game name is required"
+      })
+      return;
+    }
+
+    if(/[^a-zA-Z0-9 ]/.test(gamename)){
+      fn({
+        for: "gamename",
+        err_msg: "Game name contais not allowed characters. ( allowed: letters,numbers,space )"
+      })
       return;
     }
 
@@ -737,6 +760,14 @@ module.exports = function( io_, socket ){
       return;
     }
 
+    if(/[^0-9]/.test(bet)){
+      fn({
+        for: "bet",
+        err_msg: "Bet must be a number"
+      })
+      return;
+    }
+
     if(bet<100){
       fn({
         for: "bet",
@@ -744,6 +775,15 @@ module.exports = function( io_, socket ){
       });
       return;
     }
+
+    if(/[^0-9]/.test(max_players)){
+      fn({
+        for: "max_players",
+        err_msg: "Must be a number"
+      })
+      return;
+    }
+
     if(max_players<2){
       fn({
         for: "max_players",
