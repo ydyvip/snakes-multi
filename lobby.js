@@ -645,7 +645,11 @@ module.exports = function( io_, socket ){
   socket.on("getgamelist", function(){
 
     var arr = games.getGameList();
-    socket.emit("updategamelist", arr);
+    var current_room = null;
+    if(socket.currentRoom){
+      current_room = socket.currentRoom
+    }
+    socket.emit("updategamelist", arr, current_room);
 
   })
 

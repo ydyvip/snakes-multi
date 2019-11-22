@@ -82,8 +82,6 @@
 
       this.refreshGameList();
 
-      console.log("GameList mounted");
-
       this.$io.on("updategamelist", this.recreateGameList );
 
       this.$io.on("roomchanged", this.updateGamelist );
@@ -159,17 +157,17 @@
 
       },
 
-      recreateGameList: function(games){
-
-        console.log("recrete")
+      recreateGameList: function(games, currentRoom){
 
         this.games = games;
+
+        if(currentRoom){
+          this.currentRoom = currentRoom;
+        }
 
       },
 
       updateGamelist: function(player, previousroom, nextroom){
-
-        console.log("updateGameList");
 
         // update previous game
         this.games.findIndex( (game)=>{
