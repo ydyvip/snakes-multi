@@ -575,6 +575,7 @@ Game.prototype.delistPlayer = function(playername){
         return true;
       }
     });
+
     this.players.splice(index, 1);
 
     if(this.cnt_players==0){
@@ -652,6 +653,11 @@ module.exports = function( io_, socket ){
 
     var playername = socket.playername;
     var previousroom = socket.currentRoom;
+
+    if(previousroom && previousroom == socket.currentRoom){
+      cb_confirmation(false);//failure
+      return;
+    }
 
     // Check if there is space for new player in room
     var room = games.getRoomWithName(newroom);
