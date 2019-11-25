@@ -52,10 +52,11 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
         var self = player_against.name == player.name;
 
+        // 360 degree collision on curpath
         if(self && (player_against.curpath.dir=="left" || player_against.curpath.dir=="right" ))
         {
           var degree_per_1px = 360 / (2*Math.PI*player_against.r);
-          var degree_distance = degree_per_1px * player_against.weight/2;
+          var degree_distance = degree_per_1px * player_against.weight/2; // radius in degree
 
           var c = Math.abs(player_against.curpath.angle - player_against.curpath.base_start_angle) > (360-degree_distance);
           if(c){

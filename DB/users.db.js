@@ -75,22 +75,62 @@ var users = {
         password: hash,
         email: email,
         btc_address: btc_address,
-        balance: 100
+        balance_total: 100,
+        balance_withdrawal: 0
       } );
     });
   },
 
-  reduceBalances: function(users, amount){
+  checkBalance: function(playername, charge){
+
+    var reduction_obj = {
+      success: false,
+      balance_total_reduction: 0,
+      balance_withdrawal_reduction: 0
+    }
+
+    return this.coll.findOne({
+      username: playername
+    },
+    {
+      projection: {
+        balance_total: 1,
+        balance_withdrawal: 1
+      }
+    })
+    .then((doc)=>{
+
+      if(doc.balance_total>=charge){
+        reduction_obj.success = true;
+        reduction_obj.balance_total_reduction = charge;
+
+        var balance_after = doc.balance_total - charge;
+        // equalize balance when withdrawal exceeded total
+        if(balance_after<doc.balance_withdrawal){
+          reduction_obj.balance_withdrawal_reduction = doc.balance_withdrawal - balance_after;
+        }
+      }
+      else{
+        reduction_obj.success = false;
+      }
+
+      return reduction_obj;
+
+    })
+
+  },
+
+  reduceBalances: function(player_names, amount){
 
     this.coll.updateMany(
       {
         username: {
-          $in: users
+          $in: player_names
         }
       },
       {
         $inc: {
-          balance: amount
+          balance_total: amount
         }
       }
     );
@@ -105,7 +145,7 @@ var users = {
       },
       {
         $inc: {
-          balance: amount
+          balance_withdrawal: amount
         }
       }
     );
@@ -120,7 +160,7 @@ var users = {
       },
       {
         $inc: {
-          balance: parseInt(amount)
+          balance_total: parseInt(amount)
         }
       }
     );

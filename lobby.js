@@ -668,57 +668,79 @@ module.exports = function( io_, socket ){
       return;
     }
 
-    // Check if there is space for new player in room
     var room = games.getRoomWithName(newroom);
-    if(!room || room.cnt_players==room.max_players || room.started){
-      cb_confirmation(false); //failure
-      return; // TODO: room is full
-    }
 
-    // update previous game
-    if(previousroom){
-      var previous_game = games.getRoomWithName(previousroom);
-      previous_game.delistPlayer(playername);
-      socket.leave(previousroom);
-    }
-
-
-    // update new game
-    var new_game = games.find( (game)=>{
-
-      if(game.name == newroom){
-        game.cnt_players++;
-
-        // edit
-        game.players.push({
-          playername: playername,
-          socket: socket,
-          points: 0,
-          live: true
-        });
-
-        socket.join(newroom);
-        socket.currentRoom = newroom;
-
-        socket.broadcast.emit("roomchanged", playername, previousroom, newroom);
-
-        cb_confirmation(true); //success
-
-        return true;
-      }
-
-    })
-
-    if(!new_game){
+    if(!room){
+      cb_confirmation(false);//failure
       return;
     }
 
-    if(new_game.cnt_players==new_game.max_players){
+    // check balance
+    Users.checkBalance(socket.playername, room.bet)
+    .then((reduction_obj)=>{
 
-      new_game.start();
-      new_game.started = true;
+      if(!reduction_obj || reduction_obj.success == false){
+        cb_confirmation(false);//failure
+        throw new Error("balance");
+      }
 
-    }
+    })
+    .then(()=>{
+      // Check if there is space for new player in room
+      if(!room || room.cnt_players==room.max_players || room.started){
+        cb_confirmation(false); //failure
+        return; // TODO: room is full
+      }
+
+      // update previous game
+      if(previousroom){
+        var previous_game = games.getRoomWithName(previousroom);
+        previous_game.delistPlayer(playername);
+        socket.leave(previousroom);
+      }
+
+
+      // update new game
+      var new_game = games.find( (game)=>{
+
+        if(game.name == newroom){
+          game.cnt_players++;
+
+          // edit
+          game.players.push({
+            playername: playername,
+            socket: socket,
+            points: 0,
+            live: true
+          });
+
+          socket.join(newroom);
+          socket.currentRoom = newroom;
+
+          socket.broadcast.emit("roomchanged", playername, previousroom, newroom);
+
+          cb_confirmation(true); //success
+
+          return true;
+        }
+
+      })
+
+      if(!new_game){
+        return;
+      }
+
+      if(new_game.cnt_players==new_game.max_players){
+
+        new_game.start();
+        new_game.started = true;
+
+      }
+
+    })
+    .catch((err)=>{
+      cb_confirmation(false);//failure
+    })
 
   })
 
@@ -726,100 +748,121 @@ module.exports = function( io_, socket ){
 
     var playername = socket.playername;
 
-    // validation of inputs
+    //check balance
 
-    if(socket.currentRoom){
+    Users.checkBalance(socket.playername, bet)
+    .then((reduction_obj)=>{
+
+      if(!reduction_obj || reduction_obj.success == false){
+        fn({
+          for: "bet",
+          err_msg: "Bet exceeded current balance"
+        })
+        throw new Error("balance");
+      }
+
+    })
+    .then(()=>{
+
+      if(socket.currentRoom){
+        fn({
+          for: "confirm",
+          err_msg: "Please leave current room before creating another one"
+        });
+        return;
+      }
+
+      if(!gamename){
+        fn({
+          for: "gamename",
+          err_msg: "Game name is required"
+        })
+        return;
+      }
+
+      if(/[^a-zA-Z0-9 ]/.test(gamename)){
+        fn({
+          for: "gamename",
+          err_msg: "Game name contais not allowed characters. ( allowed: letters,numbers,space )"
+        })
+        return;
+      }
+
+      if(games.getRoomWithName(gamename)){
+        fn({
+          for: "gamename",
+          err_msg: "Game with given name already exist"
+        })
+        return;
+      }
+
+      if(/[^0-9]/.test(bet)){
+        fn({
+          for: "bet",
+          err_msg: "Bet must be a number"
+        })
+        return;
+      }
+
+      if(bet<100){
+        fn({
+          for: "bet",
+          err_msg: "Minimum bet value is 100 Satoshi"
+        });
+        return;
+      }
+
+      if(/[^0-9]/.test(max_players)){
+        fn({
+          for: "max_players",
+          err_msg: "Must be a number"
+        })
+        return;
+      }
+
+      if(max_players<2){
+        fn({
+          for: "max_players",
+          err_msg: "Room can be created for at least 2 players"
+        });
+        return;
+      }
+      if(max_players>6){
+        fn({
+          for: "max_players",
+          err_msg: "Room can be created for up to 6 players"
+        });
+        return;
+      }
+
+      socket.join(gamename);
+      socket.currentRoom = gamename;
+
+      var p = {
+        playername: playername,
+        socket: socket,
+        points: 0,
+        live: true
+      };
+
+      var ng = new Game( p, gamename, bet, max_players);
+      games.push(ng);
+
+
+      var arr = games.getGameList();
+
+      io.emit("updategamelist", arr);
+
       fn({
-        for: "confirm",
-        err_msg: "Please leave current room before creating another one"
+        success: true
       });
-      return;
-    }
-
-    if(!gamename){
-      fn({
-        for: "gamename",
-        err_msg: "Game name is required"
-      })
-      return;
-    }
-
-    if(/[^a-zA-Z0-9 ]/.test(gamename)){
-      fn({
-        for: "gamename",
-        err_msg: "Game name contais not allowed characters. ( allowed: letters,numbers,space )"
-      })
-      return;
-    }
-
-    if(games.getRoomWithName(gamename)){
-      fn({
-        for: "gamename",
-        err_msg: "Game with given name already exist"
-      })
-      return;
-    }
-
-    if(/[^0-9]/.test(bet)){
-      fn({
-        for: "bet",
-        err_msg: "Bet must be a number"
-      })
-      return;
-    }
-
-    if(bet<100){
-      fn({
-        for: "bet",
-        err_msg: "Minimum bet value is 100 Satoshi"
-      });
-      return;
-    }
-
-    if(/[^0-9]/.test(max_players)){
-      fn({
-        for: "max_players",
-        err_msg: "Must be a number"
-      })
-      return;
-    }
-
-    if(max_players<2){
-      fn({
-        for: "max_players",
-        err_msg: "Room can be created for at least 2 players"
-      });
-      return;
-    }
-    if(max_players>6){
-      fn({
-        for: "max_players",
-        err_msg: "Room can be created for up to 6 players"
-      });
-      return;
-    }
-
-    socket.join(gamename);
-    socket.currentRoom = gamename;
-
-    var p = {
-      playername: playername,
-      socket: socket,
-      points: 0,
-      live: true
-    };
-
-    var ng = new Game( p, gamename, bet, max_players);
-    games.push(ng);
 
 
-    var arr = games.getGameList();
+    })
+    .catch(()=>{
 
-    io.emit("updategamelist", arr);
+    })
 
-    fn({
-      success: true
-    });
 
   })
 
