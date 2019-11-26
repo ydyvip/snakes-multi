@@ -84,6 +84,7 @@ var users = {
   checkBalance: function(playername, charge){
 
     var reduction_obj = {
+      for: playername,
       success: false,
       balance_total_reduction: 0,
       balance_withdrawal_reduction: 0
@@ -101,6 +102,7 @@ var users = {
     .then((doc)=>{
 
       if(doc.balance_total>=charge){
+
         reduction_obj.success = true;
         reduction_obj.balance_total_reduction = charge;
 
@@ -120,17 +122,16 @@ var users = {
 
   },
 
-  reduceBalances: function(player_names, amount){
+  reduceBalance: function(player_name, reduction_obj){
 
-    this.coll.updateMany(
+    this.coll.updateOne(
       {
-        username: {
-          $in: player_names
-        }
+        username: player_name
       },
       {
         $inc: {
-          balance_total: amount
+          balance_total: -reduction_obj.balance_total_reduction,
+          balance_withdrawal: -reduction_obj.balance_withdrawal_reduction
         }
       }
     );
@@ -145,7 +146,8 @@ var users = {
       },
       {
         $inc: {
-          balance_withdrawal: amount
+          balance_withdrawal: amount,
+          balance_total: amount
         }
       }
     );

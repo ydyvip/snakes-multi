@@ -429,8 +429,17 @@ Game.prototype.makeInitPositions = function(player){
 
 Game.prototype.start = function(){
 
-  if(!this.replay_mode)
-    Users.reduceBalances( this.getPlayersName(), -this.bet );
+  if(!this.replay_mode){
+    var player_names = this.getPlayersName();
+    for(var player_name of player_names){
+      Users.checkBalance(player_name, this.bet)
+      .then((reduction_obj)=>{
+        Users.reduceBalance( reduction_obj.for, reduction_obj );
+      })
+
+    }
+
+  }
 
   this.game_state = new GameState();
 
@@ -752,6 +761,9 @@ module.exports = function( io_, socket ){
 
     Users.checkBalance(socket.playername, bet)
     .then((reduction_obj)=>{
+
+      console.log("check balance")
+      console.log(reduction_obj);
 
       if(!reduction_obj || reduction_obj.success == false){
         fn({
