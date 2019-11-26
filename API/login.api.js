@@ -15,7 +15,7 @@ router.post("/", passport.authenticate("json"), function(req, res){
   res.json({
     success: true,
     username: req.user.username,
-    balance: req.user.balance
+    balance: req.user.balance_total
   })
 
 });
@@ -31,7 +31,7 @@ router.get("/session", function(req,res){
     res.json({
       username: req.user.username,
       btc_address: req.user.btc_address,
-      balance: req.user.balance
+      balance: req.user.balance_total
     })
 
 
