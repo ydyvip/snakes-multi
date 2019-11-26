@@ -7,7 +7,7 @@
     </div>
     <div style="display: inline-block; width: 25%">
       <div style="display: inline-block; min-width: 165px">
-        Balance: <span class="username">{{tweened_balance}} Satoshi</span>
+        Balance: <a v-on:click.prevent="goToWithdrawalPanel" class="href username" id="logout" href=""> {{tweened_balance}} Satoshi >> </a>
       </div>
       <transition v-on:enter="enter_difference">
         <span v-if="difference" v-bind:class="{reduced: difference<0, incremented: difference>0}">
@@ -63,6 +63,11 @@
           this.$emit("logout");
           this.$io.close();
         } )
+
+      },
+      goToWithdrawalPanel: function(){
+
+        this.$emit("goToWithdrawalPanel");
 
       },
       enter_difference: function(el, done){
@@ -146,6 +151,7 @@
 
 .username {
   font-weight: 900;
+  color: #efdf24;
 }
 
 #logout{

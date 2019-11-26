@@ -5,7 +5,7 @@
     <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
     <template v-if="loggedAs">
-      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" v-on:go_to_faucetlist="gotoFaucetlist" />
+      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" v-on:go_to_faucetlist="gotoFaucetlist" v-on:goToWithdrawalPanel="goToWithdrawalPanel"  />
       <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="CompSwitcher" v-bind:loggedAs="loggedAs"
         v-on:gamestart="gamestart" v-on:eog="eog">
       </component>
@@ -25,6 +25,7 @@
   var GameList = require("./GameList.vue");
   var FaucetList = require("./FaucetList.vue");
   var GameReplay = require("./GameReplay.vue");
+  var WithdrawalPanel = require("./WithdrawalPanel.vue");
 
   module.exports = {
     name: 'app',
@@ -77,6 +78,9 @@
           this.CompSwitcher = GameList;
         }
       },
+      goToWithdrawalPanel: function() {
+          this.CompSwitcher = WithdrawalPanel;
+      },
       playReplay: function(play){
         if(play){
           this.replayActive = true;
@@ -87,7 +91,7 @@
       }
     },
     components: {
-      FormSwitcher, UserPanel, Game, GameList, FaucetList, GameReplay
+      FormSwitcher, UserPanel, Game, GameList, FaucetList, GameReplay, WithdrawalPanel
     }
   }
 </script>
