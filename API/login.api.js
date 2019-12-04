@@ -37,6 +37,22 @@ router.get("/session", function(req,res){
 
 })
 
+router.get("/session/balance", function(req,res){
+
+    if(!req.user){
+      res.end();
+      return;
+    }
+
+    res.json({
+      balance_total: req.user.balance_total,
+      balance_withdrawal: req.user.balance_withdrawal,
+      btc_address: req.user.btc_address
+    })
+
+
+})
+
 router.get("/logout", function(req,res){
 
   req.session.destroy((err)=>{
