@@ -1,6 +1,6 @@
 var router = require("express").Router();
 
-var GameReplayDB = require.main.require("./DB/gamereplays.db.js");
+var GameReplayDB = require("../DB/gamereplays.db.js");
 
 router.get("/", function(req, res){
 
