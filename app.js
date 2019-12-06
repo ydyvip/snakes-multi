@@ -117,8 +117,9 @@ io.use( (socket, next)=>{
 
   socket.playername = socket.request.user.username;
 
-  for(var key in io.sockets.connected){
-    if(socket.playername == io.sockets.connected[key].playername){
+  for(var key in io.connected){
+
+    if(socket.playername == io.connected[key].playername){
       next(new Error("already connected"));
       return;
     }
@@ -144,8 +145,8 @@ io.use( (socket,next)=>{
 
 io.on("connection", function(socket){
 
-  for(var key in io.sockets.connected){
-    console.log(io.sockets.connected[key].playername);
+  for(var key in io.connected){
+    console.log(io.connected[key].playername);
   }
 
     var lobby = require("./lobby.js")(io, socket);
