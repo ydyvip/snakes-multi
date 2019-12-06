@@ -1,5 +1,5 @@
 
-var GameReplayDB = require("../DB/gamereplays.db.js");
+var GameReplayDB = require("../../DB/gamereplays.db.js");
 
 var GameReplayPlayer = function(){
   this.round_inputs = [];

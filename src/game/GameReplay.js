@@ -17,7 +17,7 @@
 
 
 
-var GameReplayDB = require("../DB/gamereplays.db.js");
+var GameReplayDB = require("../../DB/gamereplays.db.js");
 
 function Round(new_round_positions, tm_round_start, tm_quit_consideration ){
 
