@@ -1,5 +1,8 @@
 <template>
     <div class="main-box">
+
+      <a v-on:click.prevent="$emit('returnToPreviousPanel')" class="href username" href=""><<< Return</a>
+
       <div class="box">
         Balance total: {{this.balance_total}}
         <div class="balance-info">
@@ -60,5 +63,9 @@
   .balance-info {
     font-size: 16px;
     margin-top: 16px;
+  }
+  .username {
+    font-weight: 900;
+    color: #efdf24;
   }
 </style>

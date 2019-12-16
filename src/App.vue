@@ -5,9 +5,15 @@
     <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
     <template v-if="loggedAs">
-      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout" v-on:go_to_faucetlist="gotoFaucetlist" v-on:goToWithdrawalPanel="goToWithdrawalPanel"  />
+      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout"
+        v-on:go_to_faucetlist="gotoFaucetlist"
+        v-on:goToWithdrawalPanel="goToWithdrawalPanel"
+      />
       <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="CompSwitcher" v-bind:loggedAs="loggedAs"
-        v-on:gamestart="gamestart" v-on:eog="eog">
+        v-on:gamestart="gamestart"
+        v-on:eog="eog"
+        v-on:returnToPreviousPanel="returnToPreviousPanel"
+      >
       </component>
     </template>
 
@@ -33,6 +39,7 @@
       loggedAs: null,
       balance: null,
       CompSwitcher: GameList, // Game ; GameList ; FaucetList
+      PreviousPanel: GameList,
       initial_states: null,
       first_to_reach: null,
       replayActive: false
@@ -73,13 +80,18 @@
       gotoFaucetlist: function(faucetlist){
         if(faucetlist){
           this.CompSwitcher = FaucetList;
+          this.PreviousPanel = FaucetList;
         }
         else{ // back to GameList
           this.CompSwitcher = GameList;
+          this.PreviousPanel = GameList;
         }
       },
       goToWithdrawalPanel: function() {
           this.CompSwitcher = WithdrawalPanel;
+      },
+      returnToPreviousPanel: function() {
+          this.CompSwitcher = this.PreviousPanel
       },
       playReplay: function(play){
         if(play){
