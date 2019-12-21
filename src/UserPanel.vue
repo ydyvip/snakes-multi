@@ -7,7 +7,7 @@
     </div>
     <div style="display: inline-block; width: 25%">
       <div style="display: inline-block; min-width: 165px">
-        Balance: <a v-on:click.prevent="goToWithdrawalPanel" class="href username" id="logout" href=""> {{tweened_balance}} Satoshi >> </a>
+        Balance: <a v-on:click.prevent="goToWithdrawalPanel" class="href username" id="logout" href=""> {{tweened_balance}} BCH Satoshi  >> </a>
       </div>
       <transition v-on:enter="enter_difference">
         <span v-if="difference" v-bind:class="{reduced: difference<0, incremented: difference>0}">

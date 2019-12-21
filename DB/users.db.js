@@ -122,6 +122,43 @@ var users = {
 
   },
 
+  checkBalanceForWalletWithdrawal: function(playername, amount){
+
+    var reduction_obj = {
+      for: playername,
+      success: false,
+      failure_reason: "",
+      balance_total_reduction: 0,
+      balance_withdrawal_reduction: 0
+    }
+
+    return this.coll.findOne({
+      username: playername
+    },
+    {
+      projection: {
+        balance_total: 1,
+        balance_withdrawal: 1
+      }
+    })
+    .then((doc_player)=>{
+
+      if(doc_player.balance_withdrawal < amount){
+        reduction_obj.success = false;
+        reduction_obj.failure_reason = "Insufficient account balance";
+        return reduction_obj;
+      }
+
+      reduction_obj.success = true;
+      reduction_obj.balance_total_reduction = amount;
+      reduction_obj.balance_withdrawal_reduction = amount;
+
+      return reduction_obj;
+
+    })
+
+  },
+
   reduceBalance: function(player_name, reduction_obj){
 
     this.coll.updateOne(
@@ -166,6 +203,22 @@ var users = {
         }
       }
     );
+
+  },
+
+  reduceBalanceAfterWithdrawal: function(username, amount){
+
+    this.coll.updateOne(
+      {
+        username: username
+      },
+      {
+        $inc: {
+          balance_withdrawal: amount,
+          balance_total: amount
+        }
+      }
+    )
 
   }
 
