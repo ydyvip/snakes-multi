@@ -17,6 +17,7 @@
     "axios": "^0.18.0",
     "bcrypt": "^3.0.6",
     "bitcoinjs-lib": "^3.3.2",
+    "bitcore-lib-cash": "^8.13.2",
     "body-parser": "^1.18.2",
     "browser-process-hrtime": "^0.1.2",
     "connect-mongo": "^2.0.1",

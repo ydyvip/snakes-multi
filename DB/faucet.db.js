@@ -1,6 +1,6 @@
 
 var rand = require("random-key");
-var bitcoin = require("bitcoinjs-lib")
+var bitcore = require("bitcore-lib-cash");
 
 
 var ObjectId = require('mongodb').ObjectId;
@@ -152,10 +152,16 @@ var faucets = {
 
     register: function(name, url, reward, timer, username){
 
-      var keyPair = bitcoin.ECPair.makeRandom();
+      //var keyPair = bitcoin.ECPair.makeRandom();
+
+      var privateKey = new bitcore.PrivateKey();
+      var publicKey = privateKey.toPublicKey();
 
       var api_key = rand.generate(12, "0123456789abcdefghiklmnopqrstuvwxyz");
       var btc_deposit = keyPair.getAddress();
+
+      var privateKey_wif = privateKey.toWIF();
+      var publicKey_address = publicKey.toAddress().toString();
 
       return this.coll.insertOne({
         name: name,
@@ -167,8 +173,8 @@ var faucets = {
         withdraw_history: [],
         api_key: api_key,
         approved: false,
-        btc_deposit: btc_deposit,
-        btc_private_key: keyPair.toWIF()
+        btc_deposit: privateKey_wif,
+        btc_private_key: publicKey_address
       })
       .then(()=>{
 
