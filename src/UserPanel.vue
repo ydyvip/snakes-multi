@@ -1,11 +1,11 @@
 
 <template>
 
-  <div class="userpanel" style="position: relative">
-    <div style="display: inline-block; width: 15%">
+  <div class="userpanel" style="position: relative; display: flex; justify-content: center;">
+    <div style="display: inline-block; margin-right: 150px;">
       Hello <span class="username">{{username}}</span>
     </div>
-    <div style="display: inline-block; width: 25%">
+    <div style="display: inline-block; margin-right: 50px;">
       <div style="display: inline-block; min-width: 165px">
         Balance: <a v-on:click.prevent="goToWithdrawalPanel" class="href username" id="logout" href=""> {{tweened_balance}} BCH Satoshi  >> </a>
       </div>
@@ -22,7 +22,7 @@
     <div style="display: inline-block" v-else>
       <button id="btn_faucet_list" v-on:click="switchGameFaucetList">Game List</button>
     </div>
-    <div style="text-align: right; display: inline-block; width: 35%;" >
+    <div style="text-align: right; display: inline-block; margin-left: 150px;">
       <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
     </div>
   </div>
@@ -122,7 +122,6 @@
   word-spacing: 8px;
   font-size: 14px;
   font-weight: 400;
-  position: absolute;
   top: 4px;
   text-align: center;
   min-width: 192px;
