@@ -22,7 +22,7 @@
     </div>
 
     <button class="btn green" v-on:click="register">REGISTER</button>
-    
+
   </div>
 
 
@@ -47,7 +47,7 @@
       email: {
         val: "",
         err: null
-      }
+      },
 
       success: null,
       msg: "Thank you for your registration! Your account is now ready to use."
