@@ -20,8 +20,11 @@
       <input class="input" placeholder="e-mail" type="text" v-model="email.val" />
       <div class="form-input-err" v-if="email.err">{{email.err}}</div>
     </div>
+
     <button class="btn green" v-on:click="register">REGISTER</button>
-    </div>
+    
+  </div>
+
 
 </template>
 
@@ -44,7 +47,7 @@
       email: {
         val: "",
         err: null
-      },
+      }
 
       success: null,
       msg: "Thank you for your registration! Your account is now ready to use."
