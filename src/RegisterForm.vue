@@ -20,12 +20,8 @@
       <input class="input" placeholder="e-mail" type="text" v-model="email.val" />
       <div class="form-input-err" v-if="email.err">{{email.err}}</div>
     </div>
-    <div class="form-input">
-      <input class="input" placeholder="BTC address" type="text" v-model="btc_address.val" />
-      <div class="form-input-err" v-if="btc_address.err">{{btc_address.err}}</div>
-    </div>
     <button class="btn green" v-on:click="register">REGISTER</button>
-  </div>
+    </div>
 
 </template>
 
@@ -49,10 +45,6 @@
         val: "",
         err: null
       },
-      btc_address: {
-        val: "",
-        err: null
-      },
 
       success: null,
       msg: "Thank you for your registration! Your account is now ready to use."
@@ -70,13 +62,11 @@
         this.username.err = null;
         this.password.err = null;
         this.email.err = null;
-        this.btc_address.err = null;
 
         this.$axios.post("/register", {
           username: this.username.val,
           password: this.password.val,
-          email: this.email.val,
-          btc_address: this.btc_address.val
+          email: this.email.val
         })
         .then( (response)=> {
           if(!response.data.success){

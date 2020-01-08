@@ -41,20 +41,6 @@ router.post("/", function(req,res){
     })
   }
 
-  if( !req.body.btc_address ){
-    response.errs.push({
-      for: "btc_address",
-      msg: "BTC Address is required"
-    })
-  }
-
-  else if( req.body.btc_address.length<26 || req.body.btc_address.length>35 ){
-    response.errs.push({
-      for: "btc_address",
-      msg: "Invalid bitcoin address format"
-    })
-  }
-
   Users.usernameTaken(req.body.username)
   .then( function(alreadyTaken){
 
@@ -137,7 +123,7 @@ router.post("/", function(req,res){
     }
     else{
       response.success = true;
-      Users.registerUser( req.body.username, req.body.password, req.body.email, req.body.btc_address )
+      Users.registerUser( req.body.username, req.body.password, req.body.email )
       .then( ()=> {
         res.json(response);
       })

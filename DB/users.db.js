@@ -66,7 +66,7 @@ var users = {
 
   },
 
-  registerUser: function(username, password, email, btc_address){
+  registerUser: function(username, password, email){
 
     return bcrypt.hash(password, 9)
     .then((hash)=>{
@@ -74,7 +74,6 @@ var users = {
         username: username,
         password: hash,
         email: email,
-        btc_address: btc_address,
         balance_total: 100,
         balance_withdrawal: 0
       } );

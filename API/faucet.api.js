@@ -152,6 +152,9 @@ router.post("/register", function(req,res){
 
 router.post("/send", function(req,res){
 
+  res.end();
+  //TODO: visiting faucets requires btc_address
+
   // Handling withdraws
   // req.body.api_key
   // req.body.to

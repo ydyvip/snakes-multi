@@ -39,7 +39,6 @@
     data: ()=>({
       balance_total: undefined,
       balance_withdrawal: undefined,
-      btc_address: undefined,
       amount: 0,
       user_id: "",
       withdrawal_result: null,
@@ -53,7 +52,6 @@
 
         this.balance_total = response.data.balance_total;
         this.balance_withdrawal = response.data.balance_withdrawal;
-        this.btc_address = response.data.btc_address;
 
       })
 

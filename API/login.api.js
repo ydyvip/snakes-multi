@@ -34,7 +34,6 @@ router.get("/session", function(req,res){
 
     res.json({
       username: req.user.username,
-      btc_address: req.user.btc_address,
       balance: req.user.balance_total
     })
 
@@ -51,7 +50,6 @@ router.get("/session/balance", function(req,res){
     res.json({
       balance_total: req.user.balance_total,
       balance_withdrawal: req.user.balance_withdrawal,
-      btc_address: req.user.btc_address
     })
 
 
