@@ -15,6 +15,8 @@
         v-on:returnToPreviousPanel="returnToPreviousPanel"
       >
       </component>
+      <ins class="bmadblock-5e134d97cc12ba49d16b8de9" style="display:inline-block;width:728px;height:90px;"></ins>
+      <script async type="application/javascript" src="//ad.bitmedia.io/js/adbybm.js/5e134d97cc12ba49d16b8de9"></script>
     </template>
 
     <game-replay v-if="!loggedAs && false" v-on:play_replay="playReplay" ></game-replay>

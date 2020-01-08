@@ -1,4 +1,4 @@
-
+const fs = require('fs');
 if(process.argv[2] == "TEST_MODE"){
   process.TEST_MODE = true;
   console.log("running in test mode");
@@ -7,22 +7,36 @@ if(process.argv[2] == "TEST_MODE"){
 else if(process.argv[2] != "NO_CYPRESS"){
   // NO_CYPRESS and TEST_MODE args passed so we are on hosting
   // handle problem on hosting with logs
-  var fs = require('fs');
-  var writeStream = fs.createWriteStream('./test.log', {
-    encoding: 'utf8',
-    flags: 'w'
-  });
 
-  process.stdout = require('stream').Writable();
-  process.stderr = require('stream').Writable();
-
-  process.stdout._write = function(chunk, encoding, callback) {
-      writeStream.write(chunk, encoding, callback);
-  };
-
-  process.stderr._write = function(chunk, encoding, callback) {
-      writeStream.write(chunk, encoding, callback);
-  };
+  // var writeStream = fs.createWriteStream('./test.log', {
+  //   encoding: 'utf8',
+  //   flags: 'w'
+  // });
+  //
+  // process.stdout = require('stream').Writable();
+  // process.stderr = require('stream').Writable();
+  //
+  // process.stdout._write = function(chunk, encoding, callback) {
+  //
+  //   fs.writeFile("/tmp/test", "Hey there!", function(err) {
+  //       if(err) {
+  //           return console.log(err);
+  //       }
+  //       console.log("The file was saved!");
+  //   });
+  //
+  // };
+  //
+  // process.stderr._write = function(chunk, encoding, callback) {
+  //
+  //   fs.writeFile("/tmp/test", "Hey there!", function(err) {
+  //       if(err) {
+  //           return console.log(err);
+  //       }
+  //       console.log("The file was saved!");
+  //   });
+  //
+  // };
 }
 
 var express = require("express");
