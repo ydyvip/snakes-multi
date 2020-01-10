@@ -1,29 +1,36 @@
 
 <template>
-
-  <div class="userpanel" style="position: relative; display: flex; justify-content: center;">
-    <div style="display: inline-block; margin-right: 150px;">
-      Hello <span class="username">{{username}}</span>
-    </div>
-    <div style="display: inline-block; margin-right: 50px;">
-      <div style="display: inline-block; min-width: 165px">
-        Balance: <a v-on:click.prevent="goToWithdrawalPanel" class="href username" id="logout" href=""> {{tweened_balance}} BCH Satoshi  >> </a>
+  <div>
+    <div class="userpanel" style="position: relative; display: flex; justify-content: center;">
+      <div style="display: inline-block; margin-right: 150px;">
+        Hello <span class="username">{{username}}</span>
       </div>
-      <transition v-on:enter="enter_difference">
-        <span v-if="difference" v-bind:class="{reduced: difference<0, incremented: difference>0}">
-          <span v-if="difference>0">+{{difference}}</span>
-          <span v-else>{{difference}}</span>
-        </span>
-      </transition>
+      <div style="display: inline-block; margin-right: 50px;">
+        <div style="display: inline-block; min-width: 165px">
+          Balance: <a v-on:click.prevent="goToWithdrawalPanel" class="href username" id="logout" href=""> {{tweened_balance}} BCH Satoshi  >> </a>
+        </div>
+        <transition v-on:enter="enter_difference">
+          <span v-if="difference" v-bind:class="{reduced: difference<0, incremented: difference>0}">
+            <span v-if="difference>0">+{{difference}}</span>
+            <span v-else>{{difference}}</span>
+          </span>
+        </transition>
+      </div>
+      <div style="display: inline-block" v-if="!active_faucet_list">
+        <button id="btn_faucet_list" v-on:click="switchGameFaucetList" >Faucet List</button>
+      </div>
+      <div style="display: inline-block" v-else>
+        <button id="btn_faucet_list" v-on:click="switchGameFaucetList">Game List</button>
+      </div>
+      <div style="text-align: right; display: inline-block; margin-left: 150px;">
+        <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
+      </div>
     </div>
-    <div style="display: inline-block" v-if="!active_faucet_list">
-      <button id="btn_faucet_list" v-on:click="switchGameFaucetList" >Faucet List</button>
-    </div>
-    <div style="display: inline-block" v-else>
-      <button id="btn_faucet_list" v-on:click="switchGameFaucetList">Game List</button>
-    </div>
-    <div style="text-align: right; display: inline-block; margin-left: 150px;">
-      <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
+    <div style="display: flex; justify-content: center; margin-top: 30px;">
+      <div style="display: inline-block; width: 728px; height: 90px; margin: 0 auto ">
+        <ins class="bmadblock-5e134d97cc12ba49d16b8de9" style="display:inline-block;width:728px;height:90px;"></ins>
+        <script async type="application/javascript" src="//ad.bitmedia.io/js/adbybm.js/5e134d97cc12ba49d16b8de9"></script>
+      </div>
     </div>
   </div>
 
