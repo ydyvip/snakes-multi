@@ -1,6 +1,4 @@
-
 <template>
-
   <div>
     <div class="switcher-box">
       <a class="switcher" v-bind:class="{ active: activeTabComp == tab.comp}" v-for="tab in tabs" v-on:click="activeTabComp = tab.comp">
@@ -8,24 +6,24 @@
       </a>
     </div>
     <transition v-on:enter="enterRegLogForm" v-on:leave="leaveRegLogForm" mode="out-in">
-      <component v-on:successfull-login="(username, balance)=>{ $emit('successfull-login', username, balance) }" v-bind:is="activeTabComp"></component>
+      <component v-bind:is="activeTabComp"></component>
     </transition>
   </div>
 </template>
 
 <script>
 
-  var LoginForm = require("./LoginForm.vue");
-  var RegisterForm = require("./RegisterForm.vue");
+  var Stats = require("./Stats.vue");
+  var Ranking = require("./Ranking.vue");
 
   var tabs = [
     {
-      comp: LoginForm,
-      text: "LOGIN"
+      comp: Ranking,
+      text: "RANKING"
     },
     {
-      comp: RegisterForm,
-      text: "REGISTER"
+      comp: Stats,
+      text: "STATS"
     }
   ]
 
@@ -35,8 +33,8 @@
       activeTabComp: tabs[0].comp
     }),
     components: {
-      LoginForm,
-      RegisterForm
+      Stats,
+      Ranking
     },
     methods: {
       enterRegLogForm: function(el, done){
@@ -60,7 +58,6 @@
     }
   }
 
-
 </script>
 
 <style scoped>
@@ -69,7 +66,7 @@
   display: inline-block;
   margin-right: 20px;
   color: white;
-  font-size: 20px;
+  font-size: 18px;
   font-family: 'Titillium Web', sans-serif;
   cursor: pointer;
 }

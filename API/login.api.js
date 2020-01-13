@@ -5,6 +5,8 @@ const axios = require("axios");
 const querystring = require('querystring');
 
 var Users = require("../DB/users.db.js");
+var Stats = require("../DB/stats.db.js");
+
 
 router.post("/", passport.authenticate("json"), function(req, res){
 
@@ -127,5 +129,46 @@ router.post("/withdraw", function(req,res){
   })
 
 })
+
+router.get("/stats", (req, res)=>{
+
+  Stats.getStats()
+  .then((stats)=>{
+
+    res.json(stats);
+
+  })
+
+})
+
+router.post("/ranking", (req,res)=>{
+
+  if(req.body.page<0){
+    res.json(null);
+    return;
+  }
+
+  Users.getRanking(req.body.page)
+  .then((arr_players)=>{
+
+    console.log("ranking");
+    console.log(arr_players);
+
+    if(arr_players.length == 0){
+      res.json(null);
+      return;
+    }
+
+    else{
+      res.json({
+        ranking: arr_players
+      });
+    }
+
+
+  })
+
+
+});
 
 module.exports = router;

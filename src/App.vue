@@ -4,6 +4,9 @@
 
     <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
+
+    <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
+
     <template v-if="loggedAs">
       <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout"
         v-on:go_to_faucetlist="gotoFaucetlist"
@@ -32,6 +35,7 @@
   var FaucetList = require("./FaucetList.vue");
   var GameReplay = require("./GameReplay.vue");
   var WithdrawalPanel = require("./WithdrawalPanel.vue");
+  var SwitcherRankingStats = require("./SwitcherRankingStats.vue")
 
   module.exports = {
     name: 'app',
@@ -103,7 +107,7 @@
       }
     },
     components: {
-      FormSwitcher, UserPanel, Game, GameList, FaucetList, GameReplay, WithdrawalPanel
+      FormSwitcher, UserPanel, Game, GameList, FaucetList, GameReplay, WithdrawalPanel, SwitcherRankingStats
     }
   }
 </script>

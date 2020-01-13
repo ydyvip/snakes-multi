@@ -204,7 +204,8 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
         this.game_replay.finalizeGameReplay( game_winner.playername, reward);
 
       if(!this.replay_mode){
-        Users.incrementBalanceForWinner(game_winner.playername, reward )
+        Users.incrementBalanceForWinner(game_winner.playername, reward );
+        Users.updateRanking(this.players);
         Stats.updateFromMatchPlayed( Math.floor(this.bet * this.cnt_players * 0.25) );
       }
 

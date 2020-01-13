@@ -16,12 +16,41 @@ var stats = {
     this.coll.updateOne({},
     {
       $inc: {
-        games_played: 1,
-        earnings: earnings_from_match
+        matches_played: 1,
+        total_winnings: earnings_from_match,
+        registered_users: 0
       }
     },
     {
-      upsert: true // first invocation creates collection and doc
+      upsert: true
+    })
+
+  },
+
+  updateAfterRegister: function(){
+
+    this.coll.updateOne({},
+      {
+        $inc: {
+          registered_users: 1,
+          total_winnings: 0,
+          matches_played: 0
+        }
+      },
+      {
+        upsert: true
+      }
+    )
+
+  },
+
+  getStats: function(){
+
+    return this.coll.findOne({})
+    .then((doc)=>{
+      console.log(doc);
+      return doc;
+
     })
 
   }

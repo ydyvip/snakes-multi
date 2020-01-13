@@ -2,6 +2,7 @@
 var router = require("express").Router();
 
 var Users = require("../DB/users.db.js");
+var Stats = require("../DB/stats.db.js");
 
 router.post("/", function(req,res){
 
@@ -125,6 +126,7 @@ router.post("/", function(req,res){
       response.success = true;
       Users.registerUser( req.body.username, req.body.password, req.body.email )
       .then( ()=> {
+        Stats.updateAfterRegister();
         res.json(response);
       })
     }

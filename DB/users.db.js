@@ -75,7 +75,8 @@ var users = {
         password: hash,
         email: email,
         balance_total: 100,
-        balance_withdrawal: 0
+        balance_withdrawal: 0,
+        points: 0
       } );
     });
   },
@@ -202,6 +203,58 @@ var users = {
         }
       }
     );
+
+  },
+
+  updateRanking: function(arr_players){
+
+    /*
+      player_item.playername
+      player_item.points
+    */
+
+    for(var player_item of arr_players){
+
+      this.coll.updateOne(
+        {
+          username: player_item.playername
+        },
+        {
+          $inc: {
+            points: player_item.points
+          }
+        }
+      );
+
+    }
+
+  },
+
+  getRanking: function(page){
+
+    /*
+      0 -> 0 [0-19]
+      1 -> 20 [20 - 39]
+    */
+
+    var skip = page*15;
+    var limit = 15;
+
+    return this.coll.find(
+      {},
+      {
+        projection: {
+          username: 1,
+          points: 1,
+          _id: 0
+        },
+        skip: skip,
+        limit: limit,
+        sort: {
+          points: -1
+        }
+      }
+    ).toArray();
 
   },
 
