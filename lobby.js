@@ -88,9 +88,8 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 
   player_state.collision_timeout = setTimeout( ()=>{
 
-    // collision detected but player can move in last time, we should wait for input beacuse of lag
-    // dead reckoning phase may be wrong, we will wait some time for new input
-    // TODO: some time must be assigned to lag_tolerance: ie 250 specified directly below
+    //TODO: 
+    //var lag_tolerance = 1000 / (player_state.speed/player_state.weight) ; //200ms for 50px/s
 
     if(player_state.collision_tm != 0){
       player_state.collision_timeout = null;
@@ -108,7 +107,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
         console.log("collision rejected: "+collision_tm);
     }
 
-  }, 250);
+  }, 200);
 }
 
 Game.prototype.emitKilled = function(player_state, collision_tm){
