@@ -88,7 +88,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 
   player_state.collision_timeout = setTimeout( ()=>{
 
-    //TODO: 
+    //TODO:
     //var lag_tolerance = 1000 / (player_state.speed/player_state.weight) ; //200ms for 50px/s
 
     if(player_state.collision_tm != 0){
@@ -374,26 +374,12 @@ Game.prototype.makeInitPositions = function(player){
 
     if(!this.replay_mode){
 
-      if(p_name == "kuba1"){
-        pos = {
-          x: 199 ,
-          y: 200
-        }
-        angle = 180;
+      pos = {
+        x: random.integer(100,700),
+        y: random.integer(100,700)
       }
-      if(p_name == "kuba2"){
-        pos = {
-          x: 210,
-          y: 400
-        }
-        angle = 180;
-      }
+      angle = random.integer(1,360);
 
-      // pos = {
-      //   x: random.integer(100,700),
-      //   y: random.integer(100,700)
-      // }
-      // angle = random.integer(1,360);
       var round_pos = {
         pos: pos,
         angle: angle,
