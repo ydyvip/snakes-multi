@@ -576,12 +576,7 @@ Game.prototype.delistPlayer = function(playername){
     if(this.cnt_players==0){
       this.detachMyselfFromList();
     }
-
-
 }
-
-
-
 
 
 

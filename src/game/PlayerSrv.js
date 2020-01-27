@@ -39,6 +39,9 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
   var lag_tolerance = 1000 / (this.speed/this.weight) ; //200ms for 50px/s
   var lag = tm_now - tm;
   var tm_to;
+
+  console.log("LAG: " + lag);
+
   if(lag>lag_tolerance){
 
     this.igore_input = true;
