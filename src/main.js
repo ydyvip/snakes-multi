@@ -24,10 +24,8 @@ Vue.prototype.$estabilishSocketConnection = function(){
 
   var ts = timesync.create({
     server: '/timesync',
-    interval: 10000
+    interval: null
   });
-
-  console.log("Synced time: " + + ts.now());
 
   ts.on("change", (offset)=>{
 
@@ -37,11 +35,17 @@ Vue.prototype.$estabilishSocketConnection = function(){
 
   ts.on("sync", (state)=>{
 
-    console.log("Synced: " + state);
+    if(state!="end")
+      return;
 
-    Date.now = ts.now;
+    Date.nowPure = Date.now;
+    Date.now = ()=>{
+        return Math.floor(ts.now());
+    }
 
   })
+
+  ts.sync();
 
   Vue.prototype.$io = require("socket.io-client")();
 

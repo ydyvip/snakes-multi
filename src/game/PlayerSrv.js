@@ -42,6 +42,11 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
   console.log("LAG: " + lag);
 
+  if(lag<0){
+    console.log("--LAG");
+    return;
+  }
+
   if(lag>lag_tolerance){
 
     this.igore_input = true;
