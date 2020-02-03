@@ -20,32 +20,6 @@ Vue.prototype.$bus.p_socket_connection = null;
 
 Vue.prototype.$estabilishSocketConnection = function(){
 
-  //synchronize time with server
-
-  var ts = timesync.create({
-    server: '/timesync',
-    interval: null
-  });
-
-  ts.on("change", (offset)=>{
-
-    console.log("new offset: " + offset);
-
-  })
-
-  ts.on("sync", (state)=>{
-
-    if(state!="end")
-      return;
-
-    Date.nowPure = Date.now;
-    Date.now = ()=>{
-        return Math.floor(ts.now());
-    }
-
-  })
-
-  ts.sync();
 
   Vue.prototype.$io = require("socket.io-client")();
 
@@ -60,7 +34,38 @@ Vue.prototype.$estabilishSocketConnection = function(){
 
 
   Vue.prototype.$io.on("connect", ()=>{
-    connection_resolve("connected");
+
+    var tm_before_emit = Date.now();
+
+    Vue.prototype.$io.emit("sync_time", (tm_server_time)=>{
+
+      var tm_now = Date.now();
+
+      var lag2v = tm_now - tm_before_emit;
+
+      var tm_desired_client = tm_before_emit + Math.floor(lag2v); // to compare with tm_server_time
+
+      var offset = tm_server_time - tm_desired_client;
+
+      console.log("Server tm: " + tm_server_time);
+
+      /*
+        positive offset -> server is further ahead
+        negative offset -> client is further ahead
+      */
+
+      console.log("OFFSET: " + offset);
+
+      Date.nowPure = Date.now;
+
+      Date.now = function(){
+        return Date.nowPure() + offset;
+      }
+
+      connection_resolve("connected");
+
+    } );
+
   })
 
   Vue.prototype.$io.on("disconnect", (reason)=>{

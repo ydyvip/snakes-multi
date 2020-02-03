@@ -52,8 +52,6 @@ var app = express();
 
 var http = require("http").Server(app);
 
-var timesyncServer = require('timesync/server');
-
 var login = require("./API/login.api.js");
 var register = require("./API/register.api.js");
 var faucet = require("./API/faucet.api.js");
@@ -90,7 +88,6 @@ app.use(bodyparser.urlencoded());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/timesync', timesyncServer.requestHandler);
 app.use("/login", login);
 app.use("/register", register);
 app.use("/faucet", faucet);

@@ -588,6 +588,12 @@ module.exports = function( io_, socket ){
 
   io = io_;
 
+  socket.on("sync_time", (fn)=>{
+
+    fn(Date.now());
+
+  })
+
   socket.on("left", function(tm, reduction_sync_complete){
     setTimeout( ()=>{
       socket.player_state.changeDirSrv("left", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
