@@ -18,26 +18,71 @@ Vue.prototype.$axios = axios;
 Vue.prototype.$bus = new Vue({});
 Vue.prototype.$bus.p_socket_connection = null;
 
-Vue.prototype.$estabilishSocketConnection = function(){
+Vue.prototype.$syncTime = function(connection_resolve){
 
+  var p1,p2,p3,p4,p5;
 
-  Vue.prototype.$io = require("socket.io-client")();
+  p1 = Vue.prototype.$syncTimePing();
 
-  var connection_resolve;
-  var connection_reject;
+  p1.then(()=>{
+    p2 = Vue.prototype.$syncTimePing();
+    return p2;
+  })
+  .then(()=>{
+    p3 = Vue.prototype.$syncTimePing();
+    return p3;
+  })
+  .then(()=>{
+    p4 = Vue.prototype.$syncTimePing();
+    return p4;
+  })
+  .then(()=>{
+    p5 = Vue.prototype.$syncTimePing();
+    return p5;
+  })
+  .then(()=>{
 
-  Vue.prototype.$bus.connection_promise = new Promise((resolve_,reject_)=>{
-    connection_resolve = resolve_;
-    connection_reject = reject_;
+    return Promise.all([p1,p2,p3,p4,p5])
+    .then((offsets)=>{
+
+      console.log(offsets);
+
+      offsets.sort((a,b)=>{
+
+        return Math.abs(a)-Math.abs(b);
+
+      })
+
+      console.log(offsets);
+
+      var average_offset = Math.floor( (offsets[0] + offsets[1] + offsets[2])/3 );
+
+      return average_offset;
+
+    })
+
+  })
+  .then((average_offset)=>{
+
+    Date.nowPure = Date.now;
+
+    Date.now = function(){
+      return Date.nowPure() + average_offset;
+    }
+    console.log("average_offset: " + average_offset);
+    connection_resolve("connected");
+
   })
 
+}
 
+Vue.prototype.$syncTimePing = function(){
 
-  Vue.prototype.$io.on("connect", ()=>{
+  var promise = new Promise((resolve, reject)=>{
 
     var tm_before_emit = Date.now();
 
-    Vue.prototype.$io.emit("sync_time", (tm_server_time)=>{
+    Vue.prototype.$io.emit("sync_time", ((tm_before_emit, tm_server_time)=>{
 
       var tm_now = Date.now();
 
@@ -48,6 +93,7 @@ Vue.prototype.$estabilishSocketConnection = function(){
       var offset = tm_server_time - tm_desired_client;
 
       console.log("Server tm: " + tm_server_time);
+      console.log("tm_before_emit : " + tm_before_emit);
 
       /*
         positive offset -> server is further ahead
@@ -56,31 +102,24 @@ Vue.prototype.$estabilishSocketConnection = function(){
 
       console.log("OFFSET: " + offset);
 
-      Date.nowPure = Date.now;
+      setTimeout(()=>{
+        resolve(offset);
+      }, 250);
 
-      Date.now = function(){
-        return Date.nowPure() + offset;
-      }
 
-      connection_resolve("connected");
 
-    } );
+    }).bind(undefined, tm_before_emit));
 
-  })
 
-  Vue.prototype.$io.on("disconnect", (reason)=>{
-    console.log("disconnect");
-  })
+  });
 
-  Vue.prototype.$io.on("error", (err)=>{
-    console.log("s error " + err);
-    if(err=="already connected"){
-      connection_resolve("already connected");
-    }
-    if(err=="already in game"){
-      connection_resolve("already in game");
-    }
-  })
+  return promise;
+
+}
+
+
+
+Vue.prototype.$estabilishSocketConnection = function(){
 
 }
 
@@ -92,7 +131,43 @@ window.lag = 0;
 
 var app = new Vue({
   el: '#app',
-  render: h => h(App)
+  render: h => h(App),
+  mounted: function(){
+
+    Vue.prototype.$io = require("socket.io-client")();
+
+
+    Vue.prototype.$io.on("disconnect", (reason)=>{
+      console.log("disconnect");
+    })
+
+    Vue.prototype.$io.on("error", (err)=>{
+      console.log("s error " + err);
+      if(err=="already connected"){
+        connection_resolve("already connected");
+      }
+      if(err=="already in game"){
+        connection_resolve("already in game");
+      }
+    })
+    var connection_resolve;
+    var connection_reject;
+
+    Vue.prototype.$bus.connection_promise = new Promise((resolve_,reject_)=>{
+      connection_resolve = resolve_;
+      connection_reject = reject_;
+    })
+
+    if(Vue.prototype.$io.connected){
+      Vue.prototype.$syncTime(connection_resolve);
+    }
+    else{
+      Vue.prototype.$io.on("connect", ()=>{
+        Vue.prototype.$syncTime(connection_resolve);
+      })
+    }
+
+  }
 })
 
 
