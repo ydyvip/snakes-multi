@@ -120,10 +120,40 @@ Vue.prototype.$syncTimePing = function(){
 
 
 Vue.prototype.$estabilishSocketConnection = function(){
+  Vue.prototype.$io = require("socket.io-client")();
 
+  Vue.prototype.$io.on("disconnect", (reason)=>{
+    console.log("disconnect");
+  })
+
+  Vue.prototype.$io.on("error", (err)=>{
+    console.log("s error " + err);
+    if(err=="already connected"){
+      connection_resolve("already connected");
+    }
+    if(err=="already in game"){
+      connection_resolve("already in game");
+    }
+  })
+  var connection_resolve;
+  var connection_reject;
+
+  Vue.prototype.$bus.connection_promise = new Promise((resolve_,reject_)=>{
+    connection_resolve = resolve_;
+    connection_reject = reject_;
+  })
+
+  if(Vue.prototype.$io.connected){
+    Vue.prototype.$syncTime(connection_resolve);
+  }
+  else{
+    Vue.prototype.$io.on("connect", ()=>{
+      Vue.prototype.$syncTime(connection_resolve);
+    })
+  }
 }
 
-Vue.prototype.$estabilishSocketConnection();
+
 
 
 
@@ -134,38 +164,7 @@ var app = new Vue({
   render: h => h(App),
   mounted: function(){
 
-    Vue.prototype.$io = require("socket.io-client")();
-
-
-    Vue.prototype.$io.on("disconnect", (reason)=>{
-      console.log("disconnect");
-    })
-
-    Vue.prototype.$io.on("error", (err)=>{
-      console.log("s error " + err);
-      if(err=="already connected"){
-        connection_resolve("already connected");
-      }
-      if(err=="already in game"){
-        connection_resolve("already in game");
-      }
-    })
-    var connection_resolve;
-    var connection_reject;
-
-    Vue.prototype.$bus.connection_promise = new Promise((resolve_,reject_)=>{
-      connection_resolve = resolve_;
-      connection_reject = reject_;
-    })
-
-    if(Vue.prototype.$io.connected){
-      Vue.prototype.$syncTime(connection_resolve);
-    }
-    else{
-      Vue.prototype.$io.on("connect", ()=>{
-        Vue.prototype.$syncTime(connection_resolve);
-      })
-    }
+    Vue.prototype.$estabilishSocketConnection();
 
   }
 })
