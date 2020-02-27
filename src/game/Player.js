@@ -387,7 +387,7 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 
   path = this.getPathBodyFromCurpath(this.curpath);
 
-  if(!id){ //changeDir from called from processInput/changeDirSrv -- change dir from user action - no events
+  if(!id){ //changeDir called from processInput/changeDirSrv -- change dir from user action - no events
     this.id_cnt++; // 1. first curpath id = 0; 2. increment id_cnt and assign it to id of next curpath
     this.curpath.id = this.id_cnt;
     id = this.curpath.id;
@@ -397,14 +397,15 @@ Player.prototype.changeDir = function(new_dir, tm, id){
     this.curpath.id = id;
     type = id;
   }
-
-  this.saveInputInHistory({
+  
+  // returns true if paths was rebuilded 
+  var rebuilded = this.saveInputInHistory({
         type: type,
         dir: new_dir,
         tm: tm,
         id: id
     });
-
+  
   this.setInitPositionForCurpath(new_dir, tm, null, id );
 
   return path;
@@ -908,29 +909,60 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 
   if(this.inputs_history.length == 0){
     this.inputs_history.push(input);
-    return;
+    return false;
   }
-
-  for(var i = this.inputs_history.length-1; i>=0; i--){
+  
+  var last_idx_inputs_history = this.inputs_history.length-1;
+  
+  
+  for(var i = last_idx_inputs_history; i>=0; i--){
 
     var input_item = this.inputs_history[i];
-
+	
+	// found earlier input in history, splice new input after it
+	// earlier  =  with lower tm.
+	// find item with lower tm(earlier) and jump over inputs item with greater tm
     if(input_item.tm<=input.tm){
+		
+		// inputs of following type always assign its dir to preceding input
+		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="qc"){
+			input.dir ==input_item.dir;
+		}
+		
+		//input spliced before gap_start gap_end qc can change its dir 
+		//change dir of next input if neccessary
+		// - check if next input occurs  then check its type
+		if(last_idx_inputs_history != i){
+			var next_input_idx = i+1;
+			var next_input = this.inputs_history[next_input_idx];
+			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="qc"){
+				next_input.dir = input.dir; // spliced before
+			}
+		}
+		
+		
       this.inputs_history.splice(i+1,0,input);
       break;
     }
-
+	
+	// non-break at first loop iteration will cause following will be true
+	// input was spliced as last in order
+	
     rebuild_path_history = true;
 
   }
 
   if(rebuild_path_history && !skip_paths_rebuild){
     this.rebuildPaths();
+	return true;
   }
 
   if(this.name=="kuba1"){
     //this.logArr(this.inputs_history, "New input history" )
   }
+  
+  return false;
+  
 }
 
 // id = id of shortended aka first shifted
