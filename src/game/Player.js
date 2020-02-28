@@ -385,10 +385,6 @@ Player.prototype.changeDir = function(new_dir, tm, id){
   var path;
   var type;
   
-  this.recomputeCurpath(tm);
-
-  path = this.getPathBodyFromCurpath(this.curpath);
-
   if(!id){ //changeDir called from processInput/changeDirSrv -- change dir from user action - no events
     this.id_cnt++; // 1. first curpath id = 0; 2. increment id_cnt and assign it to id of next curpath
     this.curpath.id = this.id_cnt;
@@ -398,16 +394,22 @@ Player.prototype.changeDir = function(new_dir, tm, id){
   if(id=="qc" || id=="gap_start" || id=="gap_end"){
     this.curpath.id = id;
     type = id;
+  } 
+  
+  var rebuilded = this.saveInputInHistory({
+	type: type,
+	dir: new_dir,
+	tm: tm,
+	id: id
+  });
+	
+  if(rebuilded){
+	return;
   }
   
-  // returns true if paths was rebuilded 
-  var rebuilded = this.saveInputInHistory({
-        type: type,
-        dir: new_dir,
-        tm: tm,
-        id: id
-    });
   
+  this.recomputeCurpath(tm);
+  path = this.getPathBodyFromCurpath(this.curpath);
   this.setInitPositionForCurpath(new_dir, tm, null, id );
 
   return path;
