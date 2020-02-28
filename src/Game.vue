@@ -244,7 +244,7 @@
 
       mountClientSideHandlers: function(gamereplay){
 
-        this.$io.on("dirchanged", (playername, newdir, tm, state_of_curpath, done_path)=>{
+        this.$io.on("dirchanged", (playername, newdir, tm, done_path)=>{
 
           for( let player_item of players){
 
@@ -253,8 +253,7 @@
                 player_item.inputs.push({
                   type: "input",
                   dir: newdir,
-                  tm: tm,
-                  state_of_curpath: state_of_curpath
+                  tm: tm
                 })
               }
           }

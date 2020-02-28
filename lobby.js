@@ -471,12 +471,11 @@ Game.prototype.start = function(){
         }
         else {
           player_state_item.recomputeCurpath( input.tm );
-          var state_of_curpath = player_state_item.getCurpath();
           var done_path = player_state_item.changeDir(input.dir, input.tm);
 
           player_state_item.savePath(done_path, true);
 
-          io.to(this.name).emit("dirchanged", player_state_item.name, input.dir, input.tm, state_of_curpath, done_path  );
+          io.to(this.name).emit("dirchanged", player_state_item.name, input.dir, input.tm, done_path  );
 
         }
         if(this.game_replay){
