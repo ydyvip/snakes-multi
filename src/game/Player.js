@@ -384,6 +384,8 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 
   var path;
   var type;
+  
+  this.recomputeCurpath(tm);
 
   path = this.getPathBodyFromCurpath(this.curpath);
 
@@ -666,10 +668,6 @@ Player.prototype.quitConsideation = function(tm, server){
     return;
   }
 
-  this.recomputeCurpath(tm);
-
-  this.id_path_before_qc = this.curpath.id;
-  this.path_before_qc = this.getCurpath();
 
   var path = this.changeDir(this.curpath.dir, tm, "qc");
   this.savePath(path, server);

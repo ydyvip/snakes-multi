@@ -470,7 +470,7 @@ Game.prototype.start = function(){
           player_state_item.gap_ref.endGap();
         }
         else {
-          player_state_item.recomputeCurpath( input.tm );
+
           var done_path = player_state_item.changeDir(input.dir, input.tm);
 
           player_state_item.savePath(done_path, true);

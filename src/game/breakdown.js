@@ -197,8 +197,6 @@ Gap.prototype.clearTimeouts = function(){
 
 Gap.prototype.startGap = function(){
 
-  this.player_ref.recomputeCurpath(this.tm_gapstart);
-
   var path = this.player_ref.changeDir(this.player_ref.curpath.dir, this.tm_gapstart, "gap_start");
   this.player_ref.savePath(path);
 
@@ -207,8 +205,6 @@ Gap.prototype.startGap = function(){
 }
 
 Gap.prototype.endGap = function(){
-
-  this.player_ref.recomputeCurpath(this.tm_gapend);
 
   var path = this.player_ref.changeDir(this.player_ref.curpath.dir, this.tm_gapend, "gap_end");
 

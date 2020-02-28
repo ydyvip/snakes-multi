@@ -507,7 +507,6 @@
             }
             else if(input.type == "input"){
 
-              player_item.recomputeCurpath( input.tm );
               var done_path = player_item.changeDir(input.dir, input.tm);
               player_item.savePath(done_path, false);
 
