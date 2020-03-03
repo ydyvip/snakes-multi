@@ -776,44 +776,40 @@ Player.prototype.logArr = function(arr, msg){
 
 }
 
-Player.prototype.reduction2 = function(id, tm_to){
+Player.prototype.reduction2 = function(id){
 
-  this.clearInputHistoryAfter( id, tm_to);
+  this.clearInputHistoryAfter( id);
   this.rebuildPaths();
 
   this.reduction_sync_complete = true;
 
 }
 
-Player.prototype.clearInputHistoryAfter = function( id, tm_to){
+Player.prototype.clearInputHistoryAfter = function( id){
 
-  var idx = -1;
-  var reinsertQc = false;
-  var dirBeforeQc = null;
+	var idx = -1; // idx of lagged input
+	var reinsertQc = false;
+	var dirBeforeQc = null;
 
-  for(var i = 0; i<this.inputs_history.length; i++){
-    if(this.inputs_history[i].id == id)
-      idx = i;
-      dirBeforeQc = this.inputs_history[i].dir;
-  }
+	for(var i = 0; i<this.inputs_history.length; i++){
+		if(this.inputs_history[i].id == id)
+			idx = i;
+	}
+	
+	var inputs_after_lagged = this.inputs_history.slice(idx+1);
+	var inputs_after_lagged = inputs_after_lagged.filter((input_item)=>{
+		if(input_item.type=="gap_start" || input_item.type == "gap_end" || input_item.type == "quit_consideration" ||  input_item.type == "killed")
+		{
+			return true;
+		}
+		else{
+			return false;
+		}
+	})
 
-  for(var i = idx+1; i<this.inputs_history.length; i++){
-    if(this.inputs_history[i].type == "qc")
-      reinsertQc = true;
-  }
-
-  //this.inputs_history.splice(idx+1);
-  this.inputs_history.splice(idx); // igore lagged input
-
-
-  // this.updateTm( id, tm_to, idx); igore lagged input - no update
-  if(reinsertQc){
-    this.saveInputInHistory({
-          type: "qc",
-          dir: dirBeforeQc,
-          tm: this.game_state.tm_quit_consideration
-      } , true); // true -> skip_paths_rebuild
-  }
+	
+	this.inputs_history.splice(idx); // delete inputs after lagged, include lagged input
+	this.inputs_history = this.inputs_history.concat(inputs_after_lagged); //scale with filtered inputs (ignored inputs of user after lagged)
 
 }
 
