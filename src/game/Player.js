@@ -821,6 +821,8 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
   console.log(tm_to_curpath);
   this.logArr(this.inputs_history, "inputs history");
 
+
+
   var working_curpath = {
       id: 0,
       on_breakout: true,
@@ -864,6 +866,8 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
 
   this.recomputeCurpath(tm_to_curpath, working_curpath);
   this.curpath = working_curpath;
+  this.logArr(this.paths, "old_path_collection");
+  this.logArr(this.new_path_collection, "new_path_collection");
   this.paths = new_path_collection;
 
 }
@@ -917,21 +921,21 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 	// find item with lower tm(earlier) and jump over inputs item with greater tm
     if(input_item.tm<=input.tm){
 
-		// inputs of following type always assign its dir to preceding input
-		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="quit_consideration"){
-			input.dir ==input_item.dir;
-		}
+  		// inputs of following type always assign its dir to preceding input
+  		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="quit_consideration"){
+  			input.dir ==input_item.dir;
+  		}
 
-		//input spliced before gap_start gap_end qc can change its dir
-		//change dir of next input if neccessary
-		// - check if next input occurs  then check its type
-		if(last_idx_inputs_history != i){
-			var next_input_idx = i+1;
-			var next_input = this.inputs_history[next_input_idx];
-			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="quit_consideration"){
-				next_input.dir = input.dir; // spliced before
-			}
-		}
+  		//input spliced before gap_start gap_end qc can change its dir
+  		//change dir of next input if neccessary
+  		// - check if next input occurs  then check its type
+  		if(last_idx_inputs_history != i){
+  			var next_input_idx = i+1;
+  			var next_input = this.inputs_history[next_input_idx];
+  			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="quit_consideration"){
+  				next_input.dir = input.dir; // spliced before
+  			}
+  		}
 
 
       this.inputs_history.splice(i+1,0,input);
@@ -946,13 +950,14 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
   }
 
   if(rebuild_path_history && !skip_paths_rebuild){
+
     this.rebuildPaths();
-	return true;
+	  return true;
   }
 
-  if(this.name=="kuba1"){
+
     //this.logArr(this.inputs_history, "New input history" )
-  }
+
 
   return false;
 
