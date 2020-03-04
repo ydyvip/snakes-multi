@@ -384,7 +384,7 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 
   var path;
   var type;
-  
+
   if(!id){ //changeDir called from processInput/changeDirSrv -- change dir from user action - no events
     this.id_cnt++; // 1. first curpath id = 0; 2. increment id_cnt and assign it to id of next curpath
     this.curpath.id = this.id_cnt;
@@ -394,20 +394,20 @@ Player.prototype.changeDir = function(new_dir, tm, id){
   if(id=="qc" || id=="gap_start" || id=="gap_end"){
     this.curpath.id = id;
     type = id;
-  } 
-  
+  }
+
   var rebuilded = this.saveInputInHistory({
 	type: type,
 	dir: new_dir,
 	tm: tm,
 	id: id
   });
-	
+
   if(rebuilded){
 	return;
   }
-  
-  
+
+
   this.recomputeCurpath(tm);
   path = this.getPathBodyFromCurpath(this.curpath);
   this.setInitPositionForCurpath(new_dir, tm, null, id );
@@ -763,9 +763,6 @@ Player.prototype.extendPath = function(ix, to, vector){
 
 Player.prototype.logArr = function(arr, msg){
 
-  if(this.name!="kuba1"){
-    return;
-  }
 
   console.log(" vvvvvvvvvvvvvvvvvvvv BEGIN " + msg + " vvvvvvvvvvvvvvvvvvvv ");
   for( let item of arr)
@@ -795,7 +792,7 @@ Player.prototype.clearInputHistoryAfter = function( id){
 		if(this.inputs_history[i].id == id)
 			idx = i;
 	}
-	
+
 	var inputs_after_lagged = this.inputs_history.slice(idx+1);
 	var inputs_after_lagged = inputs_after_lagged.filter((input_item)=>{
 		if(input_item.type=="gap_start" || input_item.type == "gap_end" || input_item.type == "quit_consideration" ||  input_item.type == "killed")
@@ -807,7 +804,7 @@ Player.prototype.clearInputHistoryAfter = function( id){
 		}
 	})
 
-	
+
 	this.inputs_history.splice(idx); // delete inputs after lagged, include lagged input
 	this.inputs_history = this.inputs_history.concat(inputs_after_lagged); //scale with filtered inputs (ignored inputs of user after lagged)
 
@@ -907,25 +904,25 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
     this.inputs_history.push(input);
     return false;
   }
-  
+
   var last_idx_inputs_history = this.inputs_history.length-1;
-  
-  
+
+
   for(var i = last_idx_inputs_history; i>=0; i--){
 
     var input_item = this.inputs_history[i];
-	
+
 	// found earlier input in history, splice new input after it
 	// earlier  =  with lower tm.
 	// find item with lower tm(earlier) and jump over inputs item with greater tm
     if(input_item.tm<=input.tm){
-		
+
 		// inputs of following type always assign its dir to preceding input
 		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="qc"){
 			input.dir ==input_item.dir;
 		}
-		
-		//input spliced before gap_start gap_end qc can change its dir 
+
+		//input spliced before gap_start gap_end qc can change its dir
 		//change dir of next input if neccessary
 		// - check if next input occurs  then check its type
 		if(last_idx_inputs_history != i){
@@ -935,15 +932,15 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 				next_input.dir = input.dir; // spliced before
 			}
 		}
-		
-		
+
+
       this.inputs_history.splice(i+1,0,input);
       break;
     }
-	
+
 	// non-break at first loop iteration will cause following will be true
 	// input was spliced as last in order
-	
+
     rebuild_path_history = true;
 
   }
@@ -956,9 +953,9 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
   if(this.name=="kuba1"){
     //this.logArr(this.inputs_history, "New input history" )
   }
-  
+
   return false;
-  
+
 }
 
 // id = id of shortended aka first shifted
