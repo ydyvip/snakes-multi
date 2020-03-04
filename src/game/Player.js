@@ -918,7 +918,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
     if(input_item.tm<=input.tm){
 
 		// inputs of following type always assign its dir to preceding input
-		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="qc"){
+		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="quit_consideration"){
 			input.dir ==input_item.dir;
 		}
 
@@ -928,7 +928,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 		if(last_idx_inputs_history != i){
 			var next_input_idx = i+1;
 			var next_input = this.inputs_history[next_input_idx];
-			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="qc"){
+			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="quit_consideration"){
 				next_input.dir = input.dir; // spliced before
 			}
 		}
