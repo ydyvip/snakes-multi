@@ -764,7 +764,7 @@ Player.prototype.extendPath = function(ix, to, vector){
 Player.prototype.logArr = function(arr, msg){
 
 
-  console.log(" vvvvvvvvvvvvvvvvvvvv BEGIN " + msg + " vvvvvvvvvvvvvvvvvvvv ");
+  console.log(" vvvvvvvvvvvvvvvvvvvv BEGIN " + msg + " vvvvvvvvvvvvvvvvvvvv " + "For: " + player.name);
   for( let item of arr)
   {
     console.log(item);
@@ -868,6 +868,7 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
   this.curpath = working_curpath;
   this.logArr(this.paths, "old_path_collection");
   this.logArr(this.new_path_collection, "new_path_collection");
+
   this.paths = new_path_collection;
 
 }
