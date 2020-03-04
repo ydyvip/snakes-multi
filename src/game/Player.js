@@ -764,7 +764,7 @@ Player.prototype.extendPath = function(ix, to, vector){
 Player.prototype.logArr = function(arr, msg){
 
 
-  console.log(" vvvvvvvvvvvvvvvvvvvv BEGIN " + msg + " vvvvvvvvvvvvvvvvvvvv " + "For: " + player.name);
+  console.log(" vvvvvvvvvvvvvvvvvvvv BEGIN " + msg + " vvvvvvvvvvvvvvvvvvvv " + "For: " + this.name);
   for( let item of arr)
   {
     console.log(item);
