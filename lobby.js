@@ -244,7 +244,7 @@ Game.prototype.startNewRound = function(first_round){
 
       colors.splice(0, 1);
 
-      var p = new Player(initial_state);
+      var p = new Player(initial_state, true);
       p.gamename = this.name;
       p.socket = player_socket.socket;
       p.game_state = this.game_state;
@@ -472,7 +472,6 @@ Game.prototype.start = function(){
         else {
 
           var done_path = player_state_item.changeDir(input.dir, input.tm);
-
           player_state_item.savePath(done_path, true);
 
           io.to(this.name).emit("dirchanged", player_state_item.name, input.dir, input.tm, done_path  );

@@ -430,7 +430,7 @@
 
       this.initialStates.forEach( (initial_state_item)=> {
 
-        var player_item = new Player(initial_state_item);
+        var player_item = new Player(initial_state_item, false);
         player_item.server_side = false;
 
         window.player = player_item;

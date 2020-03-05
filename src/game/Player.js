@@ -12,9 +12,10 @@ function getRad(degree){
 }
 
 
-var Player = function(initial_state){
+var Player = function(initial_state, server_side){
 
   this.name = initial_state.player_name;
+  this.server_side = server_side;
   this.speed = 0;
   this.default_speed = 50;
   this.weight = 10;
@@ -857,7 +858,7 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
     this.recomputeCurpath(input.tm, working_curpath);
     var done_path = this.getPathBodyFromCurpath(working_curpath);
     this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, input.id);
-    this.savePath(done_path, false, new_path_collection);
+    this.savePath(done_path, this.server_side, new_path_collection);
 
   }
 

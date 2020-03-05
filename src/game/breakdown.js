@@ -198,7 +198,7 @@ Gap.prototype.clearTimeouts = function(){
 Gap.prototype.startGap = function(){
 
   var path = this.player_ref.changeDir(this.player_ref.curpath.dir, this.tm_gapstart, "gap_start");
-  this.player_ref.savePath(path);
+  this.player_ref.savePath(path, this.server_side);
 
   this.player_ref.breakout = true;
 
