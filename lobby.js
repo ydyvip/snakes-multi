@@ -594,21 +594,21 @@ module.exports = function( io_, socket ){
 
   socket.on("left", function(tm, reduction_sync_complete){
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("left", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
+      socket.player_state.changeDirSrv("left", tm, reduction_sync_complete, socket.player_state.id_cnt_srv++);
     }, 1);
 
   })
 
   socket.on("right", function(tm, reduction_sync_complete){
     setTimeout( ()=>{
-      socket.player_state.changeDirSrv("right", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
+      socket.player_state.changeDirSrv("right", tm, reduction_sync_complete, socket.player_state.id_cnt_srv++);
    }, 1)
 
   })
 
   socket.on("straight", function(tm, reduction_sync_complete){
    setTimeout( ()=>{
-      socket.player_state.changeDirSrv("straight", tm, reduction_sync_complete, ++socket.player_state.id_cnt_srv);
+      socket.player_state.changeDirSrv("straight", tm, reduction_sync_complete, socket.player_state.id_cnt_srv++);
    }, 1)
 
  })
