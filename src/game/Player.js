@@ -382,15 +382,34 @@ Player.prototype.changeDir = function(new_dir, tm, id){
   // All paths are saved in paths history (also these before qc)
   // This was needed to path SHIFTING for reduction
   // In reduction2 there is no shifiting so we can skip saving of paths on breakout
-
+  
+  /*
+	Paths ids are indexed from 0
+	Inputs ids are indexed from 0 
+	
+	inputs_history[0]
+		.id = 0
+		.tm = xxx 
+		.dir = new_dir 
+	
+	recompute first curpath with tm of first input from history 
+	set tm field of next curpath with the same tm. 
+	
+	recompute next curpath with next input tm
+		
+	
+  */
+  
   var path;
   var type;
 
   if(!id){ //changeDir called from processInput/changeDirSrv -- change dir from user action - no events
-    this.id_cnt++; // 1. first curpath id = 0; 2. increment id_cnt and assign it to id of next curpath
-    this.curpath.id = this.id_cnt;
-    id = this.curpath.id;
+  
+    id = this.id_cnt;
     type = "input";
+	
+	++this.id_cnt
+	
   }
   if(id=="qc" || id=="gap_start" || id=="gap_end"){
     this.curpath.id = id;
@@ -401,17 +420,18 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 	type: type,
 	dir: new_dir,
 	tm: tm,
-	id: id
+	id: id 
   });
-
+  
+  
   if(rebuilded){
 	return;
   }
 
-
   this.recomputeCurpath(tm);
   path = this.getPathBodyFromCurpath(this.curpath);
-  this.setInitPositionForCurpath(new_dir, tm, null, id );
+  // for next curpath after previous is saved as PathBody
+  this.setInitPositionForCurpath(new_dir, tm, null, this.id_cnt );
 
   return path;
 }
@@ -857,7 +877,7 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
 
     this.recomputeCurpath(input.tm, working_curpath);
     var done_path = this.getPathBodyFromCurpath(working_curpath);
-    this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, input.id);
+    this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, input.id+1);
     this.savePath(done_path, this.server_side, new_path_collection);
 
   }
