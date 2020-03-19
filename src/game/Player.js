@@ -1,4 +1,3 @@
-
 var circleArcCollision = require("./circle-arc-collision.js");
 var Arc = require("./arc.js");
 
@@ -382,56 +381,58 @@ Player.prototype.changeDir = function(new_dir, tm, id){
   // All paths are saved in paths history (also these before qc)
   // This was needed to path SHIFTING for reduction
   // In reduction2 there is no shifiting so we can skip saving of paths on breakout
-  
+
   /*
 	Paths ids are indexed from 0
-	Inputs ids are indexed from 0 
-	
+	Inputs ids are indexed from 0
+
 	inputs_history[0]
 		.id = 0
-		.tm = xxx 
-		.dir = new_dir 
-	
-	recompute first curpath with tm of first input from history 
-	set tm field of next curpath with the same tm. 
-	
+		.tm = xxx
+		.dir = new_dir
+
+	recompute first curpath with tm of first input from history
+	set tm field of next curpath with the same tm.
+
 	recompute next curpath with next input tm
-		
-	
+
+
   */
-  
+
   var path;
   var type;
+  var next_path_id;
 
   if(!id){ //changeDir called from processInput/changeDirSrv -- change dir from user action - no events
-  
+
     id = this.id_cnt;
     type = "input";
-	
-	++this.id_cnt
-	
+
+	  next_path_id = ++this.id_cnt;
+
   }
   if(id=="qc" || id=="gap_start" || id=="gap_end"){
     this.curpath.id = id;
     type = id;
+	  next_path_id = id;
   }
 
   var rebuilded = this.saveInputInHistory({
-	type: type,
-	dir: new_dir,
-	tm: tm,
-	id: id 
+  	type: type,
+  	dir: new_dir,
+  	tm: tm,
+  	id: id
   });
-  
-  
+
+
   if(rebuilded){
-	return;
+	   return;
   }
 
   this.recomputeCurpath(tm);
   path = this.getPathBodyFromCurpath(this.curpath);
   // for next curpath after previous is saved as PathBody
-  this.setInitPositionForCurpath(new_dir, tm, null, this.id_cnt );
+  this.setInitPositionForCurpath(new_dir, tm, null, next_path_id );
 
   return path;
 }
@@ -817,7 +818,7 @@ Player.prototype.clearInputHistoryAfter = function( id){
 
 	var inputs_after_lagged = this.inputs_history.slice(idx+1);
 	var inputs_after_lagged = inputs_after_lagged.filter((input_item)=>{
-		if(input_item.type=="gap_start" || input_item.type == "gap_end" || input_item.type == "quit_consideration" ||  input_item.type == "killed")
+		if(input_item.type=="gap_start" || input_item.type == "gap_end" || input_item.type == "qc" ||  input_item.type == "killed")
 		{
 			return true;
 		}
@@ -842,8 +843,6 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
   console.log("REBUILD PATHS");
   console.log(tm_to_curpath);
   this.logArr(this.inputs_history, "inputs history");
-
-
 
   var working_curpath = {
       id: 0,
@@ -875,9 +874,19 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
 
     var input = this.inputs_history[i];
 
+  	var next_path_id;
+  	if(input.type == "gap_start" || input.type == "gap_end" || input.type == "qc"){
+  		next_path_id == input.type;
+  	}
+  	else{
+  		next_path_id = input.id+1;
+  	}
+
     this.recomputeCurpath(input.tm, working_curpath);
     var done_path = this.getPathBodyFromCurpath(working_curpath);
-    this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, input.id+1);
+
+	// for next path
+    this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, next_path_id);
     this.savePath(done_path, this.server_side, new_path_collection);
 
   }
@@ -945,7 +954,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
     if(input_item.tm<=input.tm){
 
   		// inputs of following type always assign its dir to preceding input
-  		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="quit_consideration"){
+  		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="qc"){
   			input.dir ==input_item.dir;
   		}
 
@@ -955,7 +964,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
   		if(last_idx_inputs_history != i){
   			var next_input_idx = i+1;
   			var next_input = this.inputs_history[next_input_idx];
-  			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="quit_consideration"){
+  			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="qc"){
   				next_input.dir = input.dir; // spliced before
   			}
   		}
