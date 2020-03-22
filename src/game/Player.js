@@ -955,7 +955,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 
   		// inputs of following type always assign its dir to preceding input
   		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="qc"){
-  			input.dir ==input_item.dir;
+  			input.dir = input_item.dir;
   		}
 
   		//input spliced before gap_start gap_end qc can change its dir
