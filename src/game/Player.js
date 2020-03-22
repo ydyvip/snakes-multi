@@ -877,7 +877,7 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
 
   	var next_path_id;
   	if(input.type == "gap_start" || input.type == "gap_end" || input.type == "qc"){
-  		next_path_id == input.type;
+  		next_path_id = input.type;
   	}
   	else{
   		next_path_id = input.id;
