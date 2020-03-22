@@ -29,8 +29,8 @@ var Player = function(initial_state, server_side){
   this.collision_before_input = {};
   this.collision_type = null;
   this.collision_participant = null;
-  this.id_cnt = 0;
-  this.id_cnt_srv = 0;
+  this.id_cnt = 1;
+  this.id_cnt_srv = 1;
   this.id_path_before_qc = null;
   this.curpath = {
     id: 0,
@@ -405,15 +405,17 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 
   if(!id){ //changeDir called from processInput/changeDirSrv -- change dir from user action - no events
 
-    id = this.id_cnt;
     type = "input";
 
-	  next_path_id = ++this.id_cnt;
+	  next_path_id = id = this.id_cnt++;
 
   }
   if(id=="qc" || id=="gap_start" || id=="gap_end"){
+
     type = id;
+
 	  next_path_id = id;
+
   }
 
   var rebuilded = this.saveInputInHistory({
@@ -878,7 +880,7 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
   		next_path_id == input.type;
   	}
   	else{
-  		next_path_id = input.id+1;
+  		next_path_id = input.id;
   	}
 
     this.recomputeCurpath(input.tm, working_curpath);

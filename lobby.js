@@ -291,8 +291,8 @@ Game.prototype.startNewRound = function(first_round){
       player.inputs_history = [];
       player.curpath.dir = "straight";
       player.collision_tm = 0;
-      player.id_cnt = 0;
-      player.id_cnt_srv = 0;
+      player.id_cnt = 1;
+      player.id_cnt_srv = 1;
       player.curpath.id = 0;
       player.curpath.on_breakout = true;
 
