@@ -412,7 +412,6 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 
   }
   if(id=="qc" || id=="gap_start" || id=="gap_end"){
-    this.curpath.id = id;
     type = id;
 	  next_path_id = id;
   }
