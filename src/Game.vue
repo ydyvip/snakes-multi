@@ -294,7 +294,7 @@
                 player.show_dir_indicator = true;
                 player.inputs = [];
                 player.inputs_history = [];
-                player.id_cnt = 0;
+                player.id_cnt = 1;
                 player.curpath.id = 0;
                 player.curpath.on_breakout = true;
               }
@@ -502,7 +502,7 @@
               player_item.gap_ref.clearTimeouts();
               player_item.speed = 0;
               player_item.collision_tm = 0;
-              player_item.id_cnt = 0;
+              player_item.id_cnt = 1;
               return;
             }
             else if(input.type == "input"){
