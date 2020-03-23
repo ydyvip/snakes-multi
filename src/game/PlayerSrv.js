@@ -6,8 +6,6 @@ Player.prototype.srv = true;
 
 Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
-  console.log(newdir)
-  console.log(tm)
 
   if((newdir != "left" && newdir != "right" && newdir != "straight") || /[^0-9]/.test(tm)){
     return;
@@ -28,7 +26,6 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
     tm: tm
   }
 
-  console.log(input);
 
   // Collision test should be performed every 10px (player weight)
   //  1000[1s] / (50[px/s]/10px[weight]) --> 200ms

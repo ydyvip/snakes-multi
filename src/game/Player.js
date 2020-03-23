@@ -417,16 +417,20 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 	  next_path_id = id;
 
   }
-
-  var rebuilded = this.saveInputInHistory({
+  var input = {
   	type: type,
   	dir: new_dir,
   	tm: tm,
   	id: id
-  });
+  };
+  var rebuilded = this.saveInputInHistory(input);
 
+  console.log("Save input in history: ");
+  console.log(input);
 
   if(rebuilded){
+    console.log("REBUILDED new curpath:");
+    console.log(this.curpath);
 	   return;
   }
 
@@ -885,10 +889,10 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
 
     this.recomputeCurpath(input.tm, working_curpath);
     var done_path = this.getPathBodyFromCurpath(working_curpath);
+    this.savePath(done_path, this.server_side, new_path_collection);
 
 	// for next path
     this.setInitPositionForCurpath(input.dir, input.tm, working_curpath, next_path_id);
-    this.savePath(done_path, this.server_side, new_path_collection);
 
   }
 
@@ -898,6 +902,7 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
 
   this.recomputeCurpath(tm_to_curpath, working_curpath);
   this.curpath = working_curpath;
+
   this.logArr(this.paths, "old_path_collection");
   this.logArr(new_path_collection, "new_path_collection");
 
