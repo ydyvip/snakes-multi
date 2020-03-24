@@ -67,14 +67,14 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
   // reset collision if input was triggered earlier
   if(this.collision_tm != 0 && tm<this.collision_tm){
-    if(this.name == "user6"){
+
       console.log("RESETING")
       console.log(" collision_tm: " + this.collision_tm);
       console.log(" type: " + this.collision_type);
       if(this.collision_participant){
         console.log( " participant: " + this.collision_participant.name);
       }
-    }
+
     //handle case when input of user does not prevent collision
     //then collision detected again will be emitted immediately
     this.collision_force = true;

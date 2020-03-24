@@ -284,6 +284,8 @@
 
         this.$io.on("new_positions_generated", (positions)=>{
 
+          console.log("new_positions_generated (inputs cleared)")
+
           for(var pos of positions){
 
             for(var player of players){
@@ -341,6 +343,8 @@
         })
 
         this.$io.on("killed", (playername, collision_tm, end_of_round)=>{
+
+          console.log("killed event received: " + playername + " " + collision_tm + " " + end_of_round);
 
           for(var player of players){
             if(player.name ==  playername){
@@ -492,7 +496,14 @@
               player_item.quitConsideation(this.game_state.tm_quit_consideration, false);
             }
             else if(input.type == "killed"){
+
+              console.log("KILLED");
+              console.log(input);
+
               player_item.rebuildPathsAfterKilled(input.collision_tm);
+              console.log("CURPATH after killed: ");
+              console.log(player_item.curpath);
+
               if(input.end_of_round){
                 for(var player of players){
                   player.speed = 0;

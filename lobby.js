@@ -79,6 +79,8 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
   if(player_state.collision_force){
     player_state.collision_timeout = null;
     player_state.rebuildPathsAfterKilled(player_state.collision_before_input.collision_tm);
+    console.log("CURPATH after killed (repeated): ");
+    console.log(player_state.curpath);
     player_state.speed = 0;
     player_state.collision_tm = 0;
     player_state.killed = true;
@@ -103,8 +105,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
       player_state.collision_timeout = null;
       player_state.speed = player_state.default_speed;
       player_state.collision_tm = 0;
-      if(player_state.name=="user6")
-        console.log("collision rejected: "+collision_tm);
+      console.log("collision rejected: "+collision_tm);
     }
 
   }, 200);

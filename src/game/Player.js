@@ -72,6 +72,7 @@ Player.prototype.draw = function(self){
   this.ctx.fillStyle = this.color;
 
   if(this.restart){
+    console.log("restart from draw (inputs cleared)");
     this.speed = 0;
     this.paths = [];
     this.inputs = [];
