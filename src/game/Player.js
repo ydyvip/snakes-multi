@@ -902,6 +902,8 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
   }
 
   this.recomputeCurpath(tm_to_curpath, working_curpath);
+  console.log("working_curpath after rebuild paths");
+  console.log(working_curpath);
   this.curpath = working_curpath;
 
   this.logArr(this.paths, "old_path_collection");
