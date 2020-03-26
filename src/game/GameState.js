@@ -91,7 +91,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
             if(c){
               console.log("Collision details:");
               console.log(player.name + " collided with " + player_against.name + " at " + tm );
-              console.log("curpath-curpath (id-id): " + player.curpath.id + " : " player_against.curpath.id );
+              console.log("curpath-curpath (id-id): " + player.curpath.id + " : " + player_against.curpath.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
             }
@@ -114,7 +114,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
             if(c){
               console.log("Collision details:");
               console.log(player.name + " collided with " + player_against.name + " at " + tm);
-              console.log("curpath-curpath (id-id): " + player.curpath.id + " : " player_against.curpath.id );
+              console.log("curpath-curpath (id-id): " + player.curpath.id + " : " + player_against.curpath.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
             }
@@ -149,7 +149,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
             if(c){
               console.log("Collision details:");
               console.log(player.name + " collided with " + player_against.name + " at " + tm);
-              console.log("curpath-donepath (id-id): " + player.curpath.id + " : " player_against.path.body.id );
+              console.log("curpath-donepath (id-id): " + player.curpath.id + " : " + player_against.path.body.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm);
             }
@@ -167,7 +167,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
             if(c){
               console.log("Collision details:");
               console.log(player.name + " collided with " + player_against.name + " at " + tm);
-              console.log("curpath-donepath (id-id): " + player.curpath.id + " : " player_against.path.body.id );
+              console.log("curpath-donepath (id-id): " + player.curpath.id + " : " + player_against.path.body.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm);
             }
