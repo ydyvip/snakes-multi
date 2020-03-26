@@ -475,6 +475,7 @@
         }
 
         for( var player_item of players){
+          var cur_time = Date.now();
           //INPUT QUEUE
           while(player_item.inputs.length>0){
 
@@ -525,11 +526,11 @@
           }
 
           if(player_item.speed>0){
-            player_item.recomputeCurpath(Date.now());
+            player_item.recomputeCurpath(cur_time);
           }
         }
 
-        this.game_state.detectCollision(players);
+        this.game_state.detectCollision(players, false, cur_time);
         //GameState.curosorPlayerCollision(cursor_circle, player);
 
         this.draw();
