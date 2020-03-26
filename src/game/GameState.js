@@ -37,6 +37,8 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
         lineCircleCollision([800,0], [0,0], [player.curpath.end.x, player.curpath.end.y], player.weight/2)
       )
       if(c){
+        console.log("Collision details:");
+        console.log(player.name + " collided with " + "wall at " + tm);
         if(game_serv)
           game_serv.collisionDetected(player, tm);
       }
@@ -60,7 +62,10 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           var c = Math.abs(player_against.curpath.angle - player_against.curpath.base_start_angle) > (360-degree_distance);
           if(c){
+            console.log("Collision details:");
+            console.log(player.name + " collided with self 360 deg.";
             if(game_serv)
+
               game_serv.collisionDetected(player, tm);
           }
         }
@@ -84,6 +89,9 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
               new Arc( player_against.curpath.arc_point.x, player_against.curpath.arc_point.y, player_against.r, getRad(player_against.curpath.starting_angle), getRad(player_against.curpath.angle + angle_90), player_against.weight, counterclockwise  )
             );
             if(c){
+              console.log("Collision details:");
+              console.log(player.name + " collided with " + player_against.name + " at " + tm );
+              console.log("curpath-curpath (id-id): " + player.curpath.id + " : " player_against.curpath.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
             }
@@ -104,6 +112,9 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
 
             if(c){
+              console.log("Collision details:");
+              console.log(player.name + " collided with " + player_against.name + " at " + tm);
+              console.log("curpath-curpath (id-id): " + player.curpath.id + " : " player_against.curpath.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm, "curpath-curpath", player_against);
             }
@@ -136,6 +147,9 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           {
             var c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2}, path.body.arc);
             if(c){
+              console.log("Collision details:");
+              console.log(player.name + " collided with " + player_against.name + " at " + tm);
+              console.log("curpath-donepath (id-id): " + player.curpath.id + " : " player_against.path.body.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm);
             }
@@ -151,6 +165,9 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
             );
 
             if(c){
+              console.log("Collision details:");
+              console.log(player.name + " collided with " + player_against.name + " at " + tm);
+              console.log("curpath-donepath (id-id): " + player.curpath.id + " : " player_against.path.body.id );
               if(game_serv)
                 game_serv.collisionDetected(player, tm);
             }

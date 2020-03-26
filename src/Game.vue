@@ -284,7 +284,7 @@
 
         this.$io.on("new_positions_generated", (positions)=>{
 
-          console.log("new_positions_generated (inputs cleared)")
+          console.log("new_positions_generated (inputs cleared)");
 
           for(var pos of positions){
 

@@ -796,7 +796,7 @@ Player.prototype.logArr = function(arr, msg){
 
   for( let item of arr)
   {
-    console.log(item);
+    console.log(JSON.parse( JSON.stringify(item) ));
   }
   console.log(" ^^^^^^^^^^^^^^^^^^^ END " + msg + " ^^^^^^^^^^^^^^^^^^^");
 
@@ -902,8 +902,10 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
   }
 
   this.recomputeCurpath(tm_to_curpath, working_curpath);
+
   console.log("working_curpath after rebuild paths");
-  console.log(working_curpath);
+  console.log(JSON.parse(JSON.stringify(working_curpath)));
+
   this.curpath = working_curpath;
 
   this.logArr(this.paths, "old_path_collection");
