@@ -63,7 +63,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
           var c = Math.abs(player_against.curpath.angle - player_against.curpath.base_start_angle) > (360-degree_distance);
           if(c){
             console.log("Collision details:");
-            console.log(player.name + " collided with self 360 deg.";
+            console.log(player.name + " collided with self 360 deg.");
             if(game_serv)
 
               game_serv.collisionDetected(player, tm);
