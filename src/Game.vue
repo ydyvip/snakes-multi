@@ -316,7 +316,6 @@
             player.curpath.tm = tm_round_start;
             player.init_pos.tm = tm_round_start;
             this.game_state.player_consideration = true;
-            player.breakout = true;
             player.speed = player.default_speed;
             player.show_dir_indicator = false;
           }

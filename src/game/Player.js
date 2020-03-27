@@ -20,7 +20,6 @@ var Player = function(initial_state, server_side){
   this.weight = 10;
   this.r = 30;
   this.paths = [];
-  this.breakout = true; // breakout should be used only for rendering purpose, not for determining if path should be saved or not
   this.show_dir_indicator = true;
   this.killed = true;
   this.collision_tm = 0;
@@ -455,11 +454,6 @@ Player.prototype.go = function(delta, curpath ) {
     this.goLeft(delta, curpath);
   }
 
-  // if(this.breakout){
-  //   this.curpath.start.x = this.curpath.end.x;
-  //   this.curpath.start.y = this.curpath.end.y;
-  // }
-
 }
 
 
@@ -475,7 +469,7 @@ Player.prototype.goLeft = function(delta, curpath){
   var degree_speed = 360 / (2*Math.PI*this.r) * this.speed * delta;
 
   curpath.angle-=degree_speed;
-  if(this.breakout){
+  if(curpath.on_breakout){
     this.curpath.starting_angle = this.curpath.angle + 90;
   }
 
@@ -489,7 +483,7 @@ Player.prototype.goRight = function(delta, curpath){
   var degree_speed = 360 / (2*Math.PI*this.r) * this.speed * delta;
 
   curpath.angle+=degree_speed;
-  if(this.breakout){
+  if(curpath.on_breakout){
     this.curpath.starting_angle = this.curpath.angle - 90;
   }
 
@@ -701,8 +695,7 @@ Player.prototype.quitConsideation = function(tm, server){
 
   var path = this.changeDir(this.curpath.dir, tm, "qc");
   this.savePath(path, server);
-
-  this.breakout = false;
+  
 
   this.game_state.player_consideration = false;
 

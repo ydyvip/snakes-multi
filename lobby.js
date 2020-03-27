@@ -327,7 +327,6 @@ Game.prototype.startNewRound = function(first_round){
           this.game_state.player_consideration = true;
           player.speed = player.default_speed;
           player.killed = false;
-          player.breakout = true;
         }
 
         this.game_state.tm_quit_consideration = tm_round_start + 4000;
