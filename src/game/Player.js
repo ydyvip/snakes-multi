@@ -1163,16 +1163,37 @@ Player.prototype.processInput = function(io, dir ){
     tm: tm
   });
 
-  if(this.reduction_sync_complete){
-    io.emit(dir, tm, true);
+  if(this.id_cnt == 5){
+
+    setTimeout( ()=>{
+
+      if(this.reduction_sync_complete){
+        io.emit(dir, tm, true);
+      }
+      else{
+        io.emit(dir, tm, null);
+      }
+      if(this.reduction_sync_complete){
+        this.reduction_sync_complete = false;
+      }
+
+    }, 500 );
+
   }
   else{
-    io.emit(dir, tm, null);
+    if(this.reduction_sync_complete){
+      io.emit(dir, tm, true);
+    }
+    else{
+      io.emit(dir, tm, null);
+    }
+
+    if(this.reduction_sync_complete){
+      this.reduction_sync_complete = false;
+    }
   }
 
-  if(this.reduction_sync_complete){
-    this.reduction_sync_complete = false;
-  }
+
 
 }
 
