@@ -1164,7 +1164,7 @@ Player.prototype.processInput = function(io, dir ){
   });
 
   if(this.id_cnt == 4){
-
+    console.log("ID cnt: 4");
     setTimeout( ()=>{
 
       if(this.reduction_sync_complete){
