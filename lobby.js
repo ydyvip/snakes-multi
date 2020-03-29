@@ -323,6 +323,7 @@ Game.prototype.startNewRound = function(first_round){
           this.game_replay_player.setTmBase(tm_round_start);
 
         for(var player of this.player_states){
+          player.init_pos.tm = tm_round_start;
           player.curpath.tm = tm_round_start;
           this.game_state.player_consideration = true;
           player.speed = player.default_speed;

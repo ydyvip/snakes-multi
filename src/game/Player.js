@@ -137,6 +137,7 @@ Player.prototype.draw = function(self){
     this.ctx.beginPath();
     this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(starting_angle), getRad( this.curpath.angle + 90), true);
     this.ctx.stroke();
+
   }
 
   if(this.curpath.dir == "right" && !this.curpath.on_breakout){
@@ -462,7 +463,7 @@ Player.prototype.goStraight = function(delta, curpath){
   curpath.end.x += Math.cos(getRad(curpath.angle)) * this.speed * delta;
   curpath.end.y += Math.sin(getRad(curpath.angle)) * this.speed * delta;
 
-},
+}
 
 Player.prototype.goLeft = function(delta, curpath){
 
@@ -476,7 +477,7 @@ Player.prototype.goLeft = function(delta, curpath){
   curpath.end.x = curpath.arc_point.x + Math.cos( getRad(curpath.angle+90) ) * this.r;
   curpath.end.y = curpath.arc_point.y + Math.sin( getRad(curpath.angle+90) ) * this.r;
 
-},
+}
 
 Player.prototype.goRight = function(delta, curpath){
 
@@ -530,6 +531,7 @@ Player.prototype.recomputeCurpath = function(tm_to_timestep, curpath){
       curpath.starting_angle = curpath.angle + 90;
     if(curpath.dir == "right")
       curpath.starting_angle = curpath.angle - 90;
+
 
     curpath.end.x = curpath.start.x;
     curpath.end.y = curpath.start.y;
@@ -695,7 +697,7 @@ Player.prototype.quitConsideation = function(tm, server){
 
   var path = this.changeDir(this.curpath.dir, tm, "qc");
   this.savePath(path, server);
-  
+
 
   this.game_state.player_consideration = false;
 
