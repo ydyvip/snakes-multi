@@ -1163,7 +1163,7 @@ Player.prototype.processInput = function(io, dir ){
     tm: tm
   });
 
-  if(this.id_cnt == 5){
+  if(this.id_cnt == 4){
 
     setTimeout( ()=>{
 
