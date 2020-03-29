@@ -65,7 +65,7 @@ var Player = function(initial_state, server_side){
 
 }
 
-Player.prototype.draw = function(self){
+Player.prototype.draw = function(self, start, end, arc_point, curpath_shallow ){
 
   this.ctx.strokeStyle = this.color;
   this.ctx.fillStyle = this.color;
@@ -89,8 +89,8 @@ Player.prototype.draw = function(self){
 
   if(this.dir_indicator_ready && this.show_dir_indicator && self){
     this.ctx.save();
-    this.ctx.translate(this.curpath.end.x, this.curpath.end.y  )
-    this.ctx.rotate((this.curpath.angle + 90) * Math.PI / 180);
+    this.ctx.translate(end.x, end.y )
+    this.ctx.rotate((curpath_shallow.angle + 90) * Math.PI / 180);
     this.ctx.drawImage(this.dir_indicator, -146/2, -70 , 146, 60);
     this.ctx.restore();
   }
@@ -116,36 +116,36 @@ Player.prototype.draw = function(self){
 
   //drawing head of curpath
   this.ctx.beginPath();
-  this.ctx.arc(this.curpath.end.x, this.curpath.end.y, this.weight/2, 0, 2*Math.PI);
+  this.ctx.arc(end.x, end.y, this.weight/2, 0, 2*Math.PI);
   this.ctx.fill();
 
   // drawing current path - on breakout only head will be drawed
 
-  if(this.curpath.dir == "straight" && !this.curpath.on_breakout){
+  if(curpath_shallow.dir == "straight" && !curpath_shallow.on_breakout){
     this.ctx.beginPath();
-    this.ctx.moveTo(this.curpath.start.x, this.curpath.start.y);
-    this.ctx.lineTo(this.curpath.end.x, this.curpath.end.y);
+    this.ctx.moveTo(start.x, start.y);
+    this.ctx.lineTo(end.x, end.y);
     this.ctx.stroke();
   }
 
   var starting_angle;
 
-  if(this.curpath.dir == "left" && !this.curpath.on_breakout){
+  if(curpath_shallow.dir == "left" && !curpath_shallow.on_breakout){
 
-    starting_angle = this.curpath.starting_angle;
+    starting_angle = curpath_shallow.starting_angle;
 
     this.ctx.beginPath();
-    this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(starting_angle), getRad( this.curpath.angle + 90), true);
+    this.ctx.arc( arc_point.x, arc_point.y, this.r, getRad(starting_angle), getRad( curpath_shallow.angle + 90), true);
     this.ctx.stroke();
 
   }
 
-  if(this.curpath.dir == "right" && !this.curpath.on_breakout){
+  if(curpath_shallow.dir == "right" && !curpath_shallow.on_breakout){
 
-    starting_angle = this.curpath.starting_angle;
+    starting_angle = curpath_shallow.starting_angle;
 
     this.ctx.beginPath();
-    this.ctx.arc( this.curpath.arc_point.x, this.curpath.arc_point.y, this.r, getRad(starting_angle), getRad( this.curpath.angle - 90));
+    this.ctx.arc( arc_point.x, arc_point.y, this.r, getRad(starting_angle), getRad( curpath_shallow.angle - 90));
     this.ctx.stroke();
   }
 
