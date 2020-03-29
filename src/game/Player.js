@@ -1162,7 +1162,7 @@ Player.prototype.processInput = function(io, dir ){
     dir: dir,
     tm: tm
   });
-
+  console.log(this.id_cnt);
   if(this.id_cnt == 4){
     console.log("ID cnt: 4");
     setTimeout( ()=>{
