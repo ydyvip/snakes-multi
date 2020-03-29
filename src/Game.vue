@@ -220,7 +220,12 @@
           if(player_item.name == player_me.name){
             self = true;
           }
-          player_item.draw(self, {...player_item.curpath.start}, {...player_item.curpath.end}, {...player_item.curpath.arc_point}, {...player_item.curpath} );
+          player_item.draw(self,
+            Object.assign({}, player_item.curpath.start),
+            Object.assign({}, player_item.curpath.end),
+            Object.assign({}, player_item.curpath.arc_point),
+            Object.assign({}, player_item.curpath)
+          );
         })
 
       },
