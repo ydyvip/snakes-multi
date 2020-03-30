@@ -53,7 +53,7 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
     console.log("Reduction");
     console.log(tm + "  -->  " + tm_to);
 
-    this.socket.emit("reduction", this.id_cnt_srv, tm_to);
+    this.socket.emit("reduction", this.id_cnt, tm_to);
     this.socket.emit("slow_connection_warrning");
 
     input.tm = tm_to; // new time,

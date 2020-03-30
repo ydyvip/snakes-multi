@@ -29,7 +29,6 @@ var Player = function(initial_state, server_side){
   this.collision_type = null;
   this.collision_participant = null;
   this.id_cnt = 1;
-  this.id_cnt_srv = 1;
   this.id_path_before_qc = null;
   this.curpath = {
     id: 0,
@@ -799,7 +798,8 @@ Player.prototype.logArr = function(arr, msg){
 
 Player.prototype.reduction2 = function(id){
 
-  this.clearInputHistoryAfter( id);
+  this.clearInputHistoryAfter(id);
+  this.id_cnt = id;
   this.rebuildPaths();
 
   this.reduction_sync_complete = true;
