@@ -408,6 +408,9 @@
         this.$io.off("end_of_game");
         this.$io.off("slow_connection_warrning");
 
+        window.removeEventListener( "keydown", window.listeners.onDownHandler );
+        window.removeEventListener( "keyup", window.listeners.onUpHandler );
+
       }
 
     },

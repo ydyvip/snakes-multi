@@ -29,6 +29,11 @@ function Keyboard(code){
   window.addEventListener("keydown", key.onDownHandler, false );
   window.addEventListener("keyup", key.onUpHandler, false );
 
+  window.listeners = {};
+
+  window.listeners.onDownHandler = key.onDownHandler;
+  window.listeners.onUpHandler = key.onUpHandler;
+
   return key;
 
 }
