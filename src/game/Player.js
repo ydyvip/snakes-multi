@@ -832,6 +832,8 @@ Player.prototype.clearInputHistoryAfter = function( id){
 	this.inputs_history.splice(idx); // delete inputs after lagged, include lagged input
 	this.inputs_history = this.inputs_history.concat(inputs_after_lagged); //scale with filtered inputs (ignored inputs of user after lagged)
 
+  this.syncDirs(idx-1);
+
 }
 
 Player.prototype.updateTm = function( id, tm_to, idx){
@@ -933,6 +935,19 @@ Player.prototype.rebuildPathsAfterKilled = function(tm_killed){
 
 }
 
+Player.prototype.syncDirs = function(from_idx){
+
+  for(var i=from_idx; i<this.inputs_history.length-1; i++)
+  {
+    var input = this.inputs_history[i];
+    var next_input = this.inputs_history[i+1];
+
+    if(next_input.type == "gap_start" || next_input.type == "gap_end" || next_input.type == "qc"){
+      input.dir = next_input.dir;
+    }
+  }
+}
+
 Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false){
 
   var rebuild_path_history = false;
@@ -949,35 +964,25 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 
   var last_idx_inputs_history = this.inputs_history.length-1;
 
+  // found earlier input in history, splice new input after it
+	// earlier  =  with lower tm.
+	// find item with lower tm(earlier) and jump over inputs item with greater tm
+
+  // input_item
+  // input - is inserted after input_item
 
   for(var i = last_idx_inputs_history; i>=0; i--){
 
     var input_item = this.inputs_history[i];
 
-	// found earlier input in history, splice new input after it
-	// earlier  =  with lower tm.
-	// find item with lower tm(earlier) and jump over inputs item with greater tm
     if(input_item.tm<=input.tm){
 
-  		// inputs of following type always assign its dir to preceding input
-  		if(input.type=="gap_start" || input.type=="gap_end" || input.type=="qc"){
-  			input.dir = input_item.dir;
-  		}
-
-  		//input spliced before gap_start gap_end qc can change its dir
-  		//change dir of next input if neccessary
-  		// - check if next input occurs  then check its type
-  		if(last_idx_inputs_history != i){
-  			var next_input_idx = i+1;
-  			var next_input = this.inputs_history[next_input_idx];
-  			if(next_input.type=="gap_start" || next_input.type=="gap_end" || next_input.type=="qc"){
-  				next_input.dir = input.dir; // spliced before
-  			}
-  		}
-
-
       this.inputs_history.splice(i+1,0,input);
+
+      this.syncDirs(i);
+
       break;
+
     }
 
 	// non-break at first loop iteration will cause following will be true
@@ -988,7 +993,6 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
   }
 
   if(rebuild_path_history && !skip_paths_rebuild){
-
     this.rebuildPaths();
 	  return true;
   }
