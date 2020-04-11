@@ -74,9 +74,12 @@
 
   function setupKeyboard(io){
 
-
+    var keyboard = {};
     var left = new Keyboard("ArrowLeft");
     var right = new Keyboard("ArrowRight");
+
+    keyboard.left = left;
+    keyboard.right = right;
 
     left.press = function(){
       if(player_me.speed==0){
@@ -109,6 +112,9 @@
         player_me.processInput(io, "straight");
      }
     }
+
+    return keyboard;
+
   }
 
   module.exports = {
@@ -408,8 +414,10 @@
         this.$io.off("end_of_game");
         this.$io.off("slow_connection_warrning");
 
-        window.removeEventListener( "keydown", window.listeners.onDownHandler );
-        window.removeEventListener( "keyup", window.listeners.onUpHandler );
+        window.removeEventListener( "keydown", this.$keyboard.left.onDownHandler );
+        window.removeEventListener( "keyup", this.$keyboard.left.onUpHandler );
+        window.removeEventListener( "keydown", this.$keyboard.right.onDownHandler );
+        window.removeEventListener( "keyup", this.$keyboard.right.onUpHandler );
 
       }
 
@@ -432,7 +440,7 @@
       ctx = canvas.getContext("2d");
 
 
-      setupKeyboard(this.$io);
+      this.$keyboard = setupKeyboard(this.$io);
       this.mountClientSideHandlers(this.gamereplay);
 
       window.ctx = ctx;
