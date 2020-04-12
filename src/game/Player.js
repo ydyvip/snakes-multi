@@ -943,7 +943,7 @@ Player.prototype.syncDirs = function(from_idx){
     var next_input = this.inputs_history[i+1];
 
     if(next_input.type == "gap_start" || next_input.type == "gap_end" || next_input.type == "qc"){
-      input.dir = next_input.dir;
+      next_input.dir = input.dir;
     }
   }
 }
