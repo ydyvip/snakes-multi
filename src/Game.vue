@@ -310,6 +310,7 @@
                 player.id_cnt = 1;
                 player.curpath.id = 0;
                 player.curpath.on_breakout = true;
+                player.reduction_sync_complete = false;
               }
 
             }

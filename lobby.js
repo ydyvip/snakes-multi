@@ -275,7 +275,7 @@ Game.prototype.startNewRound = function(first_round){
   // round_start emitted after 15 sec (12+3)
   // quit_consideration emmitted after 19 sec (12+3+4)
 
-  setTimeout( ()=> {
+  setTimeout( ()=> { // (new_round_awaiting+2)*1000
 
     this.round_points = 0;
 
@@ -295,6 +295,7 @@ Game.prototype.startNewRound = function(first_round){
       player.id_cnt = 1;
       player.curpath.id = 0;
       player.curpath.on_breakout = true;
+      player.ignore_input = false;
 
       var new_round_positions = [];
       var p_arr = []; // promises array for Promise.all

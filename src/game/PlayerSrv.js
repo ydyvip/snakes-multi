@@ -15,10 +15,10 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
     return;
 
   if(reduction_sync_complete){
-    this.igore_input = false;
+    this.ignore_input = false;
   }
 
-  if(this.igore_input)
+  if(this.ignore_input)
     return;
 
   var input = {
@@ -46,7 +46,7 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
   if(lag>lag_tolerance){
 
-    this.igore_input = true;
+    this.ignore_input = true;
 
     tm_to = tm_now-lag_tolerance;
 
