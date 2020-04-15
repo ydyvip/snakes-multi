@@ -74,7 +74,7 @@ var users = {
         username: username,
         password: hash,
         email: email,
-        balance_total: 100,
+        balance_total: 12000,
         balance_withdrawal: 0,
         points: 0
       } );
