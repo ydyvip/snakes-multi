@@ -17,7 +17,7 @@
         </transition>
       </div>
       <div style="display: inline-block" v-if="!active_faucet_list">
-        <button id="btn_faucet_list" v-on:click="switchGameFaucetList" >Faucet List</button>
+        <button id="btn_faucet_list" v-on:click="switchGameFaucetList" >Top-up balance</button>
       </div>
       <div style="display: inline-block" v-else>
         <button id="btn_faucet_list" v-on:click="switchGameFaucetList">Game List</button>
