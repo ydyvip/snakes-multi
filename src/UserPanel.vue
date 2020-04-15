@@ -40,7 +40,7 @@
 
   module.exports = {
 
-    props: ["username", "balance"],
+    props: ["username", "balance", "in_game"],
     data: ()=>({
 
       tweened_balance: undefined,
@@ -51,6 +51,10 @@
     methods: {
 
       switchGameFaucetList: function(){
+
+        if(this.in_game){
+          return;
+        }
 
         if(!this.active_faucet_list){
           this.$emit("go_to_faucetlist", true);
@@ -73,6 +77,10 @@
 
       },
       goToWithdrawalPanel: function(){
+
+        if(this.in_game){
+          return;
+        }
 
         this.$emit("goToWithdrawalPanel");
 

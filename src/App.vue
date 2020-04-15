@@ -8,7 +8,9 @@
     <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
 
     <template v-if="loggedAs">
-      <user-panel v-bind:username="loggedAs" v-bind:balance="balance" v-on:logout="logout"
+      <user-panel
+        v-bind:username="loggedAs" v-bind:balance="balance"  v-bind:in_game="in_game"
+        v-on:logout="logout"
         v-on:go_to_faucetlist="gotoFaucetlist"
         v-on:goToWithdrawalPanel="goToWithdrawalPanel"
       />
@@ -43,6 +45,7 @@
       loggedAs: null,
       balance: null,
       CompSwitcher: GameList, // Game ; GameList ; FaucetList
+      in_game: false, // block CompSwitcher when user is in game
       PreviousPanel: GameList,
       initial_states: null,
       first_to_reach: null,
@@ -67,11 +70,13 @@
     },
     methods: {
       gamestart: function(initial_states, first_to_reach){
+        this.in_game = true;
         this.CompSwitcher = Game;
         this.initial_states = initial_states;
         this.first_to_reach = first_to_reach;
       },
       eog: function(){
+        this.in_game = false;
         this.initial_states = null;
         this.CompSwitcher = GameList;
       },
@@ -82,6 +87,9 @@
         },500)
       },
       gotoFaucetlist: function(faucetlist){
+        if(this.in_game){
+          return;
+        }
         if(faucetlist){
           this.CompSwitcher = FaucetList;
           this.PreviousPanel = FaucetList;
@@ -92,6 +100,9 @@
         }
       },
       goToWithdrawalPanel: function() {
+        if(this.in_game){
+          return;
+        }
           this.CompSwitcher = WithdrawalPanel;
       },
       returnToPreviousPanel: function() {
