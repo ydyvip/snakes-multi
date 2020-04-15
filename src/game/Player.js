@@ -1169,6 +1169,9 @@ Player.prototype.processInput = function(io, dir ){
     tm: tm
   });
   console.log(this.id_cnt);
+  if(this.id_cnt == 1){
+    id_lag_triggerer = 4;
+  }
   if(this.id_cnt == id_lag_triggerer){
     console.log("ID cnt: 4");
     id_lag_triggerer = 6;
