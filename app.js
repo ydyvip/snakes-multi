@@ -129,13 +129,14 @@ io.use( (socket, next)=>{
 
   socket.playername = socket.request.user.username;
 
-  for(var key in socket.nsp.connected){
-
-    if(socket.playername == socket.nsp.connected[key].playername){
-      next(new Error("already connected"));
-      return;
-    }
-  }
+  //FIXME after refrehing page already connected is emitted
+  // for(var key in socket.nsp.connected){
+  //
+  //   if(socket.playername == socket.nsp.connected[key].playername){
+  //     next(new Error("already connected"));
+  //     return;
+  //   }
+  // }
 
   next();
 
