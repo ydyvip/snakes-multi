@@ -1154,8 +1154,6 @@ Player.prototype.assignCurpath = function(lvalue, rvalue){
 
 }
 
-var id_lag_triggerer = 4;
-
 Player.prototype.processInput = function(io, dir ){
 
   if(this.speed==0){
@@ -1168,39 +1166,17 @@ Player.prototype.processInput = function(io, dir ){
     dir: dir,
     tm: tm
   });
-  console.log(this.id_cnt);
-  if(this.id_cnt == 1){
-    id_lag_triggerer = 4;
-  }
-  if(this.id_cnt == id_lag_triggerer){
-    console.log("ID cnt: 4");
-    id_lag_triggerer = 6;
-    setTimeout( ()=>{
 
-      if(this.reduction_sync_complete){
-        io.emit(dir, tm, true);
-      }
-      else{
-        io.emit(dir, tm, null);
-      }
-      if(this.reduction_sync_complete){
-        this.reduction_sync_complete = false;
-      }
 
-    }, 500 );
-
+  if(this.reduction_sync_complete){
+    io.emit(dir, tm, true);
   }
   else{
-    if(this.reduction_sync_complete){
-      io.emit(dir, tm, true);
-    }
-    else{
-      io.emit(dir, tm, null);
-    }
+    io.emit(dir, tm, null);
+  }
 
-    if(this.reduction_sync_complete){
-      this.reduction_sync_complete = false;
-    }
+  if(this.reduction_sync_complete){
+    this.reduction_sync_complete = false;
   }
 
 
