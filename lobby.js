@@ -802,10 +802,10 @@ module.exports = function( io_, socket ){
         return;
       }
 
-      if(bet<100){
+      if(bet<1000){
         fn({
           for: "bet",
-          err_msg: "Minimum bet value is 100 Satoshi"
+          err_msg: "Minimum bet value is 1000 Satoshi"
         });
         return;
       }
