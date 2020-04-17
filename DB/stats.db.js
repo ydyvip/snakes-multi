@@ -11,14 +11,15 @@ p.then( function(db){
 
 var stats = {
 
-  updateFromMatchPlayed: function(earnings_from_match){
+  updateFromMatchPlayed: function(provision, ref_reward, winner_reward ){
 
     this.coll.updateOne({},
     {
       $inc: {
         matches_played: 1,
-        total_winnings: earnings_from_match,
-        registered_users: 0
+		provisions_earn: provision,
+		refs_earn: ref_reward,
+		winners_earn: winner_reward,
       }
     },
     {
@@ -32,9 +33,7 @@ var stats = {
     this.coll.updateOne({},
       {
         $inc: {
-          registered_users: 1,
-          total_winnings: 0,
-          matches_played: 0
+          registered_users: 1
         }
       },
       {

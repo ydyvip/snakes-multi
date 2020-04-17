@@ -134,8 +134,20 @@ router.get("/stats", (req, res)=>{
 
   Stats.getStats()
   .then((stats)=>{
+	  
+	if(!stats.winners_earn){
+	  stats.winners_earn = 0;
+	}
 
-    res.json(stats);
+	if(!stats.registered_users){
+	  stats.registered_users = 0;
+	}
+
+	if(!stats.matches_played){
+	  stats.matches_played = 0;
+	}
+
+	res.json(stats);
 
   })
 

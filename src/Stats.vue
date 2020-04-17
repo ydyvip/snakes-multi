@@ -21,7 +21,7 @@
     data: ()=>({
       registered_users: 0,
       matches_played: 0,
-      total_winnings: 0
+      winners_earn: 0
     }),
 
     mounted: function(){
@@ -30,10 +30,10 @@
       .then((response)=>{
         console.log("get stats");
         console.log(response);
-
+		
         this.registered_users = response.data.registered_users;
         this.matches_played = response.data.matches_played;
-        this.total_winnings = response.data.total_winnings;
+        this.winners_earn = response.data.winners_earn;
 
       })
 

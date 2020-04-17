@@ -66,7 +66,7 @@ var users = {
 
   },
 
-  registerUser: function(username, password, email){
+  registerUser: function(username, password, email, referrer){
 
     return bcrypt.hash(password, 9)
     .then((hash)=>{
@@ -76,7 +76,8 @@ var users = {
         email: email,
         balance_total: 12000,
         balance_withdrawal: 0,
-        points: 0
+        points: 0,
+		refferer: referrer
       } );
     });
   },
@@ -272,6 +273,54 @@ var users = {
       }
     )
 
+  },
+  
+  refferalGained: function(refferer, refferal){
+	  
+	  this.coll.updateOne(
+		{
+			username: refferer,
+		},
+		{
+			$push: {
+				refferals: refferal
+			}
+		}
+	  
+	  )
+	  
+  },
+  
+  incrementBalanceForRefferer: function(refferer, amount){
+	  
+	  this.coll.updateOne({
+		  username: refferer
+	  }, {
+		  $inc: {
+			  balance_total: amount,
+			  balance_withdrawal: amount,
+			  earned_from_refs: amount
+		  }
+	  })
+	  
+  },
+  
+  getRefferer: function(username){
+	  
+	  return this.coll.findOne({
+		  username: username
+	  }, {
+		  projection: {
+			  referrer: 1
+		  }
+	  })
+	  .then( (doc)=>{
+		if(doc){
+			return doc.refferer;
+		}
+		return null;
+	  })
+	  
   }
 
 }

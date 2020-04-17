@@ -124,13 +124,50 @@ router.post("/", function(req,res){
     }
     else{
       response.success = true;
-      Users.registerUser( req.body.username, req.body.password, req.body.email )
+	
+	  Users.usernameTaken(req.cookies.referrer)
+	  .then( (referrer_exist)=>{
+		
+		var refferer = null;
+		
+		if(referrer_exist){
+			refferer = req.cookies.refferer;
+		}
+		
+	  Users.registerUser( req.body.username, req.body.password, req.body.email, refferer )
       .then( ()=> {
+		if(referrer_exist){
+			 Users.refferalGained(refferer, req.body.username);
+		}
         Stats.updateAfterRegister();
         res.json(response);
       })
+		
+	  })
+	  
+
     }
   })
+})
+
+// Refferer system 
+// Sample URI /register/ref/user_xxx
+
+router.get("/ref/:ref_username", (req, res)=>{
+	
+	Users.usernameTaken(req.body.username)
+	.then( (username_exist)=>{
+		
+		if(username_exist){
+			res.cookie("referrer", req.params.ref_username, {
+				expires: new Date( Date.now() + 604800000 )
+			} );			
+		}
+		
+		res.redirect("/index.html");
+		
+	});
+	
 })
 
 module.exports = router;

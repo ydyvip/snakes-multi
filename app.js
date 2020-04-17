@@ -42,6 +42,8 @@ else if(process.argv[2] != "NO_CYPRESS"){
 var express = require("express");
 var bodyparser = require("body-parser");
 var session = require("express-session");
+//TODO: install cookie-parser
+var cookieParser = require('cookie-parser');
 const MongoStore = require('connect-mongo')(session);
 var passport = require("passport");
 require("./API/passport_conf.js");
@@ -82,6 +84,7 @@ var session_middleware = session({
 });
 
 app.use(express.static("public"));
+app.use(cookieParser());
 app.use(session_middleware);
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded());
