@@ -198,32 +198,32 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
 
     if(game_winner){
 
-	  var pool = this.bet * this.cnt_players;
+  	  var pool = this.bet * this.cnt_players;
       var winner_reward = Math.floor(pool * 0.75);
-	  var provision = Math.floor(pool * 0.25);
-	  var referrer_reward = 0;
+  	  var provision = Math.floor(pool * 0.25);
+  	  var referrer_reward = 0;
 
       if(!this.replay_mode)
         this.game_replay.finalizeGameReplay( game_winner.playername, winner_reward);
 
       if(!this.replay_mode){
 
-		// if game_winner has referrer split winner_reward by 4%
+  		// if game_winner has referrer split winner_reward by 4%
 
-		Users.getreferrer(game_winner.playername)
-		.then( (referrer)=>{
+    		Users.getreferrer(game_winner.playername)
+    		.then( (referrer)=>{
 
-			if(referrer){
-				referrer_reward = Math.floor(winner_reward * 0.04);
-				provision-=referrer_reward;
-				Users.incrementBalanceForreferrer(referrer, referrer_reward);
-			}
+    			if(referrer){
+    				referrer_reward = Math.floor(winner_reward * 0.04);
+    				provision-=referrer_reward;
+    				Users.incrementBalanceForreferrer(referrer, referrer_reward);
+    			}
 
-			Users.incrementBalanceForWinner(game_winner.playername, winner_reward );
-			Users.updateRanking(this.players);
-			Stats.updateFromMatchPlayed( provision, referrer_reward, winner_reward );
+    			Users.incrementBalanceForWinner(game_winner.playername, winner_reward );
+    			Users.updateRanking(this.players);
+    			Stats.updateFromMatchPlayed( provision, referrer_reward, winner_reward );
 
-		})
+    		})
 
       }
 
