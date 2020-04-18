@@ -22,7 +22,7 @@
     </div>
     <div class="form-input">
       <input class="input" placeholder="Referrer" type="text" v-model="referrer.val" v-bind:readonly="cookie_lock" />
-      <div class="form-input-err" v-if="refferer.err">{{refferer.err}}</div>
+      <div class="form-input-err" v-if="referrer.err">{{referrer.err}}</div>
     </div>
 
     <button class="btn green" v-on:click="register">REGISTER</button>
@@ -65,11 +65,11 @@
 
     mounted: function(){
 
-      var cval = this.getCookie("refferer");
+      var cval = this.getCookie("referrer");
 
       if(cval!=""){
 
-        this.refferer.val = cval;
+        this.referrer.val = cval;
         this.cookie_lock = true;
 
       }
@@ -87,13 +87,13 @@
         this.username.err = null;
         this.password.err = null;
         this.email.err = null;
-        this.refferer.err = null;
+        this.referrer.err = null;
 
         this.$axios.post("/register", {
           username: this.username.val,
           password: this.password.val,
           email: this.email.val,
-          refferer: this.refferer.val
+          referrer: this.referrer.val
         })
         .then( (response)=> {
           if(!response.data.success){

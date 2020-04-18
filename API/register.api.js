@@ -126,30 +126,30 @@ router.post("/", function(req,res){
 
       response.success = true;
 
-      var refferer = null;
+      var referrer = null;
 
       if(req.cookies.referrer){
-        refferer = req.cookies.refferer;
+        referrer = req.cookies.referrer;
       }
-      else if(req.body.refferer){
-        refferer = req.body.refferer;
+      else if(req.body.referrer){
+        referrer = req.body.referrer;
       }
 
-      //check if refferer exist
+      //check if referrer exist
       Users.usernameTaken(req.cookies.referrer)
       .then( (referrer_exist)=>{
 
         if(referrer_exist){
-          refferer = req.cookies.refferer;
+          referrer = req.cookies.referrer;
         }
         else{
-          refferer = null;
+          referrer = null;
         }
 
-        Users.registerUser( req.body.username, req.body.password, req.body.email, refferer )
+        Users.registerUser( req.body.username, req.body.password, req.body.email, referrer )
         .then( ()=> {
           if(referrer_exist){
-            Users.refferalGained(refferer, req.body.username);
+            Users.refferalGained(referrer, req.body.username);
           }
           Stats.updateAfterRegister();
           res.json(response);
@@ -162,7 +162,7 @@ router.post("/", function(req,res){
   })
 })
 
-// Refferer system
+// referrer system
 // Sample URI /register/ref/user_xxx
 
 router.get("/ref/:ref_username", (req, res)=>{

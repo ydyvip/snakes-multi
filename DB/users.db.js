@@ -77,7 +77,7 @@ var users = {
         balance_total: 12000,
         balance_withdrawal: 0,
         points: 0,
-		refferer: referrer
+		referrer: referrer
       } );
     });
   },
@@ -275,11 +275,11 @@ var users = {
 
   },
   
-  refferalGained: function(refferer, refferal){
+  refferalGained: function(referrer, refferal){
 	  
 	  this.coll.updateOne(
 		{
-			username: refferer,
+			username: referrer,
 		},
 		{
 			$push: {
@@ -291,10 +291,10 @@ var users = {
 	  
   },
   
-  incrementBalanceForRefferer: function(refferer, amount){
+  incrementBalanceForreferrer: function(referrer, amount){
 	  
 	  this.coll.updateOne({
-		  username: refferer
+		  username: referrer
 	  }, {
 		  $inc: {
 			  balance_total: amount,
@@ -305,7 +305,7 @@ var users = {
 	  
   },
   
-  getRefferer: function(username){
+  getreferrer: function(username){
 	  
 	  return this.coll.findOne({
 		  username: username
@@ -316,7 +316,7 @@ var users = {
 	  })
 	  .then( (doc)=>{
 		if(doc){
-			return doc.refferer;
+			return doc.referrer;
 		}
 		return null;
 	  })

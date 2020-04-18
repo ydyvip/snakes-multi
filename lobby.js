@@ -197,34 +197,34 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
 */
 
     if(game_winner){
-	  
+
 	  var pool = this.bet * this.cnt_players;
       var winner_reward = Math.floor(pool * 0.75);
 	  var provision = Math.floor(pool * 0.25);
-	  var refferer_reward = 0;
-	  
+	  var referrer_reward = 0;
+
       if(!this.replay_mode)
         this.game_replay.finalizeGameReplay( game_winner.playername, winner_reward);
 
       if(!this.replay_mode){
-		
-		// if game_winner has refferer split winner_reward by 4%
-		
-		Users.getRefferer(game_winner.playername)
-		.then( (refferer)=>{
-			
-			if(refferer){
-				refferer_reward = Math.floor(winner_reward * 0.04);
-				provision-=refferer_reward;
-				Users.incrementBalanceForRefferer(refferer, refferer_reward);
+
+		// if game_winner has referrer split winner_reward by 4%
+
+		Users.getreferrer(game_winner.playername)
+		.then( (referrer)=>{
+
+			if(referrer){
+				referrer_reward = Math.floor(winner_reward * 0.04);
+				provision-=referrer_reward;
+				Users.incrementBalanceForreferrer(referrer, referrer_reward);
 			}
-			
+
 			Users.incrementBalanceForWinner(game_winner.playername, winner_reward );
 			Users.updateRanking(this.players);
-			Stats.updateFromMatchPlayed( provision, refferer_reward, winner_reward );
-			
+			Stats.updateFromMatchPlayed( provision, referrer_reward, winner_reward );
+
 		})
-		
+
       }
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
