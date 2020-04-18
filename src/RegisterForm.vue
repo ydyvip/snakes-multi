@@ -63,7 +63,7 @@
 
     }),
 
-    mounted: {
+    mounted: function(){
 
       var cval = this.getCookie("refferer");
 
