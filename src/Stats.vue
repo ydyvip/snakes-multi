@@ -8,7 +8,7 @@
         <td>Matches played:</td><td>{{matches_played}}</td>
       </tr>
       <tr>
-        <td>Total winnings:</td><td>{{total_winnings}}</td>
+        <td>Total winnings:</td><td>{{winners_earn}}</td>
       </tr>
     </table>
   </div>
@@ -30,7 +30,7 @@
       .then((response)=>{
         console.log("get stats");
         console.log(response);
-		
+
         this.registered_users = response.data.registered_users;
         this.matches_played = response.data.matches_played;
         this.winners_earn = response.data.winners_earn;

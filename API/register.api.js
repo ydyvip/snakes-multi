@@ -167,7 +167,7 @@ router.post("/", function(req,res){
 
 router.get("/ref/:ref_username", (req, res)=>{
 
-	Users.usernameTaken(req.body.username)
+	Users.usernameTaken(req.params.ref_username)
 	.then( (username_exist)=>{
 
 		if(username_exist){
