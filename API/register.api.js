@@ -176,7 +176,7 @@ router.get("/ref/:ref_username", (req, res)=>{
 			} );
 		}
 
-		res.redirect("/index.html");
+		res.end();
 
 	});
 
