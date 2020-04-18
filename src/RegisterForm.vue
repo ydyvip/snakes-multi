@@ -21,7 +21,8 @@
       <div class="form-input-err" v-if="email.err">{{email.err}}</div>
     </div>
     <div class="form-input">
-      <input class="input" placeholder="Referrer" type="text" v-model="referrer.val" v-bind:readonly="cookie_lock" />
+      <input v-if="cookie_lock" class="input" placeholder="Referrer" type="text" v-model="referrer.val + '   (Refferer)'" v-bind:readonly="cookie_lock" />
+      <input v-else class="input" placeholder="Referrer" type="text" v-model="referrer.val" v-bind:readonly="cookie_lock" />
       <div class="form-input-err" v-if="referrer.err">{{referrer.err}}</div>
     </div>
 
