@@ -20,6 +20,10 @@
       <input class="input" placeholder="e-mail" type="text" v-model="email.val" />
       <div class="form-input-err" v-if="email.err">{{email.err}}</div>
     </div>
+    <div class="form-input">
+      <input class="input" placeholder="Referrer" type="text" v-model="referrer.val" v-bind:readonly="cookie_lock" />
+      <div class="form-input-err" v-if="refferer.err">{{refferer.err}}</div>
+    </div>
 
     <button class="btn green" v-on:click="register">REGISTER</button>
 
@@ -48,11 +52,29 @@
         val: "",
         err: null
       },
+      referrer: {
+        cookie_lock: false,
+        val: "",
+        err: null
+      },
 
       success: null,
       msg: "Thank you for your registration! Your account is now ready to use."
 
     }),
+
+    mounted: {
+
+      var cval = this.getCookie("refferer");
+
+      if(cval!=""){
+
+        this.refferer.val = cval;
+        this.cookie_lock = true;
+
+      }
+
+    },
 
     methods: {
 
@@ -65,11 +87,13 @@
         this.username.err = null;
         this.password.err = null;
         this.email.err = null;
+        this.refferer.err = null;
 
         this.$axios.post("/register", {
           username: this.username.val,
           password: this.password.val,
-          email: this.email.val
+          email: this.email.val,
+          refferer: this.refferer.val
         })
         .then( (response)=> {
           if(!response.data.success){
@@ -83,6 +107,22 @@
           }
         } )
 
+      },
+
+      getCookie: function(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
       }
 
     }
