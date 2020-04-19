@@ -16,12 +16,13 @@
           </span>
         </transition>
       </div>
-      <div style="display: inline-block" v-if="!active_faucet_list">
-        <button id="btn_faucet_list" v-on:click="switchGameFaucetList" >Top-up balance</button>
-      </div>
-      <div style="display: inline-block" v-else>
-        <button id="btn_faucet_list" v-on:click="switchGameFaucetList">Game List</button>
-      </div>
+
+      <dropd
+        @item-change="switchPanel"
+        :list="dropd_list"
+        :value="cur_panel"
+      ></dropd>
+
       <div style="text-align: right; display: inline-block; margin-left: 150px;">
         <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
       </div>
@@ -40,30 +41,22 @@
 
   module.exports = {
 
-    props: ["username", "balance", "in_game"],
+    props: ["username", "balance", "in_game", "dropd_list", "cur_panel"],
     data: ()=>({
 
       tweened_balance: undefined,
       difference: undefined,
-      active_faucet_list: false
 
     }),
     methods: {
 
-      switchGameFaucetList: function(){
+      switchPanel: function(dropd_item){
 
         if(this.in_game){
           return;
         }
 
-        if(!this.active_faucet_list){
-          this.$emit("go_to_faucetlist", true);
-        }
-        else{
-          this.$emit("go_to_faucetlist", false); // back to game list
-        }
-
-        this.active_faucet_list = !this.active_faucet_list;
+        this.$emit("switch_panel", dropd_item);
 
       },
 
@@ -125,7 +118,32 @@
   }
 
 </script>
+<style>
 
+  :focus {outline:none;}
+  ::-moz-focus-inner {border:0;}
+
+  .dropd {
+    font-family: 'Titillium Web', sans-serif;
+    width: 350px;
+    font-size: 15px;
+    outline: none;
+    letter-spacing: 4px;
+  }
+  button.dropd-toggle {
+    font-family: 'Titillium Web', sans-serif;
+    width: 350px;
+    font-size: 15px;
+    outline: none;
+    letter-spacing: 4px;
+    background-color: #9ec4ff;
+    font-weight: 900;
+  }
+  .dropd-toggle button:focus{
+    outline: none;
+  }
+
+</style>
 <style scoped>
 
 #btn_faucet_list {

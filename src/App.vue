@@ -10,11 +10,13 @@
     <template v-if="loggedAs">
       <user-panel
         v-bind:username="loggedAs" v-bind:balance="balance"  v-bind:in_game="in_game"
+        :dropd_list="comp_list"
+        :cur_panel="cur_panel"
         v-on:logout="logout"
-        v-on:go_to_faucetlist="gotoFaucetlist"
+        v-on:switch_panel="switchPanel"
         v-on:goToWithdrawalPanel="goToWithdrawalPanel"
       />
-      <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="CompSwitcher" v-bind:loggedAs="loggedAs"
+      <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="cur_panel.comp" v-bind:loggedAs="loggedAs"
         v-on:gamestart="gamestart"
         v-on:eog="eog"
         v-on:returnToPreviousPanel="returnToPreviousPanel"
@@ -44,13 +46,42 @@
     data: () => ({
       loggedAs: null,
       balance: null,
-      CompSwitcher: GameList, // Game ; GameList ; FaucetList
+      cur_panel: undefined, // Game ; GameList ; FaucetList
+      prev_panel: undefined,
       in_game: false, // block CompSwitcher when user is in game
-      PreviousPanel: GameList,
       initial_states: null,
       first_to_reach: null,
-      replayActive: false
+      replayActive: false,
+      comp_list: [
+        {
+          comp: GameList,
+          label: "GAME LIST",
+          value: "game_list"
+        },
+        {
+          comp: FaucetList,
+          label: "TOP-UP BALANCE",
+          value: "topup"
+        },
+        {
+          comp: WithdrawalPanel,
+          label: "WITHDRAWAL",
+          value: "withdrawal"
+        },
+        {
+          label: "REFERRERS",
+          value: "referrers"
+        }
+      ],
     }),
+
+    created: function(){
+
+      this.prev_panel = this.comp_list[0];
+      this.cur_panel = this.comp_list[0];
+
+    },
+
     mounted:  function(){
 
       this.$axios.get("/login/session")
@@ -71,14 +102,15 @@
     methods: {
       gamestart: function(initial_states, first_to_reach){
         this.in_game = true;
-        this.CompSwitcher = Game;
+        this.cur_panel = this.comp_list[0];
         this.initial_states = initial_states;
         this.first_to_reach = first_to_reach;
       },
       eog: function(){
         this.in_game = false;
         this.initial_states = null;
-        this.CompSwitcher = GameList;
+        this.cur_panel = this.comp_list[0];
+        this.prev_panel = this.comp_list[0];
       },
       logout: function(){
         this.loggedAs = null;
@@ -86,27 +118,26 @@
             this.$bus.$emit("logout");
         },500)
       },
-      gotoFaucetlist: function(faucetlist){
+      switchPanel: function(panel){
+
         if(this.in_game){
           return;
         }
-        if(faucetlist){
-          this.CompSwitcher = FaucetList;
-          this.PreviousPanel = FaucetList;
-        }
-        else{ // back to GameList
-          this.CompSwitcher = GameList;
-          this.PreviousPanel = GameList;
-        }
+
+        this.prev_panel = this.cur_panel;
+
+        this.cur_panel = panel;
+
       },
       goToWithdrawalPanel: function() {
         if(this.in_game){
           return;
         }
-          this.CompSwitcher = WithdrawalPanel;
+        this.prev_panel = this.cur_panel;
+        this.cur_panel = this.comp_list[2];
       },
       returnToPreviousPanel: function() {
-          this.CompSwitcher = this.PreviousPanel
+          this.cur_panel = this.prev_panel
       },
       playReplay: function(play){
         if(play){

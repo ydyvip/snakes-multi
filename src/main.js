@@ -5,7 +5,8 @@ import CheckboxRadio from 'vue-checkbox-radio';
 import anime from 'animejs'
 import Tooltip from 'vue-directive-tooltip';
 import vSelect from 'vue-select'
-
+import Dropd from 'vue-dropd'
+Vue.component('dropd', Dropd)
 Vue.component('v-select', vSelect)
 
 var axios = require("axios");
