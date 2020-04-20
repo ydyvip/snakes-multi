@@ -1,42 +1,7 @@
-const fs = require('fs');
+ const fs = require('fs');
 if(process.argv[2] == "TEST_MODE"){
   process.TEST_MODE = true;
   console.log("running in test mode");
-}
-
-else if(process.argv[2] != "NO_CYPRESS"){
-  // NO_CYPRESS and TEST_MODE args passed so we are on hosting
-  // handle problem on hosting with logs
-
-  // var writeStream = fs.createWriteStream('./test.log', {
-  //   encoding: 'utf8',
-  //   flags: 'w'
-  // });
-  //
-  // process.stdout = require('stream').Writable();
-  // process.stderr = require('stream').Writable();
-  //
-  // process.stdout._write = function(chunk, encoding, callback) {
-  //
-  //   fs.writeFile("/tmp/test", "Hey there!", function(err) {
-  //       if(err) {
-  //           return console.log(err);
-  //       }
-  //       console.log("The file was saved!");
-  //   });
-  //
-  // };
-  //
-  // process.stderr._write = function(chunk, encoding, callback) {
-  //
-  //   fs.writeFile("/tmp/test", "Hey there!", function(err) {
-  //       if(err) {
-  //           return console.log(err);
-  //       }
-  //       console.log("The file was saved!");
-  //   });
-  //
-  // };
 }
 
 var express = require("express");
@@ -57,6 +22,7 @@ var http = require("http").Server(app);
 var login = require("./API/login.api.js");
 var register = require("./API/register.api.js");
 var faucet = require("./API/faucet.api.js");
+var referrer = require("./API/referrer.api.js");
 var gamereplays = require("./API/gamereplays.api.js");
 
 var db = require("./db.js");
@@ -94,6 +60,7 @@ app.use(passport.session());
 app.use("/login", login);
 app.use("/register", register);
 app.use("/faucet", faucet);
+app.use("/referrer", referrer);
 app.use("/gamereplays", gamereplays);
 
 // Mount io server

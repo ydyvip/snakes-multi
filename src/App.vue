@@ -39,6 +39,7 @@
   var FaucetList = require("./FaucetList.vue");
   var GameReplay = require("./GameReplay.vue");
   var WithdrawalPanel = require("./WithdrawalPanel.vue");
+  var ReferrerPanel = require("./ReferrerPanel.vue");
   var SwitcherRankingStats = require("./SwitcherRankingStats.vue")
 
   module.exports = {
@@ -69,6 +70,7 @@
           value: "withdrawal"
         },
         {
+          comp: ReferrerPanel,
           label: "REFERRERS",
           value: "referrers"
         }

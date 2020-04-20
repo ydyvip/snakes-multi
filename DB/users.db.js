@@ -77,7 +77,9 @@ var users = {
         balance_total: 12000,
         balance_withdrawal: 0,
         points: 0,
-		referrer: referrer
+        refferals: [],
+        earned_from_refs: 0,
+		    referrer: referrer
       } );
     });
   },
@@ -274,9 +276,9 @@ var users = {
     )
 
   },
-  
+
   refferalGained: function(referrer, refferal){
-	  
+
 	  this.coll.updateOne(
 		{
 			username: referrer,
@@ -286,13 +288,13 @@ var users = {
 				refferals: refferal
 			}
 		}
-	  
+
 	  )
-	  
+
   },
-  
-  incrementBalanceForreferrer: function(referrer, amount){
-	  
+
+  incrementBalanceForReferrer: function(referrer, amount){
+
 	  this.coll.updateOne({
 		  username: referrer
 	  }, {
@@ -302,11 +304,11 @@ var users = {
 			  earned_from_refs: amount
 		  }
 	  })
-	  
+
   },
-  
-  getreferrer: function(username){
-	  
+
+  getReferrer: function(username){
+
 	  return this.coll.findOne({
 		  username: username
 	  }, {
@@ -320,7 +322,26 @@ var users = {
 		}
 		return null;
 	  })
-	  
+
+  },
+
+  getReferrerStats: function(username){
+
+    return this.coll.aggregate(
+      [
+        $match: {
+          username: username
+        },
+        $project: {
+          _id: 0,
+          ref_amount: {
+            $size: "$refferals"
+          },
+          ref_earned: "$earned_from_refs"
+        }
+      ]
+    );
+
   }
 
 }

@@ -210,13 +210,13 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
 
   		// if game_winner has referrer split winner_reward by 4%
 
-    		Users.getreferrer(game_winner.playername)
+    		Users.getReferrer(game_winner.playername)
     		.then( (referrer)=>{
 
     			if(referrer){
     				referrer_reward = Math.floor(winner_reward * 0.04);
     				provision-=referrer_reward;
-    				Users.incrementBalanceForreferrer(referrer, referrer_reward);
+    				Users.incrementBalanceForReferrer(referrer, referrer_reward);
     			}
 
     			Users.incrementBalanceForWinner(game_winner.playername, winner_reward );
