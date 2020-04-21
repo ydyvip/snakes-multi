@@ -329,15 +329,19 @@ var users = {
 
     return this.coll.aggregate(
       [
-        $match: {
-          username: username
-        },
-        $project: {
-          _id: 0,
-          ref_amount: {
-            $size: "$refferals"
+        {
+          $match: {
+            username: username
           },
-          ref_earned: "$earned_from_refs"
+        },
+        {
+          $project: {
+            _id: 0,
+            ref_amount: {
+              $size: "$refferals"
+            },
+            ref_earned: "$earned_from_refs"
+          }
         }
       ]
     );
