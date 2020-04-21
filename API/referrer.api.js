@@ -5,12 +5,12 @@ var Users = require("../DB/users.db.js");
 
 router.get("/stats", (req,res)=>{
 
-  if(!req.username){
+  if(!req.user.username){
     res.end();
     return;
   }
 
-  Users.getReferrerStats(req.username)
+  Users.getReferrerStats(req.user.username)
   .then((stats)=>{
     res.json({
       ref_amount: stats.ref_amount,
