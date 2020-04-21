@@ -21,8 +21,8 @@
 
     <div class="box">
 
-      Amount of referrals: {{  }}
-      Earnings from referrers: {{  }}
+      Amount of referrals: {{ ref_amount }} <br/>
+      Earnings from referrers: {{ ref_earned }}
 
     </div>
 
