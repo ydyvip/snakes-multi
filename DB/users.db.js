@@ -70,7 +70,8 @@ var users = {
 
     return bcrypt.hash(password, 9)
     .then((hash)=>{
-      return this.coll.insertOne( {
+
+      var user_to_register = {
         username: username,
         password: hash,
         email: email,
@@ -79,8 +80,14 @@ var users = {
         points: 0,
         refferals: [],
         earned_from_refs: 0,
-		    referrer: referrer
-      } );
+      };
+
+      if(referrer){
+        user_to_register.referrer = referrer;
+      }
+
+      return this.coll.insertOne( user_to_register );
+      
     });
   },
 

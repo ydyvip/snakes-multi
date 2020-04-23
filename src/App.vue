@@ -75,6 +75,10 @@
           value: "referrers"
         }
       ],
+      game_comp: {
+        comp: Game,
+        value: "game"
+      }
     }),
 
     created: function(){
@@ -102,9 +106,11 @@
 
     },
     methods: {
+
+
       gamestart: function(initial_states, first_to_reach){
         this.in_game = true;
-        this.cur_panel = this.comp_list[0];
+        this.cur_panel = this.game_comp;
         this.initial_states = initial_states;
         this.first_to_reach = first_to_reach;
       },
@@ -114,6 +120,8 @@
         this.cur_panel = this.comp_list[0];
         this.prev_panel = this.comp_list[0];
       },
+
+
       logout: function(){
         this.loggedAs = null;
           setTimeout(()=>{ // hack: calling immediately after comp creation does'n update data on child comp
