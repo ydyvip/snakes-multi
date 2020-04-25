@@ -77,6 +77,7 @@
       ],
       game_comp: {
         comp: Game,
+        label: "IN GAME",
         value: "game"
       }
     }),
