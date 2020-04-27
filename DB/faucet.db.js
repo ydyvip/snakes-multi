@@ -105,7 +105,7 @@ var faucets = {
           return {
             success: false,
             err_code: 602,
-            err_msg: ""
+            err_msg: "Faucet is empty"
           }
         }
 

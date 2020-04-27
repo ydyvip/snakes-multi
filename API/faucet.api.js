@@ -60,8 +60,8 @@ router.post("/register", function(req,res){
   }
 
   else{
-    promise = Faucets.faucetNameTaken(req.body.name);
-    promise = promise.then((taken)=>{
+    promise = Faucets.faucetNameTaken(req.body.name)
+    .then((taken)=>{
 
       if(taken){
         response.errs.push({
