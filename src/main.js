@@ -65,7 +65,9 @@ Vue.prototype.$syncTime = function(connection_resolve){
   })
   .then((average_offset)=>{
 
-    Date.nowPure = Date.now;
+    if(!Date.nowPure){
+      Date.nowPure = Date.now;
+    }
 
     Date.now = function(){
       return Date.nowPure() + average_offset;
