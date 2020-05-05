@@ -21,6 +21,14 @@ var faucets = {
         {
           approved: true,
           $where: "this.balance >= this.reward"
+        },
+        {
+          _id: 0,
+          owner: 0,
+          api_key: 0,
+          approved: 0,
+          btc_deposit: 0,
+          btc_private_key: 0
         }
       ).toArray();
 
