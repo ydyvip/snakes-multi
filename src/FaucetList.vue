@@ -64,16 +64,31 @@
 
         this.faucet_list = res.data.faucet_list;
 
-        var cur_date = new Date();
+        var cur_date = Date.now();
 
-        this.faucet_list = this.faucet_list.map( (x)=>{
+        this.faucet_list = this.faucet_list.map( (faucet_item)=>{
 
-            var last_visited = new Date(x.last_visited).getTime();
-            var ms_to_complete_timer = last_visited + x.timer * 60 * 1000 - cur_date.getTime();
-            if(ms_to_complete_timer>0){
-              x.countdown = new Date(ms_to_complete_timer);
+
+          for(var i = faucet_item.withdraw_history.length-1; i>=0; i--){
+
+            var withdraw_item = faucet_item.withdraw_history[i];
+            if(withdraw_item.to == this.$attrs.loggedAs){
+
+              if(Date.now() - withdraw_item.when < faucet_item.timer*60*1000)
+              {
+
+                var last_visited = withdraw_item.when;
+                var ms_to_complete_timer = last_visited + faucet_item.timer * 60 * 1000 - cur_date;
+                faucet_item.countdown = new Date(ms_to_complete_timer);
+                return faucet_item;
+
+              }
             }
-            return x;
+
+          }
+
+          return faucet_item;
+
         })
       })
 

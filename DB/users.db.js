@@ -87,7 +87,7 @@ var users = {
       }
 
       return this.coll.insertOne( user_to_register );
-      
+
     });
   },
 
@@ -201,11 +201,11 @@ var users = {
 
   },
 
-  incrementBalanceForAdressOwner: function(btc_address, amount){
+  incrementBalanceForUser: function(username, amount){
 
     this.coll.updateOne(
       {
-        btc_address: btc_address
+        username: username
       },
       {
         $inc: {

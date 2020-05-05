@@ -53,6 +53,30 @@ var faucets = {
 
     },
 
+    withdrawByName: function(name, to){
+
+      return this.coll.findOne({
+        name: name
+      }, {
+        _id: 0,
+        api_key: 1
+      })
+      .then((doc)=>{
+
+        if(!doc){
+          return {
+            success: false,
+            err_code: 600,
+            err_msg: "Invalid api key"
+          }
+        }
+
+        return this.withdraw(doc.api_key, to);
+
+      })
+
+    },
+
     withdraw: function(api_key, to){
 
       // Reduce balance by reward
@@ -152,16 +176,15 @@ var faucets = {
 
     register: function(name, url, reward, timer, username){
 
-      //var keyPair = bitcoin.ECPair.makeRandom();
 
       var privateKey = new bitcore.PrivateKey();
       var publicKey = privateKey.toPublicKey();
 
       var api_key = rand.generate(12, "0123456789abcdefghiklmnopqrstuvwxyz");
-      var btc_deposit = keyPair.getAddress();
+
+      var address = publicKey.toAddress().toString();
 
       var privateKey_wif = privateKey.toWIF();
-      var publicKey_address = publicKey.toAddress().toString();
 
       return this.coll.insertOne({
         name: name,
@@ -173,14 +196,14 @@ var faucets = {
         withdraw_history: [],
         api_key: api_key,
         approved: false,
-        btc_deposit: privateKey_wif,
-        btc_private_key: publicKey_address
+        btc_deposit: address,
+        btc_private_key: privateKey_wif // WIF
       })
       .then(()=>{
 
         return {
           api_key: api_key,
-          btc_deposit: btc_deposit
+          btc_deposit: address
         }
 
       });

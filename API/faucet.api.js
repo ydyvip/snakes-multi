@@ -42,7 +42,7 @@ router.get("/details/:name", function(req,res){
 router.post("/register", function(req,res){
 
   var response = {
-    success: null,
+    success: false,
     errs: []
   }
 
@@ -149,15 +149,38 @@ router.post("/register", function(req,res){
 
 })
 
+router.get("/topup", function(req, res){
+
+  if(!req.user.username){
+    res.end();
+  }
+
+
+  Faucets.withdrawByName("Snakes-Multi.win", req.user.username)
+  .then((result)=>{
+
+    if(result.success == false){
+      res.json(result);
+      return;
+    }
+
+    Users.incrementBalanceForUser(req.user.username, result.reward );
+
+    res.json(result);
+
+  });
+
+
+})
+
 
 router.post("/send", function(req,res){
 
-  res.end();
-  //TODO: visiting faucets requires btc_address
+
 
   // Handling withdraws
   // req.body.api_key
-  // req.body.to
+  // req.body.to <--- username
 
   /*
     {
@@ -171,6 +194,7 @@ router.post("/send", function(req,res){
     }
   */
 
+
   Faucets.withdraw(req.body.api_key, req.body.to)
   .then((result)=>{
 
@@ -179,7 +203,7 @@ router.post("/send", function(req,res){
       return;
     }
 
-    Users.incrementBalanceForAdressOwner(req.body.to, result.reward );
+    Users.incrementBalanceForUser(req.body.to, result.reward );
 
     res.json(result);
 
