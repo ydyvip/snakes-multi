@@ -680,16 +680,26 @@ module.exports = function( io_, socket ){
     }
 
     if(previousroom && previousroom == socket.currentRoom){
-      cb_confirmation(false);//failure
+      cb_confirmation(false);//failure; user try to join to room already joined
       return;
     }
 
     var room = games.getRoomWithName(newroom);
 
     if(!room){
-      cb_confirmation(false);//failure
+      cb_confirmation(false);//failure; room does not exist
       return;
     }
+
+    if(previousroom){
+      var previous_game = games.getRoomWithName(previousroom);
+      if(previous_game.started){
+        cb_confirmation(false);
+        return; // prevent joining, user is in active game already
+      }
+    }
+
+
 
     // check balance
     Users.checkBalance(socket.playername, room.bet)
@@ -891,7 +901,13 @@ module.exports = function( io_, socket ){
       return;
     }
 
+
     var prev_game = games.getRoomWithName(socket.currentRoom);
+    if(prev_game.started){
+      cb_confirmation(false);
+      return; // can not leave, user is in active game still
+    }
+
     prev_game.delistPlayer(socket.playername);
 
     socket.broadcast.emit("roomchanged", socket.playername, socket.currentRoom, null);
