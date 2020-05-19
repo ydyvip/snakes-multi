@@ -1,8 +1,13 @@
 
 <template>
   <div>
-    <div class="userpanel" style="position: relative; display: flex; justify-content: center;">
-      <div style="display: inline-block; margin-right: 150px;">
+
+    <div class="userpanel">
+      <a href="https://discord.gg/qPxRMFt" >
+        <img src="img/discord-512.webp" class="discord-button-sm"/>
+      </a>
+      <div style="flex-grow: 1"></div>
+      <div style="display: inline-block; margin-right: 50px;">
         Hello <span class="username">{{username}}</span>
       </div>
       <div style="display: inline-block; margin-right: 50px;">
@@ -23,9 +28,10 @@
         :value="cur_panel"
       ></dropd>
 
-      <div style="text-align: right; display: inline-block; margin-left: 150px;">
+      <div style="text-align: right; display: inline-block; margin-left: 50px;">
         <a v-on:click.prevent="logout" class="href" id="logout" href=""> Logout >> </a>
       </div>
+      <div style="flex-grow: 1"></div>
     </div>
     <div style="display: flex; justify-content: center; margin-top: 30px;">
       <div style="display: inline-block; width: 728px; height: 90px; margin: 0 auto ">
@@ -161,6 +167,13 @@
   cursor: pointer;
 }
 
+.discord-button-sm {
+  width: 48px;
+  height: 48px;
+  display: block;
+  margin-left: 25px;
+}
+
 #btn_faucet_list:hover {
   background-color: #2e4669;
 }
@@ -178,7 +191,10 @@
   background-color: #446088;
   padding: 8px;
   color: #efdf24;
-
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .username {

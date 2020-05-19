@@ -2,6 +2,10 @@
 
   <div>
 
+    <a href="https://discord.gg/qPxRMFt" v-if="!loggedAs">
+      <img src="img/discord-512.webp" class="discord-button"/>
+    </a>
+
     <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
     <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
@@ -188,5 +192,13 @@
    margin: 0;
  }
 
+.discord-button {
+  width: 48px;
+  height: 48px;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 15px;
+}
 
 </style>

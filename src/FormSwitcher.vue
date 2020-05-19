@@ -81,7 +81,7 @@
 .switcher-box {
   margin: 0 auto;
   text-align: center;
-  margin-top: 50px;
+  margin-top: 35px;
   margin-bottom: 20px;
 }
 </style>
