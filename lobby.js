@@ -223,13 +223,16 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
     			Users.updateRanking(this.players);
     			Stats.updateFromMatchPlayed( provision, referrer_reward, winner_reward );
 
+          this.game_state.end_of_game = true;
+
     		})
 
       }
+      else{
+        this.game_state.end_of_game = true;
+      }
 
       io.to(this.name).emit("end_of_game", game_winner.playername, Math.floor(this.bet*this.max_players*0.75));
-
-      this.game_state.end_of_game = true;
 
     }
     else{
