@@ -66,7 +66,7 @@ var users = {
 
   },
 
-  registerUser: function(username, password, email, referrer){
+  registerUser: function(username, password, email, referrer, country_code){
 
     return bcrypt.hash(password, 9)
     .then((hash)=>{
@@ -80,6 +80,7 @@ var users = {
         points: 0,
         refferals: [],
         earned_from_refs: 0,
+        country_code: country_code
       };
 
       if(referrer){
@@ -256,6 +257,7 @@ var users = {
         projection: {
           username: 1,
           points: 1,
+          country_code: 1,
           _id: 0
         },
         skip: skip,

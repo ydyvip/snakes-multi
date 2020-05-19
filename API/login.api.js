@@ -134,7 +134,7 @@ router.get("/stats", (req, res)=>{
 
   Stats.getStats()
   .then((stats)=>{
-	  
+
 	if(!stats.winners_earn){
 	  stats.winners_earn = 0;
 	}
@@ -162,9 +162,6 @@ router.post("/ranking", (req,res)=>{
 
   Users.getRanking(req.body.page)
   .then((arr_players)=>{
-
-    console.log("ranking");
-    console.log(arr_players);
 
     if(arr_players.length == 0){
       res.json(null);

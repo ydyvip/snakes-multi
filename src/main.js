@@ -6,8 +6,11 @@ import anime from 'animejs'
 import Tooltip from 'vue-directive-tooltip';
 import vSelect from 'vue-select'
 import Dropd from 'vue-dropd'
+import CountryFlag  from 'vue-country-flag';
+
 Vue.component('dropd', Dropd)
 Vue.component('v-select', vSelect)
+Vue.component('country-flag', CountryFlag)
 
 var axios = require("axios");
 

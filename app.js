@@ -1,4 +1,6 @@
- const fs = require('fs');
+require('dotenv').config()
+
+const fs = require('fs');
 if(process.argv[2] == "TEST_MODE"){
   process.TEST_MODE = true;
   console.log("running in test mode");

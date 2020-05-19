@@ -4,7 +4,6 @@
 
     <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
-
     <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
 
     <template v-if="loggedAs">

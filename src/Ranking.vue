@@ -3,11 +3,13 @@
 
   <div class="ranking_box">
 
+
     <table>
       <tr v-for="(rank_item, index) of rank_arr">
-        <td>{{cur_page*15+index+1}}</td>
-        <td>{{rank_item.username}}</td>
-        <td>{{rank_item.points}}</td>
+        <td><country-flag v-if="rank_item.country_code" v-bind:country="rank_item.country_code" size='small'/></td>
+        <td><div>{{cur_page*15+index+1}}</div></td>
+        <td><div>{{rank_item.username}}</div></td>
+        <td><div>{{rank_item.points}}</div></td>
       </tr>
     </table>
 
@@ -22,6 +24,8 @@
 </template>
 
 <script>
+
+
 
   module.exports = {
 
@@ -55,9 +59,6 @@
 
         this.$axios.post("/login/ranking", {page: page_requested})
         .then((response)=>{
-
-          console.log("ranking");
-          console.log(response.data);
 
           if(response.data==null){
             return;
@@ -98,17 +99,30 @@
 .ranking_box{
   color: white;
 }
+
+.ranking_box tr{
+  height: 45px;
+}
+
 .ranking_box td{
-  padding: 4px;
   border-bottom: 1px solid #476fa9;
+  line-height: 100%;
+  line-height: 16px;
 }
 
 .ranking_box td:nth-child(1){
-  padding: 4px 10px;
-  width: 10px;
+  scale: 0.45;
 }
 .ranking_box td:nth-child(2){
+  padding: 4px 14px 4px 10px;
+  width: 10px;
+}
+.ranking_box td:nth-child(3){
+  padding: 4px 10px;
   width: 200px;
+}
+.ranking_box td:nth-child(4){
+  padding: 4px 10px;
 }
 
 .ranking_box table{

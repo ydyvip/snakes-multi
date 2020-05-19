@@ -1,5 +1,6 @@
 
 var router = require("express").Router();
+const geoip = require('geo-from-ip')
 
 var Users = require("../DB/users.db.js");
 var Stats = require("../DB/stats.db.js");
@@ -146,7 +147,20 @@ router.post("/", function(req,res){
           referrer = null;
         }
 
-        Users.registerUser( req.body.username, req.body.password, req.body.email, referrer )
+        console.log(req.connection.remoteAddress);
+
+        var country_code = null;
+        var ip_data = null;
+
+        try {
+          var ip_data = geoip.allData( req.connection.remoteAddress );
+          country_code = ip_data.code.country;
+        }
+        catch (e){
+          console.log("error");
+        }
+
+        Users.registerUser( req.body.username, req.body.password, req.body.email, referrer, country_code )
         .then( ()=> {
           if(referrer_exist){
             Users.refferalGained(referrer, req.body.username);
@@ -156,7 +170,6 @@ router.post("/", function(req,res){
         })
 
       })
-
 
     }
   })
