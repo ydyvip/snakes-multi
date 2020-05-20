@@ -147,13 +147,13 @@ router.post("/", function(req,res){
           referrer = null;
         }
 
-        console.log(req.connection.remoteAddress);
+        console.log(req.connection.ip);
 
         var country_code = null;
         var ip_data = null;
 
         try {
-          var ip_data = geoip.allData( req.connection.remoteAddress );
+          var ip_data = geoip.allData( req.ip );
           country_code = ip_data.code.country;
         }
         catch (e){
