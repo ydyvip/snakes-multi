@@ -90,8 +90,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 
   player_state.collision_timeout = setTimeout( ()=>{
 
-    //TODO:
-    //var lag_tolerance = 1000 / (player_state.speed/player_state.weight) ; //200ms for 50px/s
+    var lag_tolerance = 1000 / (player_state.speed/player_state.weight) ;
 
     if(player_state.collision_tm != 0){
       player_state.collision_timeout = null;
