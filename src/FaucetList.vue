@@ -14,7 +14,8 @@
             <td>{{faucet.reward}}</td>
             <td>{{faucet.timer}}</td>
             <td v-if="!faucet.countdown">
-              <a class="href" v-bind:href="faucet.url">Visit >></a>
+              <a v-if="faucet.name='Snakes-Multi.win'" class="href" v-on:click.prevent="visitInternal(faucet)" href="">Visit >></a>
+              <a v-else class="href" v-bind:href="faucet.url">Visit >></a>
             </td>
             <td v-if="faucet.countdown">
               {{ checkZero(faucet.countdown.getMinutes()+"") + ":" + checkZero(faucet.countdown.getSeconds()+"") }}
@@ -127,8 +128,28 @@
 
       go_to_faucetmanager: function(){
         this.active_panel = "faucetmanager";
-      }
+      },
 
+      visitInternal: function(internal_faucet){
+        this.$axios.get("/faucet/topup")
+        .then((res)=>{
+
+          if(res.data.success == true){
+
+            this.$bus.$emit("balance_update", parseInt(res.data.reward));
+
+            var cur_date = Date.now();
+            var last_visited = res.data.when;
+            var ms_to_complete_timer = last_visited + internal_faucet.timer * 60 * 1000 - cur_date;
+            internal_faucet.countdown = new Date(ms_to_complete_timer);
+
+          }
+          else{
+
+          }
+
+        })
+      }
 
     }
   }

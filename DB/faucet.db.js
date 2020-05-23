@@ -140,7 +140,7 @@ var faucets = {
             err_msg: "Faucet is empty"
           }
         }
-
+        var dn = Date.now();
         return this.coll.updateOne(
           {
             api_key: api_key
@@ -152,7 +152,7 @@ var faucets = {
             $push: {
               withdraw_history: {
                 to: to,
-                when: Date.now()
+                when: dn
               }
             }
           }
@@ -160,7 +160,8 @@ var faucets = {
         .then(()=>{
           return {
             success: true,
-            reward: doc.reward
+            reward: doc.reward,
+            when: dn
           }
         });
 
