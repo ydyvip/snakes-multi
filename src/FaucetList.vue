@@ -15,8 +15,7 @@
             <td>{{faucet.timer}}</td>
             <td v-if="!faucet.countdown">
               <a v-if="faucet.name='Snakes-Multi.win'" class="href" v-on:click.prevent="visitInternal(faucet)" href="">Visit >></a>
-              <a v-else class="href" v-bind:href="faucet.url">Visit >></a>
-            </td>
+              <a v-else class="href" v-bind:href="faucet.url" target="_blank"         </td>
             <td v-if="faucet.countdown">
               {{ checkZero(faucet.countdown.getMinutes()+"") + ":" + checkZero(faucet.countdown.getSeconds()+"") }}
             </td>

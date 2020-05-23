@@ -14,7 +14,7 @@
       </div>
 
       <div>
-        You will receive 4% of winnings of users registered from above link
+        You will receive 8% of winnings of users registered from above link
       </div>
 
     </div>

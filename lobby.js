@@ -214,7 +214,7 @@ Game.prototype.emitKilled = function(player_state, collision_tm){
     		.then( (referrer)=>{
 
     			if(referrer){
-    				referrer_reward = Math.floor(winner_reward * 0.04);
+    				referrer_reward = Math.floor(winner_reward * 0.08);
     				provision-=referrer_reward;
     				Users.incrementBalanceForReferrer(referrer, referrer_reward);
     			}
