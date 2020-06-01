@@ -271,12 +271,11 @@
 
         })
 
-        this.$io.on("reduction", (id, new_tm)=>{
+        this.$io.on("reduction", (id)=>{
 
             player_me.inputs.push({
               type: "reduction",
-              id: id,
-              tm_to: new_tm
+              id: id
             });
 
         });
@@ -507,7 +506,7 @@
               player_item.gap_ref.endGap();
             }
             else if(input.type == "reduction"){
-              player_item.reduction2(input.id, input.tm_to);
+              player_item.reduction2(input.id);
             }
             else if(input.type == "quit_consideration"){
               player_item.quitConsideation(this.game_state.tm_quit_consideration, false);

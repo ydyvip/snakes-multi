@@ -90,7 +90,7 @@ Game.prototype.collisionDetected = function(player_state, collision_tm, type, pa
 
   player_state.collision_timeout = setTimeout( ()=>{
 
-    var lag_tolerance = 1000 / (player_state.speed/player_state.weight) ;
+    var lag_tolerance = 1000 / (player_state.speed/player_state.weight*2) ;
 
     if(player_state.collision_tm != 0){
       player_state.collision_timeout = null;
@@ -490,7 +490,7 @@ Game.prototype.start = function(){
         else if(input.type == "gap_end"){
           player_state_item.gap_ref.endGap();
         }
-        else {
+        else { // INPUT TYPE
 
           var done_path = player_state_item.changeDir(input.dir, input.tm);
           player_state_item.savePath(done_path, true);

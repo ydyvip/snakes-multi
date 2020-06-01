@@ -22,21 +22,23 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
     return;
 
   var input = {
+    type: "changedir",
     dir: newdir,
     tm: tm
   }
 
 
-  // Collision test should be performed every 10px (player weight)
-  //  1000[1s] / (50[px/s]/10px[weight]) --> 200ms
-  // So collision test should be performed every 200ms, if lag is bigger there should be additional collision checking performed...
+  // Collision test should be performed every 20px (player weight*2)
+  //  1000[1s] / (50[px/s]/20px[weight]) --> 400ms
+  // So collision test should be performed every 400ms, if lag is bigger there should be additional collision checking performed...
   // For speed 100px/s - every 100ms
 
-  var tm_now = Date.now();
-  var lag_tolerance = 1000 / (this.speed/this.weight) ; //200ms for 50px/s
-  var lag = tm_now - tm;
-  var tm_to;
 
+  var tm_now = Date.now();
+  var lag_tolerance = 1000 / (this.speed/this.weight*2) ; //400ms for 50px/s
+  var lag = tm_now - tm;
+
+  console.log(this.name + " " + input.dir);
   console.log("LAG: " + lag);
 
   if(lag<0){
@@ -46,21 +48,14 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
   if(lag>lag_tolerance){
 
-    this.ignore_input = true;
+      this.ignore_input = true;
+      input.tm_raw = input.tm;
 
-    tm_to = tm_now-lag_tolerance;
+      this.socket.emit("reduction", this.id_cnt);
+      this.socket.emit("slow_connection_warrning");
 
-    console.log("Reduction");
-    console.log(tm + "  -->  " + tm_to);
+      return; //ignore lagged input
 
-    this.socket.emit("reduction", this.id_cnt, tm_to);
-    this.socket.emit("slow_connection_warrning");
-
-    input.tm = tm_to; // new time,
-    input.tm_raw = input.tm;
-    tm = tm_to;
-
-    return; //igore lagged input
 
   }
 

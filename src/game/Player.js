@@ -16,8 +16,8 @@ var Player = function(initial_state, server_side){
   this.name = initial_state.player_name;
   this.server_side = server_side;
   this.speed = 0;
-  this.default_speed = 60;
-  this.weight = 12;
+  this.default_speed = 65;
+  this.weight = 10;
   this.r = 40;
   this.paths = [];
   this.show_dir_indicator = true;
@@ -271,6 +271,7 @@ Player.prototype.getPathBodyFromCurpath = function(curpath){
 
   path.body = {};
   path.body.tm = curpath.tm;
+  path.body.tm_end = curpath.tm_end;
   path.body.id = curpath.id;
   path.body.weight = this.weight;
   path.body.color = this.color;
@@ -431,7 +432,7 @@ Player.prototype.changeDir = function(new_dir, tm, id){
   if(rebuilded){
     console.log("REBUILDED new curpath:");
     console.log(this.curpath);
-	   return;
+	  return;
   }
 
   this.recomputeCurpath(tm);
@@ -519,7 +520,7 @@ Player.prototype.recomputeCurpath = function(tm_to_timestep, curpath){
       curpath = this.curpath;
     }
 
-    curpath.tm_to = tm_to_timestep;
+    curpath.tm_end = tm_to_timestep;
 
     /*
      set end to start before recomputing
@@ -665,26 +666,6 @@ Player.prototype.getPos = function(){
 
 }
 
-Player.prototype.injectPathBeforeQc = function(tm_to, dir){
-
-  var tm_qc = this.game_state.tm_quit_consideration;
-
-  var working_curpath = this.extendPath(this.id_path_before_qc, tm_to);
-
-  this.setInitPositionForCurpath(dir, tm_to, working_curpath, this.id_path_before_qc+1);
-  this.recomputeCurpath(tm_qc, working_curpath );
-  var injected_path = this.getPathBodyFromCurpath(working_curpath);
-  this.splicePath(injected_path, this.id_path_before_qc+1);
-
-  this.id_path_before_qc = this.id_path_before_qc+1;
-  this.path_before_qc = working_curpath;
-
-  this.setInitPositionForCurpath(dir, tm_qc, working_curpath, "qc" );
-  this.recomputeCurpath(Date.now(), working_curpath);
-  this.assignCurpath(this.curpath, working_curpath);
-
-}
-
 Player.prototype.quitConsideation = function(tm, server){
 
   // Save curpath for case when new input that occured before quit consideration arrive.
@@ -741,28 +722,6 @@ Player.prototype.mergePathOnQc = function(){
 
 }
 
-Player.prototype.splitPathForQc = function(ix, working_curpath, to){
-
-  var working_curpath;
-  var tm_qc = this.game_state.tm_quit_consideration;
-  if(!working_curpath){
-
-    //working_curpath = ...
-  }
-
-  this.recomputeCurpath(tm_qc, working_curpath );
-  var path = this.getPathBodyFromCurpath(working_curpath);
-  this.overwritePath(path, ix);
-
-  working_curpath.id = "qc";
-  this.id_path_before_qc = ix;
-
-  this.setInitPositionForCurpath(working_curpath.dir, tm_qc, working_curpath  );
-  this.recomputeCurpath(to, working_curpath );
-  path = this.getPathBodyFromCurpath(working_curpath);
-  this.splicePath(path, ix+1);
-
-}
 
 Player.prototype.extendPath = function(ix, to, vector){
 
@@ -836,10 +795,6 @@ Player.prototype.clearInputHistoryAfter = function( id){
 
 }
 
-Player.prototype.updateTm = function( id, tm_to, idx){
-  this.inputs_history[idx].tm = tm_to;
-
-}
 
 Player.prototype.rebuildPaths = function(tm_to_curpath){
 
@@ -1002,138 +957,6 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 
 
   return false;
-
-}
-
-// id = id of shortended aka first shifted
-Player.prototype.reduction = function(from, to, id){
-
-  console.log("REDUCTION; from: " + from + " to: " + to + " id: " + id );
-
-  this.outPathsTmBefore();
-
-  var working_curpath;
-
-  var lag_vector = to - from;
-
-  var path_extended = null;
-  var index_of_extended = -1;
-
-  // search paths, case when path_shortened is curpath
-  if(this.curpath.id == id){
-    path_extended = this.paths[this.paths.length-1];
-    index_of_extended = this.paths.length-1;
-  }
-
-  //search paths, case when path_shortened is in paths history
-  else{
-    for(var i = this.paths.length-1; i>=0; i--){
-      var path = this.paths[i];
-      if(path.body.id == id){
-        path_extended = this.paths[i-1];
-        index_of_extended = i-1;
-        break;
-      }
-    }
-  }
-
-  if(path_extended == null){
-    console.log("pe");
-    console.log(id);
-    console.log(this.paths);
-  }
-
-  var tm_qc = this.game_state.tm_quit_consideration;
-  var new_extended;
-  // Extension and swap of path designed to extension
-
-  if(from<tm_qc && to>tm_qc){
-
-    //merge previous qc path and path before qc
-    if(this.id_path_before_qc != null){
-      this.mergePathOnQc();
-    }
-
-    working_curpath = this.extendPath(index_of_extended, tm_qc);
-
-    working_curpath.id = "qc";
-    this.id_path_before_qc = index_of_extended;
-
-    this.setInitPositionForCurpath(working_curpath.dir, tm_qc, working_curpath  );
-    this.recomputeCurpath(to, working_curpath );
-    new_extended = this.getPathBodyFromCurpath(working_curpath);
-    this.splicePath(new_extended, index_of_extended+1);
-    index_of_extended++;
-  }
-  else{
-    working_curpath = this.extendPath(index_of_extended, to);
-  }
-
-  //shift following paths
-  var new_tm = to;
-
-  var index_before = 0;
-
-  for(var i = index_of_extended+1; i<this.paths.length; i++){
-
-    console.log("SHIFTING");
-    console.log("shifting " + i + " to " + (this.paths.length-1));
-
-    if(i>this.id_path_before_qc){
-      index_before = -1;
-    }
-
-    if(i-1 == this.id_path_before_qc){
-      // only extend, this path is qc path
-      working_curpath = this.extendPath(i, "next", lag_vector);
-      new_tm = working_curpath.tm_to;
-      continue;
-    }
-
-    var new_shortended;
-
-    // we get tm of following path as to (tm)
-    if(i+1 == this.paths.length){ // this case is unreachable but test needed
-      to = this.curpath.tm + lag_vector;
-    }
-    else{
-      to = this.paths[i+1].body.tm + lag_vector;
-    }
-
-    var path_body = this.paths[i].body;
-    from = new_tm;
-
-    if(from<tm_qc && to>tm_qc){
-
-      //merge previous qc path and path before qc
-      if(this.id_path_before_qc != null){
-        this.mergePathOnQc();
-      }
-      this.setInitPositionForCurpath(path_body.dir, new_tm, working_curpath, path_body.id );
-      this.splitPathForQc(i, working_curpath, to);
-      new_tm = to;
-    }
-    else{
-      this.setInitPositionForCurpath(path_body.dir, new_tm, working_curpath, path_body.id );
-      this.recomputeCurpath(to, working_curpath );
-      new_shortended = this.getPathBodyFromCurpath(working_curpath);
-      this.overwritePath(new_shortended, i);
-      new_tm = to;
-  }
-
-  }
-
-  //shift actual curpath
-  this.setInitPositionForCurpath(this.curpath.dir, new_tm, working_curpath, this.curpath.id );
-  this.recomputeCurpath(Date.now(), working_curpath);
-  this.assignCurpath(this.curpath, working_curpath);
-
-  console.log("_________________________");
-
-  /* TESTING FUNCTIONS */
-  //this.outPathsTmAfter();
-  //this.compareArrsTm(lag_vector);
-
 
 }
 
