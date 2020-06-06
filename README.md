@@ -5,7 +5,7 @@
 
 
 ## Test it out
-[serpentes.win](http://www.snakes-multi.win "snakes-multi.win")
+[snakes-multi.win](http://www.snakes-multi.win "snakes-multi.win")
 
 
 ## Discord
