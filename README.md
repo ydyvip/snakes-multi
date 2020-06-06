@@ -5,17 +5,8 @@
 
 
 ## Test it out
-[serpentes.win](http://www.serpentes.win "serpentes.win")
+[snakes-multi.win](http://www.snakes-multi.win "snakes-multi.win")
 
 
 ## Discord
-[discord](https://discord.gg/Tq8UJyV "discord")
-
-
-### TODOS
- - ability to choose the number of players in the room
- - saving the game flow for reproduction of bugs
- - improvement of test architecture
- - repair of found bugs
- - game promotion
- - real betting and withdraws to particular micropayment system
+[discord](https://discord.gg/qPxRMFt "discord")
