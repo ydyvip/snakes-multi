@@ -35,7 +35,7 @@ Player.prototype.changeDirSrv = function(newdir, tm, reduction_sync_complete){
 
 
   var tm_now = Date.now();
-  var lag_tolerance = 1000 / (this.speed/this.weight*2) ; //400ms for 50px/s
+  var lag_tolerance = 1000 / (this.speed/(this.weight*2)) ; //400ms for 50px/s
   var lag = tm_now - tm;
 
   console.log(this.name + " " + input.dir);
