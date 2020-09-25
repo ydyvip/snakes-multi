@@ -18,7 +18,7 @@ require("./API/passport_conf.js");
 var passportSocketIo = require("passport.socketio");
 
 var app = express();
-app.set('trust proxy',true); 
+app.set('trust proxy',true);
 
 var http = require("http").Server(app);
 
@@ -38,7 +38,7 @@ db.promise.then( function(){
 var secret = "u7ga782";
 var session_store = new MongoStore(
   {
-    dbPromise: db.promise
+    clientPromise: db.promise
   }
 );
 
