@@ -97,6 +97,7 @@
           referrer: this.referrer.val
         })
         .then( (response)=> {
+
           if(!response.data.success){
             response.data.errs.forEach( (err)=> {
               this[err.for].err = err.msg;

@@ -126,6 +126,7 @@ Vue.prototype.$syncTimePing = function(){
 
 
 Vue.prototype.$estabilishSocketConnection = function(){
+
   Vue.prototype.$io = require("socket.io-client")();
 
   Vue.prototype.$io.on("disconnect", (reason)=>{
@@ -141,6 +142,7 @@ Vue.prototype.$estabilishSocketConnection = function(){
       connection_resolve("already in game");
     }
   })
+
   var connection_resolve;
   var connection_reject;
 

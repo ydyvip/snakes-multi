@@ -1,8 +1,6 @@
 
-var MongoClient = require('mongodb').MongoClient;
-
-var url = require("./mongouri.json").mongouri;
-
+const MongoClient = require('mongodb').MongoClient;
+const url = require("./mongouri.json").mongouri;
 const dbName = require("./mongouri.json").dbName;
 
 var db = {
