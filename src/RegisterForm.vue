@@ -26,7 +26,7 @@
       <div class="form-input-err" v-if="referrer.err">{{referrer.err}}</div>
     </div>
 
-    <button class="btn green" v-on:click="register">REGISTER</button>
+    <button class="btn btn-main" v-on:click="register">REGISTER</button>
 
   </div>
 

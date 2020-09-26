@@ -20,7 +20,7 @@
           Remember me
       </checkbox>
     </div>
-    <button class="btn green" v-on:click="login">LOGIN</button>
+    <button class="btn btn-main" v-on:click="login">LOGIN</button>
   </div>
 </template>
 
