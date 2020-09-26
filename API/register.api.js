@@ -58,10 +58,10 @@ router.post("/", function(req,res){
         msg: "Username length must be at least 5 characters"
       })
     }
-    else if( req.body.username.length>=14){
+    else if( req.body.username.length>25){
       response.errs.push({
         for: "username",
-        msg: "Username length must be at most 14 characters"
+        msg: "Username length must be at most 25 characters"
       })
     }
 
