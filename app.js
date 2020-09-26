@@ -38,7 +38,7 @@ db.promise.then( function(){
 var secret = "u7ga782";
 var session_store = new MongoStore(
   {
-    clientPromise: db.promise
+    dbPromise: db.promise
   }
 );
 
