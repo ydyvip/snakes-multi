@@ -208,14 +208,12 @@
 }
 
 .header-button {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   display: block;
   margin: 0 auto;
   text-align: center;
   margin: 15px 0 0;
 }
-
-
 
 </style>
