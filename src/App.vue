@@ -2,17 +2,17 @@
 
   <div>
 
-    <div class="header">
-      <a href="https://discord.gg/qPxRMFt" v-if="!loggedAs">
+    <div class="header" v-if="!loggedAs">
+      <a href="https://discord.gg/qPxRMFt" >
         <img src="img/discord.svg" class="header-button"/>
       </a>
-      <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber" v-if="!loggedAs">
+      <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber">
         <img src="img/yt.svg" class="header-button"/>
       </a>
-      <a href="https://www.facebook.com/Snakes-Multiwin-100576191845447" v-if="!loggedAs">
+      <a href="https://www.facebook.com/Snakes-Multiwin-100576191845447" >
         <img src="img/fb.svg" class="header-button"/>
       </a>
-      <a href="https://www.instagram.com/snakes_multi/?hl=pl" v-if="!loggedAs">
+      <a href="https://www.instagram.com/snakes_multi/?hl=pl" >
         <img src="img/instagram.svg" class="header-button"/>
       </a>
     </div>
