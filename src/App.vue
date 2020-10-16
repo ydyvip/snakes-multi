@@ -2,9 +2,14 @@
 
   <div>
 
-    <a href="https://discord.gg/qPxRMFt" v-if="!loggedAs">
-      <img src="img/discord-512.webp" class="discord-button"/>
-    </a>
+    <div class="header">
+      <a href="https://discord.gg/qPxRMFt" v-if="!loggedAs">
+        <img src="img/discord.svg" class="header-button"/>
+      </a>
+      <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber" v-if="!loggedAs">
+        <img src="img/yt.svg" class="header-button"/>
+      </a>
+    </div>
 
     <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
@@ -192,13 +197,25 @@
    margin: 0;
  }
 
-.discord-button {
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.header > a {
+  margin: 0 7px;
+}
+
+.header-button {
   width: 48px;
   height: 48px;
   display: block;
   margin: 0 auto;
   text-align: center;
-  margin-top: 15px;
+  margin: 15px 0 0;
 }
+
+
 
 </style>
