@@ -182,6 +182,25 @@
     font-family: 'Titillium Web', sans-serif;
   }
 
+  .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .header > a {
+    margin: 0 7px;
+  }
+
+  .header-button {
+    width: 36px;
+    height: 36px;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    margin: 15px 0 0;
+  }
+
 </style>
 
 <style src="./css/btn.css"/>
@@ -196,24 +215,5 @@
    background-color: #284165;
    margin: 0;
  }
-
-.header {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.header > a {
-  margin: 0 7px;
-}
-
-.header-button {
-  width: 36px;
-  height: 36px;
-  display: block;
-  margin: 0 auto;
-  text-align: center;
-  margin: 15px 0 0;
-}
 
 </style>
