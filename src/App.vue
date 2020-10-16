@@ -9,7 +9,14 @@
       <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber" v-if="!loggedAs">
         <img src="img/yt.svg" class="header-button"/>
       </a>
+      <a href="https://www.facebook.com/Snakes-Multiwin-100576191845447" v-if="!loggedAs">
+        <img src="img/fb.svg" class="header-button"/>
+      </a>
+      <a href="https://www.instagram.com/snakes_multi/?hl=pl" v-if="!loggedAs">
+        <img src="img/instagram.svg" class="header-button"/>
+      </a>
     </div>
+
 
     <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
