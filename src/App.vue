@@ -2,45 +2,49 @@
 
   <div>
 
-    <div class="header" v-if="!loggedAs">
-      <a href="https://discord.gg/qPxRMFt" target="_blank" >
-        <img src="img/discord.svg" class="header-button"/>
-      </a>
-      <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber" target="_blank">
-        <img src="img/yt.svg" class="header-button"/>
-      </a>
-      <a href="https://www.facebook.com/Snakes-Multiwin-100576191845447" target="_blank">
-        <img src="img/fb.svg" class="header-button"/>
-      </a>
-      <a href="https://www.instagram.com/snakes_multi/?hl=pl" target="_blank">
-        <img src="img/instagram.svg" class="header-button"/>
-      </a>
-    </div>
+    <div>
+      <div class="header" v-if="!loggedAs">
+        <a href="https://discord.gg/qPxRMFt" target="_blank" >
+          <img src="img/discord.svg" class="header-button"/>
+        </a>
+        <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber" target="_blank">
+          <img src="img/yt.svg" class="header-button"/>
+        </a>
+        <a href="https://www.facebook.com/Snakes-Multiwin-100576191845447" target="_blank">
+          <img src="img/fb.svg" class="header-button"/>
+        </a>
+        <a href="https://www.instagram.com/snakes_multi/?hl=pl" target="_blank">
+          <img src="img/instagram.svg" class="header-button"/>
+        </a>
+      </div>
 
+      <div class="main-box" v-if="!loggedAs">
 
-    <form-switcher  v-if="!loggedAs && !replayActive" v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
+        <form-switcher v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
 
-    <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
+        <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
 
-    <template v-if="loggedAs">
-      <user-panel
-        v-bind:username="loggedAs" v-bind:balance="balance"  v-bind:in_game="in_game"
-        :dropd_list="comp_list"
-        :cur_panel="cur_panel"
-        v-on:logout="logout"
-        v-on:switch_panel="switchPanel"
-        v-on:goToWithdrawalPanel="goToWithdrawalPanel"
-      />
-      <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="cur_panel.comp" v-bind:loggedAs="loggedAs"
-        v-on:gamestart="gamestart"
-        v-on:eog="eog"
-        v-on:returnToPreviousPanel="returnToPreviousPanel"
-      >
-      </component>
-    </template>
+      </div>
 
-    <game-replay v-if="!loggedAs && false" v-on:play_replay="playReplay" ></game-replay>
+      <template v-if="loggedAs">
+        <user-panel
+          v-bind:username="loggedAs" v-bind:balance="balance"  v-bind:in_game="in_game"
+          :dropd_list="comp_list"
+          :cur_panel="cur_panel"
+          v-on:logout="logout"
+          v-on:switch_panel="switchPanel"
+          v-on:goToWithdrawalPanel="goToWithdrawalPanel"
+        />
+        <component v-bind:initial-states="initial_states" v-bind:first_to_reach="first_to_reach" v-bind:is="cur_panel.comp" v-bind:loggedAs="loggedAs"
+          v-on:gamestart="gamestart"
+          v-on:eog="eog"
+          v-on:returnToPreviousPanel="returnToPreviousPanel"
+        >
+        </component>
+      </template>
 
+      <game-replay v-if="!loggedAs && false" v-on:play_replay="playReplay" ></game-replay>
+  </div>
   </div>
 
 </template>
@@ -187,6 +191,12 @@
 
   * {
     font-family: 'Titillium Web', sans-serif;
+  }
+
+  .main-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
   }
 
   .header {
