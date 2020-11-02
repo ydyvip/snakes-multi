@@ -11,6 +11,15 @@
   min-width: 115px;
 }
 
+.btn-small {
+  font-size: 11px;
+  color: black;
+}
+
+.btn-small:hover {
+  color:white;
+}
+
 .btn-main {
   color: white;
   background-color: #288ac6;
@@ -27,6 +36,7 @@
 }
 
 .btn.red {
+  color: black;
   background-color: #b22222;
 }
 
