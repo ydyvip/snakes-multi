@@ -31,19 +31,26 @@
 }
 
 .btn:active, .btn-main:active {
-  color: white;
   padding: 8px 29px 6px;
 }
 
-.btn.red {
+.red {
   color: black;
   background-color: #b22222;
 }
 
-.btn.green {
-  background-color: green;
+.red:hover {
+  box-shadow: #b22222 0px 0px 1px 2px;
 }
 
+.green {
+  color: black;
+  background-color: #47b047;
+}
+
+.green:hover {
+  box-shadow: #49bf67 0px 0px 1px 2px;
+}
 
 .btn:focus {
   outline: none;

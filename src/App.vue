@@ -25,7 +25,7 @@
         <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
 
       </div>
-
+      
       <template v-if="loggedAs">
         <user-panel
           v-bind:username="loggedAs" v-bind:balance="balance"  v-bind:in_game="in_game"
