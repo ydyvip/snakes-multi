@@ -24,6 +24,7 @@
         <img v-for="n in 6-game.max_players" src="img/circle-24-off.svg" style="visibility: hidden" />
         <span class="game-name">{{game.name}}</span>
         <span class="bet">{{game.bet}} Satoshi</span>
+
         <button v-if="isJoinButtonActive(game)" class="btn green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;">
           <b>JOIN</b>
         </button>
@@ -269,6 +270,7 @@
         }
 
         var room_name = this.new_game_form.gamename.val;
+        this.currentRoom = room_name;
 
         this.$io.emit("newgame", this.new_game_form.gamename.val, this.new_game_form.bet.val, this.new_game_form.max_players.val,
           (res)=>{
@@ -325,8 +327,8 @@
 
             }
 
-            if(res.success == true){
-              this.currentRoom = room_name;
+            if(res.success !== true){
+              this.currentRoom = "";
             }
 
           });
