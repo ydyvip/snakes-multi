@@ -24,8 +24,12 @@
         <img v-for="n in 6-(game.max_players-game.cnt_players)" src="img/circle-24-off.svg" style="visibility: hidden" />
         <span class="game-name">{{game.name}}</span>
         <span class="bet">{{game.bet}} Satoshi</span>
-        <button class="btn green" v-if="currentRoom != game.name" v-on:click="joinToGame( game.name )" style="margin-left: 50px;"><b>JOIN</b></button>
-        <button v-else class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;"><b>LEAVE</b></button>
+        <button v-if="isJoinButtonActive(game)" class="btn green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;">
+          <b>JOIN</b>
+        </button>
+        <button v-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;">
+          <b>LEAVE</b>
+        </button>
       </div>
     </div>
     <div v-else>
@@ -89,7 +93,6 @@
       this.$io.on("roomchanged", this.updateGamelist );
 
       this.$io.on("gamestart", this.gameStart);
-
 
     },
 
@@ -229,6 +232,7 @@
         this.$io.emit("join", gamename, (success)=>{
 
           if(success){
+
             this.updateGamelist(this.loggedAs, this.currentRoom, gamename);
             this.currentRoom = gamename;
           }
@@ -335,6 +339,15 @@
         this.$io.emit("leave")
         this.updateGamelist(this.loggedAs, this.currentRoom, null);
         this.currentRoom = "";
+
+      },
+
+      isJoinButtonActive: function(game){
+        return game.name !== this.currentRoom && game.cnt_players>0;
+      },
+
+      isLeaveButtonActive: function(game){
+        return game.name === this.currentRoom;
       }
 
     }
@@ -376,8 +389,6 @@
 .current_room {
   background-color: #31659a;
 }
-
-
 
 .bet {
   color: #efdf24;
