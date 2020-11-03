@@ -27,7 +27,7 @@
         <button v-if="isJoinButtonActive(game)" class="btn green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;">
           <b>JOIN</b>
         </button>
-        <button v-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;">
+        <button v-else-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;">
           <b>LEAVE</b>
         </button>
       </div>
