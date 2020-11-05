@@ -25,13 +25,14 @@
         <span class="game-name">{{game.name}}</span>
         <span class="bet">{{game.bet}} Satoshi</span>
 
-        <button v-if="isJoinButtonActive(game)" class="btn green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;">
-          <b>JOIN</b>
-        </button>
-        <button v-else-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;" >
-          <b>LEAVE</b>
-        </button>
-
+        <transition @enter="fadeIn(...arguments, 200)" @leave="fadeOut(...arguments, 200)">
+          <button v-if="isJoinButtonActive(game)" class="btn green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;" key="join-btn">
+            <b>JOIN</b>
+          </button>
+          <button v-else-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;" key="leave-btn">
+            <b>LEAVE</b>
+          </button>
+        </transition>
       </div>
     </div>
     <div v-else>
