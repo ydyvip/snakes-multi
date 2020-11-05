@@ -18,7 +18,7 @@
         </div>
       </transition>
 
-      <div v-for="game in games" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
+      <div v-for="game in games" style="display: flex;" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
         <img v-for="n in game.cnt_players"v-bind:title="game.players.join()" src="img/circle-24-on.svg" />
         <img v-for="n in game.max_players-game.cnt_players" src="img/circle-24-off.svg" />
         <img v-for="n in 6-game.max_players" src="img/circle-24-off.svg" style="visibility: hidden" />
