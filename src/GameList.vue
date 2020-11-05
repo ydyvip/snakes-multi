@@ -26,10 +26,10 @@
         <span class="bet">{{game.bet}} Satoshi</span>
 
         <transition @enter="fadeIn(...arguments, 200)" @leave="fadeOut(...arguments, 200)">
-          <button v-if="isJoinButtonActive(game)" class="btn green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;" key="join-btn">
+          <button v-if="isJoinButtonActive(game)" class="btn padding-2 green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;" key="join-btn">
             <b>JOIN</b>
           </button>
-          <button v-else-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;" key="leave-btn">
+          <button v-else-if="isLeaveButtonActive(game)" class="btn padding-2 red" v-on:click="leaveRoom" style="margin-left: 50px;" key="leave-btn">
             <b>LEAVE</b>
           </button>
         </transition>
@@ -100,8 +100,6 @@
     },
 
     beforeDestroy: function(){
-
-      console.log("before destroy");
 
       this.$io.removeListener("updategamelist", this.recreateGameList );
 

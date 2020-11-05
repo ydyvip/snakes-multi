@@ -34,8 +34,14 @@
   padding: 8px 29px 6px;
 }
 
+.padding-2:active {
+  padding: 8.5px 29px 5.5px;
+}
+
 .red {
   color: black;
+  font-size: 12px;
+  letter-spacing: 3px;
   background-color: #b22222;
 }
 
@@ -45,6 +51,8 @@
 
 .green {
   color: black;
+  font-size: 12px;
+  letter-spacing: 3px;
   background-color: #47b047;
 }
 
