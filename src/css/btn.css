@@ -40,7 +40,7 @@
 }
 
 .red:hover {
-  box-shadow: #b22222 0px 0px 1px 2px;
+  color: white;
 }
 
 .green {
@@ -49,7 +49,7 @@
 }
 
 .green:hover {
-  box-shadow: #49bf67 0px 0px 1px 2px;
+  color: white;
 }
 
 .btn:focus {
