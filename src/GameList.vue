@@ -3,7 +3,7 @@
   <div class="main-box">
 
     <div v-if="socket_connected">
-      <transition mode="out-in" v-on:enter="enterRoomCreationForm" v-on:leave="leaveRoomCreationForm">
+      <transition mode="out-in" @enter="fadeIn(...arguments, 600)" @leave="fadeOut(...arguments, 600)">
         <div v-if="menu_active" class="game-list-menu" key="m_a1" >
           <a  v-on:click.prevent="menu_active = false" class="href" href=""><b>New >></b></a>
         </div>
@@ -28,9 +28,10 @@
         <button v-if="isJoinButtonActive(game)" class="btn green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;">
           <b>JOIN</b>
         </button>
-        <button v-else-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;">
+        <button v-else-if="isLeaveButtonActive(game)" class="btn red" v-on:click="leaveRoom" style="margin-left: 50px;" >
           <b>LEAVE</b>
         </button>
+
       </div>
     </div>
     <div v-else>
@@ -113,21 +114,21 @@
 
     methods: {
 
-      enterRoomCreationForm: function(el, done){
+      fadeIn: function(el, done, duration){
         this.$anime({
           targets: el,
           opacity: [0,1],
-          duration: 200,
+          duration: duration,
           easing: "linear",
           complete: done
         })
       },
 
-      leaveRoomCreationForm: function(el, done){
+      fadeOut: function(el, done, duration){
         this.$anime({
           targets: el,
           opacity: [1,0],
-          duration: 200,
+          duration: duration,
           easing: "linear",
           complete: done
         })
@@ -357,7 +358,9 @@
 
 </script>
 
+
 <style>
+
 .vue-tooltip.tooltip-custom {
     border: 1px solid white;
     background-color: #b22222;
