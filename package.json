@@ -13,6 +13,7 @@
     "build": "cross-env NODE_ENV=production BABEL_ENV=production browserify -g envify src/main.js > public/build.js"
   },
   "dependencies": {
+    "animate.css": "^4.1.1",
     "animejs": "^2.2.0",
     "axios": "^0.18.0",
     "bcrypt": "^3.0.6",
