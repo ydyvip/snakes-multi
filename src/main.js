@@ -1,5 +1,5 @@
-var Vue = require('vue');
-var App = require('./App.vue')
+import Vue from 'vue';
+import App from './App.vue';
 
 import CheckboxRadio from 'vue-checkbox-radio';
 import anime from 'animejs'
@@ -8,11 +8,13 @@ import vSelect from 'vue-select'
 import Dropd from 'vue-dropd'
 import CountryFlag  from 'vue-country-flag';
 
-Vue.component('dropd', Dropd)
-Vue.component('v-select', vSelect)
-Vue.component('country-flag', CountryFlag)
+Vue.component('dropd', Dropd);
+Vue.component('v-select', vSelect);
+Vue.component('country-flag', CountryFlag);
+
 
 var axios = require("axios");
+axios.defaults.baseURL = "/api";
 
 Vue.use(CheckboxRadio);
 Vue.use(Tooltip);
@@ -84,7 +86,7 @@ Vue.prototype.$syncTime = function(connection_resolve){
 
 Vue.prototype.$syncTimePing = function(){
 
-  var promise = new Promise((resolve, reject)=>{
+  var promise = new Promise((resolve)=>{
 
     var tm_before_emit = Date.now();
 
@@ -129,7 +131,7 @@ Vue.prototype.$estabilishSocketConnection = function(){
 
   Vue.prototype.$io = require("socket.io-client")();
 
-  Vue.prototype.$io.on("disconnect", (reason)=>{
+  Vue.prototype.$io.on("disconnect", ()=>{
     console.log("disconnect");
   })
 
@@ -144,11 +146,9 @@ Vue.prototype.$estabilishSocketConnection = function(){
   })
 
   var connection_resolve;
-  var connection_reject;
 
-  Vue.prototype.$bus.connection_promise = new Promise((resolve_,reject_)=>{
+  Vue.prototype.$bus.connection_promise = new Promise((resolve_)=>{
     connection_resolve = resolve_;
-    connection_reject = reject_;
   })
 
   if(Vue.prototype.$io.connected){
@@ -161,23 +161,13 @@ Vue.prototype.$estabilishSocketConnection = function(){
   }
 }
 
-
-
-
-
 window.lag = 0;
 
-var app = new Vue({
-  el: '#app',
+new Vue({
   render: h => h(App),
-  mounted: function(){
+    mounted: function(){
 
-    Vue.prototype.$estabilishSocketConnection();
+     Vue.prototype.$estabilishSocketConnection();
 
-  }
-})
-
-
-
-
-window.app = app;
+    }
+}).$mount('#app')

@@ -1,6 +1,5 @@
 
 var circleArcCollision = require("./circle-arc-collision.js")
-var circlesCollision = require("./circle-circle-collision.js")
 var lineCircleCollision = require("line-circle-collision");
 var Arc = require("./arc.js");
 
@@ -85,7 +84,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
               angle_90 = -90;
             }
 
-            var c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2},
+            let c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2},
               new Arc( player_against.curpath.arc_point.x, player_against.curpath.arc_point.y, player_against.r, getRad(player_against.curpath.starting_angle), getRad(player_against.curpath.angle + angle_90), player_against.weight, counterclockwise  )
             );
             if(c){
@@ -100,7 +99,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           if(player_against.curpath.dir == "straight"){
 
-            var c = false;
+            let c = false;
 
             var vertices = player_against.getVerticesFromLinePath();
              c = (
@@ -145,7 +144,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           if(path.body.type=="arc")
           {
-            var c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2}, path.body.arc);
+            let c = circleArcCollision({ x: player.curpath.end.x, y: player.curpath.end.y, r: player.weight/2}, path.body.arc);
             if(c){
               console.log("Collision details:");
               console.log(player.name + " collided with " + player_against.name + " at " + tm);
@@ -157,7 +156,7 @@ GameState.prototype.detectCollision = function(players, game_serv, tm){
 
           if(path.body.type=="line")
           {
-            var c = (
+            let c = (
               lineCircleCollision( path.body.vertices[0], path.body.vertices[1], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
               lineCircleCollision( path.body.vertices[2], path.body.vertices[3], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||
               lineCircleCollision( path.body.vertices[3], path.body.vertices[0], [player.curpath.end.x, player.curpath.end.y], player.weight/2 ) ||

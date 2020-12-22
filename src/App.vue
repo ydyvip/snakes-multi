@@ -20,12 +20,12 @@
 
       <div class="main-box" v-if="!loggedAs">
 
-        <form-switcher v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"/>
+        <form-switcher v-on:successfull-login="(username, balance)=>{ this.loggedAs=username, this.balance=balance}"></form-switcher>
 
-        <switcher-ranking-stats v-if="!loggedAs && !replayActive"/>
+        <switcher-ranking-stats v-if="!loggedAs && !replayActive"></switcher-ranking-stats>
 
       </div>
-      
+
       <template v-if="loggedAs">
         <user-panel
           v-bind:username="loggedAs" v-bind:balance="balance"  v-bind:in_game="in_game"
@@ -51,15 +51,15 @@
 
 <script>
 
-  var FormSwitcher = require("./FormSwitcher.vue");
-  var UserPanel = require("./UserPanel.vue");
-  var Game = require("./Game.vue");
-  var GameList = require("./GameList.vue");
-  var FaucetList = require("./FaucetList.vue");
-  var GameReplay = require("./GameReplay.vue");
-  var WithdrawalPanel = require("./WithdrawalPanel.vue");
-  var ReferrerPanel = require("./ReferrerPanel.vue");
-  var SwitcherRankingStats = require("./SwitcherRankingStats.vue")
+  var FormSwitcher = require("./FormSwitcher.vue").default;
+  var UserPanel = require("./UserPanel.vue").default;
+  var Game = require("./Game.vue").default;
+  var GameList = require("./GameList.vue").default;
+  var FaucetList = require("./FaucetList.vue").default;
+  var GameReplay = require("./GameReplay.vue").default;
+  var WithdrawalPanel = require("./WithdrawalPanel.vue").default;
+  var ReferrerPanel = require("./ReferrerPanel.vue").default;
+  var SwitcherRankingStats = require("./SwitcherRankingStats.vue").default;
 
   module.exports = {
     name: 'app',

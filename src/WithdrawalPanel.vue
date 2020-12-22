@@ -1,7 +1,7 @@
 <template>
     <div class="main-box">
 
-      <a v-on:click.prevent="$emit('returnToPreviousPanel')" class="href username" href=""><<< Return</a>
+      <a v-on:click.prevent="$emit('returnToPreviousPanel')" class="href username" href="">&lt;&lt;&lt; Return</a>
 
       <div class="box">
         Balance total: {{this.balance_total}} BCH Satoshi

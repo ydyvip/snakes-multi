@@ -5,7 +5,7 @@
 
 
     <table>
-      <tr v-for="(rank_item, index) of rank_arr">
+      <tr v-for="(rank_item, index) of rank_arr" :key="rank_item.username">
         <td><country-flag v-if="rank_item.country_code" v-bind:country="rank_item.country_code" size='small'/></td>
         <td><div>{{cur_page*15+index+1}}</div></td>
         <td><div>{{rank_item.username}}</div></td>
@@ -14,9 +14,9 @@
     </table>
 
     <div style="margin: 0 auto; text-align: center;">
-      <a href="" class="href" v-on:click.prevent="previousPage">&lt;&lt;</a>
-      &nbsp;&nbsp;&nbsp; {{cur_page+1}} &nbsp;&nbsp;&nbsp;
-      <a href="" class="href" v-on:click.prevent="nextPage">&gt;&gt;</a>
+      <a href="" class="href page-mover" v-on:click.prevent="previousPage">&lt;&lt;</a>
+        {{cur_page+1}}
+      <a href="" class="href page-mover" v-on:click.prevent="nextPage">&gt;&gt;</a>
     </div>
 
   </div>
@@ -128,6 +128,10 @@
 .ranking_box table{
   border-collapse: collapse;
   margin: 10px auto 10px;
+}
+
+.page-mover {
+  margin: 18px;
 }
 
 </style>

@@ -1,18 +1,17 @@
 {
-  "name": "turning-with-satoshi",
-  "main": "app.js",
-  "description": "turning-with-satoshi",
-  "version": "1.0.0",
+  "name": "snakes-multi",
+  "main": "main.js",
+  "description": "snakes-multi",
+  "version": "0.1.0",
   "author": "",
-  "private": true,
   "scripts": {
-    "watchify": "watchify -vd -p browserify-hmr -e src/main.js -o public/build.js",
-    "serve": "nodemon --watch API --watch DB --watch index.js --watch socket.js --watch lobby.js --watch src/game/ --watch src/game/PlayerSrv.js --watch /src/game index.js NO_CYPRESS",
-    "dev": "npm-run-all --parallel watchify",
-    "cypress:open": "cypress open",
-    "build": "cross-env NODE_ENV=production BABEL_ENV=production browserify -g envify src/main.js > public/build.js"
+    "server": "nodemon --watch API --watch DB --watch index.js --watch socket.js --watch lobby.js --watch src/game/ --watch src/game/PlayerSrv.js --watch /src/game app.js NO_CYPRESS",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "animate-group": "^1.0.5",
     "animate.css": "^4.1.1",
     "animejs": "^2.2.0",
     "axios": "^0.18.0",
@@ -23,6 +22,7 @@
     "browser-process-hrtime": "^0.1.2",
     "connect-mongo": "^2.0.1",
     "cookie-parser": "^1.4.5",
+    "core-js": "^3.8.1",
     "dotenv": "^8.2.0",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
@@ -38,44 +38,45 @@
     "random-js": "^1.0.8",
     "random-key": "^0.3.2",
     "setimmediate": "^1.0.5",
-    "socket.io": "^2.1.0",
+    "socket.io": "^2.3.0",
     "timesync": "^1.0.4",
     "triangle-circle-collision": "^1.0.4",
     "velocity-animate": "^2.0.5",
-    "vue": "^2.0.1",
+    "vue": "^2.6.11",
     "vue-checkbox-radio": "^0.6.0",
     "vue-country-flag": "^2.0.1",
     "vue-directive-tooltip": "1.4.5",
     "vue-dropd": "^1.1.4-alpha.0",
+    "vue-loader": "^16.1.2",
     "vue-select": "^2.4.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
-    "babel-minify": "^0.5.1",
-    "babel-preset-es2015": "^6.0.0",
-    "babel-preset-minify": "^0.5.1",
-    "babelify": "^10.0.0",
-    "browserify": "^13.0.1",
-    "browserify-hmr": "^0.3.7",
-    "cross-env": "^1.0.6",
-    "envify": "^3.4.1",
-    "nodemon": "^1.18.6",
-    "npm-run-all": "^2.1.2",
-    "uglify-js": "^2.5.0",
-    "vueify": "^9.1.0",
-    "watchify": "^3.4.0"
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "nodemon": "^1.19.4",
+    "vue-template-compiler": "^2.6.11"
   },
-  "optionalDependencies": {
-    "cypress": "^3.1.5"
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
   },
-  "browserify": {
-    "transform": [
-      "vueify",
-      "babelify"
-    ]
-  },
-  "browser": {
-    "vue": "vue/dist/vue.common.js"
-  }
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }

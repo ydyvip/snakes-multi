@@ -5,7 +5,7 @@
     <div v-if="socket_connected">
       <transition mode="out-in" @enter="fadeIn(...arguments, 600)" @leave="fadeOut(...arguments, 600)">
         <div v-if="menu_active" class="game-list-menu" key="m_a1" >
-          <a  v-on:click.prevent="menu_active = false" class="href" href=""><b>New >></b></a>
+          <a  v-on:click.prevent="menu_active = false" class="href" href=""><b>New game >></b></a>
         </div>
 
         <div v-else class="game-list-menu" key="m_a2">
@@ -18,22 +18,24 @@
         </div>
       </transition>
 
-      <div v-for="game in games" style="display: flex;" class="room" v-bind:class="{ current_room: currentRoom == game.name }">
-        <img v-for="n in game.cnt_players"v-bind:title="game.players.join()" src="img/circle-24-on.svg" />
-        <img v-for="n in game.max_players-game.cnt_players" src="img/circle-24-off.svg" />
-        <img v-for="n in 6-game.max_players" src="img/circle-24-off.svg" style="visibility: hidden" />
-        <span class="game-name">{{game.name}}</span>
-        <span class="bet">{{game.bet}} Satoshi</span>
+      <animate-group animation-in="zoomIn" animation-out="zoomOut">
+        <div v-for="game in games" style="display: flex; align-items: center;" class="room" v-bind:class="{ current_room: currentRoom == game.name }" :key="game.name">
+          <img v-for="n in game.cnt_players" v-bind:title="n" src="img/circle-24-on.svg" :key="n+'a'" />
+          <img v-for="n in game.max_players-game.cnt_players" v-bind:title="n" src="img/circle-24-off.svg" :key="n+'b'" />
+          <img v-for="n in 6-game.max_players" v-bind:title="n" src="img/circle-24-off.svg" style="visibility: hidden" :key="n+'c'" />
+          <span class="game-name">{{game.name}}</span>
+          <span class="bet">{{game.bet}} Satoshi</span>
 
-        <transition @enter="fadeIn(...arguments, 200)" @leave="fadeOut(...arguments, 200)">
-          <button v-if="isJoinButtonActive(game)" class="btn padding-2 green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;" key="join-btn">
-            <b>JOIN</b>
-          </button>
-          <button v-else-if="isLeaveButtonActive(game)" class="btn padding-2 red" v-on:click="leaveRoom" style="margin-left: 50px;" key="leave-btn">
-            <b>LEAVE</b>
-          </button>
-        </transition>
-      </div>
+          <transition @enter="fadeIn(...arguments, 200)" @leave="fadeOut(...arguments, 200)">
+            <button v-if="isJoinButtonActive(game)" class="btn padding-2 green" v-on:click="joinToGame( game.name )" style="margin-left: 50px;" key="join-btn">
+              <b>JOIN</b>
+            </button>
+            <button v-else-if="isLeaveButtonActive(game)" class="btn padding-2 red" v-on:click="leaveRoom" style="margin-left: 50px;" key="leave-btn">
+              <b>LEAVE</b>
+            </button>
+          </transition>
+        </div>
+    </animate-group>
     </div>
     <div v-else>
       <div v-if="socket_connection_err=='already connected'">
@@ -49,11 +51,13 @@
 </template>
 
 <script>
+  const AnimateGroup = require('animate-group').default;
 
   module.exports = {
-
+    components: {
+      AnimateGroup
+    },
     data: ()=>({
-
       games: [],
       socket_connected: false,
       socket_connection_err: null,
@@ -84,7 +88,6 @@
           err_timeout: null
         }
       }
-
     }),
 
     mounted: function(){
@@ -155,7 +158,7 @@
           }
           if(res=="connected"){
             this.socket_connected = true;
-            this.socket_connection_err = null;;
+            this.socket_connection_err = null;
             this.$io.emit("getgamelist");
           }
 
@@ -357,7 +360,6 @@
 
 </script>
 
-
 <style>
 
 .vue-tooltip.tooltip-custom {
@@ -414,7 +416,6 @@ img {
   height: 18px;
   margin-right: 5px;
   position: relative;
-  top: 3px;
 }
 
 </style>

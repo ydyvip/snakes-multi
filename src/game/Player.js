@@ -1,4 +1,3 @@
-var circleArcCollision = require("./circle-arc-collision.js");
 var Arc = require("./arc.js");
 
 function getRad(degree){
@@ -408,21 +407,21 @@ Player.prototype.changeDir = function(new_dir, tm, id){
 
     type = "input";
 
-	  next_path_id = id = this.id_cnt++;
+    next_path_id = id = this.id_cnt++;
 
   }
   if(id=="qc" || id=="gap_start" || id=="gap_end"){
 
     type = id;
 
-	  next_path_id = id;
+    next_path_id = id;
 
   }
   var input = {
-  	type: type,
-  	dir: new_dir,
-  	tm: tm,
-  	id: id
+    type: type,
+    dir: new_dir,
+    tm: tm,
+    id: id
   };
   var rebuilded = this.saveInputInHistory(input);
 
@@ -432,7 +431,7 @@ Player.prototype.changeDir = function(new_dir, tm, id){
   if(rebuilded){
     console.log("REBUILDED new curpath:");
     console.log(this.curpath);
-	  return;
+    return;
   }
 
   this.recomputeCurpath(tm);
@@ -689,7 +688,7 @@ Player.prototype.clearFurtherPaths = function(tm, include, pop_last){
     return;
 
   if(!include){
-    for(var i = this.paths.length-1; i>=0; i--){
+    for(let i = this.paths.length-1; i>=0; i--){
       if(this.paths[i].body.tm > tm )
       {
         this.paths.splice(i,1);
@@ -697,7 +696,7 @@ Player.prototype.clearFurtherPaths = function(tm, include, pop_last){
     }
   }
   else{
-    for(var i = this.paths.length-1; i>=0; i--){
+    for(let i = this.paths.length-1; i>=0; i--){
       if(this.paths[i].body.tm >= tm )
       {
         this.paths.splice(i,1);
@@ -768,8 +767,6 @@ Player.prototype.reduction2 = function(id){
 Player.prototype.clearInputHistoryAfter = function( id){
 
 	var idx = -1; // idx of lagged input
-	var reinsertQc = false;
-	var dirBeforeQc = null;
 
 	for(var i = 0; i<this.inputs_history.length; i++){
 		if(this.inputs_history[i].id == id)
@@ -777,7 +774,7 @@ Player.prototype.clearInputHistoryAfter = function( id){
 	}
 
 	var inputs_after_lagged = this.inputs_history.slice(idx+1);
-	var inputs_after_lagged = inputs_after_lagged.filter((input_item)=>{
+	inputs_after_lagged = inputs_after_lagged.filter((input_item)=>{
 		if(input_item.type=="gap_start" || input_item.type == "gap_end" || input_item.type == "qc" ||  input_item.type == "killed")
 		{
 			return true;
@@ -832,13 +829,13 @@ Player.prototype.rebuildPaths = function(tm_to_curpath){
 
     var input = this.inputs_history[i];
 
-  	var next_path_id;
-  	if(input.type == "gap_start" || input.type == "gap_end" || input.type == "qc"){
-  		next_path_id = input.type;
-  	}
-  	else{
-  		next_path_id = input.id;
-  	}
+    var next_path_id;
+    if(input.type == "gap_start" || input.type == "gap_end" || input.type == "qc"){
+      next_path_id = input.type;
+    }
+    else{
+      next_path_id = input.id;
+    }
 
     this.recomputeCurpath(input.tm, working_curpath);
     var done_path = this.getPathBodyFromCurpath(working_curpath);
@@ -949,7 +946,7 @@ Player.prototype.saveInputInHistory = function(input, skip_paths_rebuild = false
 
   if(rebuild_path_history && !skip_paths_rebuild){
     this.rebuildPaths();
-	  return true;
+    return true;
   }
 
 
@@ -1003,19 +1000,6 @@ Player.prototype.processInput = function(io, dir ){
   }
 
 
-
-}
-
-Player.prototype.inGap = function(tm){
-
-  return false;
-  if(!this.gap_ref)
-    return;
-
-  if(tm>this.gap_ref.tm_gapstart && tm<=this.gap_ref.tm_gapend)
-    return true;
-
-  return false;
 
 }
 
@@ -1075,8 +1059,5 @@ Player.prototype.compareArrsTm = function(lag_vector){
   console.log(this.arr_tm_after);
 
 }
-
-var random = require("random-js")();
-
 
 module.exports = Player;

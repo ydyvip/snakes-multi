@@ -110,7 +110,7 @@ Gap.prototype.renewGap = function(tm_gapstart){
 
   this.promise_sync.then( ()=>{
 
-    this.promise_sync = new Promise((resolve,reject)=>{
+    this.promise_sync = new Promise((resolve)=>{
 
       this.resolve_promise = resolve;
 
@@ -204,7 +204,7 @@ Gap.prototype.startGap = function(){
 
 Gap.prototype.endGap = function(){
 
-  var path = this.player_ref.changeDir(this.player_ref.curpath.dir, this.tm_gapend, "gap_end");
+  this.player_ref.changeDir(this.player_ref.curpath.dir, this.tm_gapend, "gap_end");
 
   if(this.server_side){
     this.renewGap();

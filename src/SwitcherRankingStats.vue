@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="switcher-box">
-      <a class="switcher" v-bind:class="{ active: activeTabComp == tab.comp}" v-for="tab in tabs" v-on:click="activeTabComp = tab.comp">
+      <a class="switcher" v-bind:class="{ active: activeTabComp == tab.comp}" v-for="tab in tabs" v-on:click="activeTabComp = tab.comp" :key="tab.text">
         {{tab.text}}
       </a>
     </div>
@@ -13,8 +13,8 @@
 
 <script>
 
-  var Stats = require("./Stats.vue");
-  var Ranking = require("./Ranking.vue");
+  var Stats = require("./Stats.vue").default;
+  var Ranking = require("./Ranking.vue").default;
 
   var tabs = [
     {

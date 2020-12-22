@@ -9,13 +9,14 @@
             <th>Timer</th>
             <th>Visit</th>
           </tr>
-          <tr v-for="faucet in faucet_list">
+          <tr v-for="faucet in faucet_list" :key="faucet.name">
             <td>{{faucet.name}}</td>
             <td>{{faucet.reward}}</td>
             <td>{{faucet.timer}}</td>
             <td v-if="!faucet.countdown">
-              <a v-if="faucet.name='Snakes-Multi.win'" class="href" v-on:click.prevent="visitInternal(faucet)" href="">Visit >></a>
-              <a v-else class="href" v-bind:href="faucet.url" target="_blank"         </td>
+              <a v-if="faucet.name=='Snakes-Multi.win'" class="href" v-on:click.prevent="visitInternal(faucet)" href="">Visit >></a>
+              <a v-else class="href" v-bind:href="faucet.url" target="_blank"> Visit >></a>
+            </td>
             <td v-if="faucet.countdown">
               {{ checkZero(faucet.countdown.getMinutes()+"") + ":" + checkZero(faucet.countdown.getSeconds()+"") }}
             </td>
@@ -42,8 +43,8 @@
 
 <script>
 
-  var NewFaucetForm = require("./NewFaucetForm.vue");
-  var FaucetManager = require("./FaucetManager.vue");
+  var NewFaucetForm = require("./NewFaucetForm.vue").default;
+  var FaucetManager = require("./FaucetManager.vue").default;
 
   module.exports = {
 
@@ -141,9 +142,6 @@
             var last_visited = res.data.when;
             var ms_to_complete_timer = last_visited + internal_faucet.timer * 60 * 1000 - cur_date;
             internal_faucet.countdown = new Date(ms_to_complete_timer);
-
-          }
-          else{
 
           }
 

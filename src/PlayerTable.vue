@@ -110,7 +110,7 @@
             }
           })
 
-          var max = 0;
+          //var max = 0;
 
           if(this.player_table[0].points>=this.first_to_reach){
             this.game_winner = this.player_table[0].points;

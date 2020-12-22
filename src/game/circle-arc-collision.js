@@ -50,8 +50,8 @@ function circleArcCollision (circle, arc ){
 
     var collides = false;
 
-	  var cx = ax;
-	  var cy = ay;
+    var cx = ax;
+    var cy = ay;
 
     var dx = bx - cx; //[bx, by] = ball coords
     var dy = by - cy; //[cx, cy] = center coords

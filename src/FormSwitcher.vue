@@ -3,7 +3,7 @@
 
   <div>
     <div class="switcher-box">
-      <a class="switcher" v-bind:class="{ active: activeTabComp == tab.comp}" v-for="tab in tabs" v-on:click="activeTabComp = tab.comp">
+      <a class="switcher" v-bind:class="{ active: activeTabComp == tab.comp}" v-for="tab in tabs" :key="tab.text" v-on:click="activeTabComp = tab.comp">
         {{tab.text}}
       </a>
     </div>
@@ -15,8 +15,8 @@
 
 <script>
 
-  var LoginForm = require("./LoginForm.vue");
-  var RegisterForm = require("./RegisterForm.vue");
+  var LoginForm = require("./LoginForm.vue").default;
+  var RegisterForm = require("./RegisterForm.vue").default;
 
   var tabs = [
     {

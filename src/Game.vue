@@ -25,8 +25,10 @@
     <transition name="slow_connection_warrning">
       <div v-if="slow_connection_warrning" class="slow-connection-box">
         <div>SLOW CONNECTION</div>
-        <div>We can not process your actions !</br>
-        Your internet is too slow</div>
+        <div>
+          We can not process your actions ! <br/>
+          Your internet is too slow
+        </div>
       </div>
     </transition>
   </div>
@@ -46,7 +48,7 @@
   var players = [];
   var player_me = null;
 
-  var PlayerTable = require("./PlayerTable.vue");
+  var PlayerTable = require("./PlayerTable.vue").default;
 
   // required by gameloop to work on clientside
   process.hrtime = require('browser-process-hrtime');
@@ -58,19 +60,7 @@
   var Player = require("./game/Player.js");
   var GameState = require("./game/GameState.js");
   var GapController = require("./game/breakdown.js");
-  var circleArcCollision = require("./game/circle-arc-collision.js");
 
-  var arc = require("./game/arc.js");
-  var circle = require("./game/circle.js");
-
-
-
-  function setupAuthorativeServer(io, gamestate, gamereplay){
-
-
-
-
-  };
 
   function setupKeyboard(io){
 
@@ -243,8 +233,8 @@
         player_me = null;
         this.veog = true;
 
-        for(var p of players){
-          p = null;
+        for(let i = 0; i<players.length; i++){
+          players[i] = null;
         }
 
         players = [];
@@ -255,7 +245,7 @@
 
       mountClientSideHandlers: function(gamereplay){
 
-        this.$io.on("dirchanged", (playername, newdir, tm, done_path)=>{
+        this.$io.on("dirchanged", (playername, newdir, tm)=>{
 
           for( let player_item of players){
 
@@ -429,10 +419,6 @@
 
       canvas = document.getElementById("canvas");
 
-      canvas.addEventListener("mousemove", function(e){
-
-      })
-
       if(!canvas.getContext){
         return;
       }
@@ -483,7 +469,7 @@
 
       // Mount gameloop
 
-      this.gameloop_id = gameloop.setGameLoop( (delta)=>{
+      this.gameloop_id = gameloop.setGameLoop( ()=>{
 
         if(this.veog){
           return;

@@ -52,7 +52,7 @@ var session_middleware = session({
    saveUninitialized: false
 });
 
-app.use(express.static("public"));
+app.use(express.static("dist"));
 app.use(cookieParser());
 app.use(session_middleware);
 app.use(bodyparser.json());
@@ -60,15 +60,21 @@ app.use(bodyparser.urlencoded());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/login", login);
-app.use("/register", register);
-app.use("/faucet", faucet);
-app.use("/referrer", referrer);
-app.use("/gamereplays", gamereplays);
+const ApiRouter = express.Router();
+
+ApiRouter.use("/login", login);
+ApiRouter.use("/register", register);
+ApiRouter.use("/faucet", faucet);
+ApiRouter.use("/referrer", referrer);
+ApiRouter.use("/gamereplays", gamereplays);
+
+app.use('/api', ApiRouter);
+
 
 // Mount io server
 var io = require("socket.io")(http);
 
+io.set('origins', '*:*');
 io.use(passportSocketIo.authorize({
   key:          'connect.sid',       // the name of the cookie where express/connect stores its session_id
   secret:       secret,    // the session_secret to parse the cookie

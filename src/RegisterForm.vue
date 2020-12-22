@@ -21,8 +21,8 @@
       <div class="form-input-err" v-if="email.err">{{email.err}}</div>
     </div>
     <div class="form-input">
-      <input v-if="cookie_lock" class="input" placeholder="Referrer" type="text" v-model="referrer.val + '   (Refferer)'" v-bind:readonly="cookie_lock" />
-      <input v-else class="input" placeholder="Referrer (optional)" type="text" v-model="referrer.val" v-bind:readonly="cookie_lock" />
+      <input v-if="cookie_lock" class="input" type="text" :value="referrer.val" v-bind:readonly="cookie_lock" />
+      <input v-else class="input" type="text" placeholder="Referrer (optional)"  v-model="referrer.val" v-bind:readonly="cookie_lock" />
       <div class="form-input-err" v-if="referrer.err">{{referrer.err}}</div>
     </div>
 
@@ -34,8 +34,6 @@
 </template>
 
 <script>
-
-  var random = require("random-js")();
 
   module.exports = {
 
@@ -54,10 +52,10 @@
         err: null
       },
       referrer: {
-        cookie_lock: false,
         val: "",
         err: null
       },
+      cookie_lock: false,
 
       success: null,
       msg: "Thank you for your registration! Your account is now ready to use."
@@ -135,5 +133,3 @@
 </script>
 
 <style scoped src="./css/Form.css"/>
-
-</style>

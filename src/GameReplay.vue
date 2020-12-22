@@ -6,7 +6,7 @@
       <tr>
         <th>Name</th><th>Winner</th><th>Reward</th><th></th>
       </tr>
-      <tr v-for="replay_item of replaylist">
+      <tr v-for="replay_item of replaylist" :key="replay_item._id">
         <td>{{replay_item.name}}</td>
         <td>{{replay_item.winner}}</td>
         <td>{{replay_item.reward}}</td>
@@ -22,7 +22,7 @@
 
 <script>
 
-  var Game = require("./Game.vue");
+  var Game = require("./Game.vue").default;
 
   module.exports = {
 

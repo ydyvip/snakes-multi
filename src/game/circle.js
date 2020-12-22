@@ -1,5 +1,5 @@
 
-function circle(x,y,r){
+function circle(x,y,r, ctx){
   this.x = x;
   this.y = y;
   this.r = r;

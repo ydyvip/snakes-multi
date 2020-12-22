@@ -49,7 +49,7 @@
 
     watch: {
 
-      selected: function(newv, oldv){
+      selected: function(newv){
 
         if(!newv){
           this.faucet_details = null;

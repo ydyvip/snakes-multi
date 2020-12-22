@@ -1,7 +1,7 @@
 <template>
   <div class="main-box">
 
-    <a style="display: inline-block; margin-bottom: 40px; " v-on:click.prevent="$emit('returnToPreviousPanel')" class="href username" href=""><<< Return</a>
+    <a style="display: inline-block; margin-bottom: 40px; " v-on:click.prevent="$emit('returnToPreviousPanel')" class="href username" href="">&lt;&lt;&lt; Return</a>
 
     <div class="box">
 
