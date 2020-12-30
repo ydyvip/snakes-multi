@@ -36,9 +36,11 @@ db.promise.then( function(){
 })
 
 var secret = "u7ga782";
+console.log(db.clientPromise)
 var session_store = new MongoStore(
   {
-    dbPromise: db.promise
+    clientPromise: db.clientInstancePromise.promise,
+    dbName: db.dbName
   }
 );
 
