@@ -6,7 +6,7 @@
 
     <table>
       <tr v-for="(rank_item, index) of rank_arr" :key="rank_item.username">
-        <td><country-flag v-if="rank_item.country_code" v-bind:country="rank_item.country_code" size='small'/></td>
+        <td><country-flag v-if="rank_item.country_code" v-bind:country="rank_item.country_code" size='big'/></td>
         <td><div>{{cur_page*15+index+1}}</div></td>
         <td><div>{{rank_item.username}}</div></td>
         <td><div>{{rank_item.points}}</div></td>
