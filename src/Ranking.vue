@@ -14,7 +14,7 @@
     </table>
 
     <div style="margin: 0 auto; text-align: center;">
-      <a href="" class="href page-mover" v-on:click.prevent="previousPage">&lt;&lt;</a>
+      <a v-visible="cur_page!==0" href="" class="href page-mover" v-on:click.prevent="previousPage">&lt;&lt;</a>
         {{cur_page+1}}
       <a href="" class="href page-mover" v-on:click.prevent="nextPage">&gt;&gt;</a>
     </div>
@@ -44,7 +44,7 @@
 
       pageRequest: function(page_dir){
 
-        var page_requested;
+        let page_requested;
 
         if(page_dir==0){
           page_requested = 0;

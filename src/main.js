@@ -12,6 +12,11 @@ Vue.component('dropd', Dropd);
 Vue.component('v-select', vSelect);
 Vue.component('country-flag', CountryFlag);
 
+Vue.directive('visible', function(el, binding) {
+	console.log("visible");
+	console.log(binding.value);
+	el.style.visibility = binding.value ? 'visible' : 'hidden';
+});
 
 var axios = require("axios");
 axios.defaults.baseURL = "/api";
