@@ -4,18 +4,26 @@
 
     <div>
       <div class="header" v-if="!loggedAs">
-        <a href="https://discord.gg/qPxRMFt" target="_blank" >
-          <img src="img/discord.svg" class="header-button"/>
-        </a>
-        <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber" target="_blank">
-          <img src="img/yt.svg" class="header-button"/>
-        </a>
-        <a href="https://www.facebook.com/Snakes-Multiwin-100576191845447" target="_blank">
-          <img src="img/fb.svg" class="header-button"/>
-        </a>
-        <a href="https://www.instagram.com/snakes_multi/?hl=pl" target="_blank">
-          <img src="img/instagram.svg" class="header-button"/>
-        </a>
+        <div class="link-wrapper">
+          <a href="https://discord.gg/qPxRMFt" target="_blank" >
+            <img src="img/discord.svg" class="header-button"/>
+          </a>
+        </div>
+        <div class="link-wrapper">
+          <a href="https://www.youtube.com/channel/UCKMHjImuw3gwdz4eFZeiOPQ?view_as=subscriber" target="_blank">
+            <img src="img/yt.svg" class="header-button"/>
+          </a>
+        </div>
+        <div class="link-wrapper">
+          <a href="https://www.facebook.com/Snakes-Multiwin-100576191845447" target="_blank">
+            <img src="img/fb.svg" class="header-button"/>
+          </a>
+        </div>
+        <div class="link-wrapper">
+          <a href="https://www.instagram.com/snakes_multi/?hl=pl" target="_blank">
+            <img src="img/instagram.svg" class="header-button"/>
+          </a>
+        </div>
       </div>
 
       <div class="main-box" v-if="!loggedAs">
@@ -205,9 +213,12 @@
     justify-content: center;
   }
 
+  .link-wrapper {
+    margin: 0 7px;
+  }
+
   .header > a {
     display: inline-block;
-    margin: 0 7px;
   }
 
   .header-button {
