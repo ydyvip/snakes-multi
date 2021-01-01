@@ -14,9 +14,9 @@
     </table>
 
     <div style="margin: 0 auto; text-align: center;">
-      <a href="" class="href page-mover" v-on:click.prevent="previousPage">&lt;&lt;</a>
+      <a href="" class="href page-mover" :class="{hidden: cur_page===0}" v-on:click.prevent="previousPage">&lt;&lt;</a>
         {{cur_page+1}}
-      <a href="" class="href page-mover" v-on:click.prevent="nextPage">&gt;&gt;</a>
+      <a href="" class="href page-mover" :class="{hidden: isCurPageLast}" v-on:click.prevent="nextPage">&gt;&gt;</a>
     </div>
 
   </div>
@@ -25,13 +25,12 @@
 
 <script>
 
-
-
   module.exports = {
 
     data: ()=>({
       rank_arr: [],
-      cur_page: 0
+      cur_page: 0,
+      isCurPageLast: false
     }),
 
     mounted: function(){
@@ -44,7 +43,7 @@
 
       pageRequest: function(page_dir){
 
-        var page_requested;
+        let page_requested;
 
         if(page_dir==0){
           page_requested = 0;
@@ -65,6 +64,7 @@
           }
 
           this.rank_arr = response.data.ranking;
+          this.isCurPageLast = response.data.isCurPageLast;
 
           this.cur_page = page_requested;
 
@@ -124,12 +124,10 @@
 .ranking_box td:nth-child(4){
   padding: 4px 10px;
 }
-
 .ranking_box table{
   border-collapse: collapse;
   margin: 10px auto 10px;
 }
-
 .page-mover {
   margin: 18px;
 }

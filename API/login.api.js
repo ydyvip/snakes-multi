@@ -161,16 +161,17 @@ router.post("/ranking", (req,res)=>{
   }
 
   Users.getRanking(req.body.page)
-  .then((arr_players)=>{
+  .then((ranking)=>{
+    const {arr_players, isCurPageLast} = ranking;
 
     if(arr_players.length == 0){
       res.json(null);
       return;
     }
-
     else{
       res.json({
-        ranking: arr_players
+        ranking: arr_players,
+        isCurPageLast: isCurPageLast
       });
     }
 

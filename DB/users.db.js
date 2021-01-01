@@ -261,12 +261,28 @@ var users = {
           _id: 0
         },
         skip: skip,
-        limit: limit,
+        limit: limit+1,
         sort: {
           points: -1
         }
       }
-    ).toArray();
+    ).toArray()
+    .then((docs)=>{
+      if(docs.length === limit+1){
+          docs.pop();
+          return {
+            arr_players: docs,
+            isCurPageLast: false
+          }
+      }
+      else {
+        return {
+          arr_players: docs,
+          isCurPageLast: true
+        }
+      }
+    })
+    ;
 
   },
 
