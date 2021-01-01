@@ -206,6 +206,7 @@
   }
 
   .header > a {
+    display: inline-block;
     margin: 0 7px;
   }
 
