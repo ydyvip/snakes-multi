@@ -268,21 +268,18 @@ var users = {
       }
     ).toArray()
     .then((docs)=>{
+      let isCurPageLast = true;
+
       if(docs.length === limit+1){
           docs.pop();
-          return {
-            arr_players: docs,
-            isCurPageLast: false
-          }
+          isCurPageLast = false;
       }
-      else {
-        return {
-          arr_players: docs,
-          isCurPageLast: true
-        }
+
+      return {
+        arr_players: docs,
+        isCurPageLast: isCurPageLast
       }
-    })
-    ;
+
 
   },
 
